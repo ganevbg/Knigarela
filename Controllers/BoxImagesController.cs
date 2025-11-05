@@ -44,4 +44,11 @@ public class BoxImagesController : ControllerBase
         var ok = await boxImageService.ReorderAsync(boxId, body.Items.Select(x => (x.ImageId, x.SortOrder)).ToList());
         return ok ? Ok() : NotFound();
     }
+
+    [HttpDelete]
+    public async Task<IActionResult> DeleteAll(Guid boxId)
+    {
+        var deleted = await boxImageService.DeleteAllForBoxAsync(boxId);
+        return deleted ? NoContent() : NotFound();
+    }
 }
