@@ -1,0 +1,6 @@
+@Knigarela.Api_HostAddress = http://localhost:5209
+
+GET {{Knigarela.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
