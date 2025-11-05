@@ -1,4 +1,8 @@
-﻿using Knigarela.Infrastructure.Data;
+﻿using Knigarela.Api.Mapping;
+using Knigarela.Api.Configuration;
+using Knigarela.Core.Interfaces;
+using Knigarela.Infrastructure.Data;
+using Knigarela.Infrastructure.Files;
 using Knigarela.Infrastructure.Identity;
 using Knigarela.Services.Implementations;
 using Knigarela.Services.Interfaces;
@@ -46,7 +50,12 @@ builder.Services.AddAuthorization();
 // DI
 builder.Services.AddScoped<IAuthService, AuthService>();
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+    }); ;
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -76,9 +85,24 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+builder.Services.AddAutoMapper(cfg =>
+{
+    cfg.AddProfile<MappingConfiguration>();
+});
+
+// infrastructure
+builder.Services.AddScoped<IFileStorageSettings, FileStorageSettings>();
+builder.Services.AddScoped<IFileStorage, LocalFileStorage>();
+
+// services
+builder.Services.AddScoped<IBoxService, BoxService>();
+builder.Services.AddScoped<IBoxImageService, BoxImageService>();
+
 var app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI();
+
+app.UseStaticFiles();
 
 app.UseAuthentication();
 app.UseAuthorization();
