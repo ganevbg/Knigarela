@@ -100,6 +100,7 @@ builder.Services.AddScoped<IBoxService, BoxService>();
 builder.Services.AddScoped<IBoxImageService, BoxImageService>();
 builder.Services.AddScoped<IClientService, ClientService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<IClientAddressService, ClientAddressService>();
 
 var app = builder.Build();
 app.UseSwagger();
