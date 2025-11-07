@@ -1,9 +1,7 @@
 ﻿namespace Knigarela.Core.Entities;
 
-public class BoxImage
+public class BoxImage : BaseEntity
 {
-    public Guid Id { get; set; }
- 
     public Guid BoxId { get; set; }
     
     public string Url { get; set; }

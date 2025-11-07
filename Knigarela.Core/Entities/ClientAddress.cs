@@ -2,9 +2,8 @@
 
 namespace Knigarela.Core.Entities;
 
-public class ClientAddress
+public class ClientAddress : BaseEntity
 {
-    public Guid Id { get; set; }
     public Guid ClientId { get; set; }
 
     public string City { get; set; }

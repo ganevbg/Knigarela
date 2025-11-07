@@ -1,9 +1,9 @@
-﻿namespace Knigarela.Core.Entities;
+﻿using Knigarela.Core.Enums;
 
-public class OrderItem
+namespace Knigarela.Core.Entities;
+
+public class OrderItem : BaseEntity
 {
-    public Guid Id { get; set; }
-
     public Guid OrderId { get; set; }
     public Order Order { get; set; }
 
@@ -11,6 +11,10 @@ public class OrderItem
     public Box Box { get; set; }
 
     public int Quantity { get; set; }
+
+    public PurchaseType PurchaseType { get; set; }
+
     public decimal UnitPrice { get; set; }  // price at order time
+    
     public decimal TotalPrice => Quantity * UnitPrice;
 }

@@ -3,6 +3,7 @@ using System;
 using Knigarela.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Knigarela.Infrastructure.Migrations
 {
     [DbContext(typeof(KnigarelaDbContext))]
-    partial class KnigarelaDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251107231332_baseEntityClassAdded")]
+    partial class baseEntityClassAdded
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -123,6 +126,7 @@ namespace Knigarela.Infrastructure.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("Notes")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Phone")
@@ -217,9 +221,6 @@ namespace Knigarela.Infrastructure.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("Note")
-                        .HasColumnType("text");
-
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -245,9 +246,6 @@ namespace Knigarela.Infrastructure.Migrations
 
                     b.Property<Guid>("OrderId")
                         .HasColumnType("uuid");
-
-                    b.Property<int>("PurchaseType")
-                        .HasColumnType("integer");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("integer");
@@ -503,24 +501,30 @@ namespace Knigarela.Infrastructure.Migrations
                                 .HasColumnType("uuid");
 
                             b1.Property<string>("AddressText")
+                                .IsRequired()
                                 .HasColumnType("text");
 
                             b1.Property<string>("City")
+                                .IsRequired()
                                 .HasColumnType("text");
 
                             b1.Property<int>("DeliveryType")
                                 .HasColumnType("integer");
 
                             b1.Property<string>("OfficeId")
+                                .IsRequired()
                                 .HasColumnType("text");
 
                             b1.Property<string>("OfficeName")
+                                .IsRequired()
                                 .HasColumnType("text");
 
                             b1.Property<string>("Phone")
+                                .IsRequired()
                                 .HasColumnType("text");
 
                             b1.Property<string>("SiteId")
+                                .IsRequired()
                                 .HasColumnType("text");
 
                             b1.HasKey("OrderId");

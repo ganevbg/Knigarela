@@ -1,9 +1,10 @@
-﻿using Knigarela.Api.Mapping;
-using Knigarela.Api.Configuration;
+﻿using Knigarela.Api.Configuration;
+using Knigarela.Api.Mapping;
 using Knigarela.Core.Interfaces;
 using Knigarela.Infrastructure.Data;
 using Knigarela.Infrastructure.Files;
 using Knigarela.Infrastructure.Identity;
+using Knigarela.Services;
 using Knigarela.Services.Implementations;
 using Knigarela.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -97,6 +98,8 @@ builder.Services.AddScoped<IFileStorage, LocalFileStorage>();
 // services
 builder.Services.AddScoped<IBoxService, BoxService>();
 builder.Services.AddScoped<IBoxImageService, BoxImageService>();
+builder.Services.AddScoped<IClientService, ClientService>();
+builder.Services.AddScoped<IOrderService, OrderService>();
 
 var app = builder.Build();
 app.UseSwagger();

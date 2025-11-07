@@ -37,7 +37,7 @@ namespace Knigarela.Infrastructure.Migrations
                     FullName = table.Column<string>(type: "text", nullable: false),
                     Email = table.Column<string>(type: "text", nullable: false),
                     Phone = table.Column<string>(type: "text", nullable: false),
-                    Notes = table.Column<string>(type: "text", nullable: false),
+                    Notes = table.Column<string>(type: "text", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     email_normalized = table.Column<string>(type: "text", nullable: true, computedColumnSql: "lower(\"Email\")", stored: true),
                     fullname_normalized = table.Column<string>(type: "text", nullable: true, computedColumnSql: "lower(\"FullName\")", stored: true),

@@ -33,7 +33,6 @@ public class KnigarelaDbContext : IdentityDbContext<ApplicationUser>
             .HasIndex(b => b.Slug)
             .IsUnique();
 
-        // 🔹 Client relationships
         builder.Entity<Client>()
             .HasMany(c => c.Addresses)
             .WithOne(a => a.Client)
@@ -46,7 +45,6 @@ public class KnigarelaDbContext : IdentityDbContext<ApplicationUser>
             .HasForeignKey(o => o.ClientId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        // 🔹 Order relationships
         builder.Entity<Order>().OwnsOne(o => o.Address);
 
         builder.Entity<Order>()
@@ -55,14 +53,12 @@ public class KnigarelaDbContext : IdentityDbContext<ApplicationUser>
             .HasForeignKey(i => i.OrderId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        // 🔹 OrderItem → Box
         builder.Entity<OrderItem>()
             .HasOne(i => i.Box)
             .WithMany()
             .HasForeignKey(i => i.BoxId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        // 🔹 Client normalization (index)
         builder.Entity<Client>(e =>
         {
             e.Property(x => x.Id)
