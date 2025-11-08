@@ -3,10 +3,12 @@
 import { useState } from "react"
 import Link from "next/link"
 import { useAuth } from "@/context/AuthContext";
+import { useCart } from "@/context/CartContext";
 
 export function Navbar() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
     const { isAuthed, logout } = useAuth();
+    const { totalCount } = useCart();
 
     return (
         <nav className="sticky top-0 z-50 w-full bg-white shadow-sm">
@@ -60,7 +62,7 @@ export function Navbar() {
                                 />
                             </svg>
                             <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-[#D176A3] text-xs text-white">
-                                2
+                                {totalCount}
                             </span>
                         </Link>
                     </div>
@@ -83,7 +85,7 @@ export function Navbar() {
                                 />
                             </svg>
                             <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-[#D176A3] text-xs text-white">
-                                2
+                                {totalCount}
                             </span>
                         </Link>
                         <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="text-gray-700 hover:text-[#D176A3]">

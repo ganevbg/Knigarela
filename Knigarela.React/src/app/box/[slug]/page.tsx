@@ -9,6 +9,7 @@ import { getBoxBySlug } from "@/api/boxes";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
 import { addToCart } from "@/api/cart";
+import { useCart } from "@/context/CartContext";
 
 type Box = {
     id: string;
@@ -21,17 +22,17 @@ type Box = {
     imageUrls?: string[];
 };
 
-
-async function handleAddToCart(boxId: string, purchaseType: string = "single") {
-    await addToCart(boxId, 1, purchaseType);
-    alert("Добавено в количката!");
-}
-
 export default function BoxDetailPage() {
     const { slug } = useParams<{ slug: string }>();
     const [box, setBox] = useState<Box | null>(null);
     const [loading, setLoading] = useState(true);
     const [purchaseType, setPurchaseType] = useState<"single" | "subscription">("single")
+    const { refresh } = useCart();
+
+    const handleAddToCart = async (boxId: string, purchaseType: string = "single") => {
+        await addToCart(boxId, 1, purchaseType);
+        await refresh();
+    }
 
     useEffect(() => {
         async function loadBox() {

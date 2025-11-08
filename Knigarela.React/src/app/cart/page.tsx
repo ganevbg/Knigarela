@@ -1,62 +1,21 @@
 ﻿"use client";
 
-import { useState, useEffect } from "react";
 import { Navbar } from "@/components/navbar";
 import Image from "next/image";
-import { getCart, addToCart, removeFromCart, clearCart } from "@/api/cart";
-
-interface CartItem {
-    boxId: string;
-    title: string;
-    unitPrice: number;
-    quantity: number;
-    imageUrl: string;
-    purchaseType: string;
-}
+import { Button } from "@/components/ui/button";
+import { useCart } from "@/context/CartContext";
 
 export default function CartPage() {
-    const [cartItems, setCartItems] = useState<CartItem[]>([]);
-    const [loading, setLoading] = useState(true);
+    const { items, add, remove, clear } = useCart();
     const baseUrl = process.env.NEXT_PUBLIC_API_URL;
-
-    useEffect(() => {
-        getCart().then(setCartItems).finally(() => setLoading(false));
-    }, []);
-
-    const updateQuantity = async (boxId: string, newQuantity: number, purchaseType: string = "single") => {
-        if (newQuantity < 1) {
-            setCartItems(await removeFromCart(boxId, purchaseType));
-            return;
-        }
-        await addToCart(boxId, newQuantity - (cartItems.find(i => i.boxId === boxId && i.purchaseType === purchaseType)?.quantity || 0), purchaseType);
-        setCartItems(await getCart());
-    };
-
-    const removeItem = async (boxId: string, purchaseType: string = "single") => {
-        setCartItems(await removeFromCart(boxId, purchaseType));
-    };
-
-    const subtotal = cartItems.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0);
+    const subtotal = items.reduce((sum, i) => sum + i.unitPrice * i.quantity, 0);
     const shipping = 5.99;
     const total = subtotal + shipping;
-
-    if (loading) {
-        return (
-            <>
-                <Navbar />
-                <main className="flex h-[60vh] items-center justify-center text-gray-500">
-                    Зареждане...
-                </main>
-            </>
-        );
-    }
 
     return (
         <>
             <Navbar />
-
             <main className="min-h-screen">
-                {/* Header */}
                 <header className="w-full px-4 py-12" style={{ backgroundColor: "#D176A3" }}>
                     <div className="mx-auto max-w-7xl">
                         <h1 className="text-center text-3xl font-semibold text-white md:text-4xl">
@@ -65,18 +24,15 @@ export default function CartPage() {
                     </div>
                 </header>
 
-                {/* Cart Content */}
                 <section className="w-full bg-white px-4 py-16">
                     <div className="mx-auto max-w-7xl">
-                        {cartItems.length === 0 ? (
+                        {items.length === 0 ? (
                             <div className="py-16 text-center">
                                 <div className="mb-4 text-6xl">🛒</div>
-                                <h2 className="mb-4 text-2xl font-semibold" style={{ color: "#2d2d2d" }}>
+                                <h2 className="mb-4 text-2xl font-semibold text-[#2d2d2d]">
                                     Вашата количка е празна
                                 </h2>
-                                <p className="mb-8 text-gray-600">
-                                    Добавете книги, за да започнете вашето приключение
-                                </p>
+                                <p className="mb-8 text-gray-600">Добавете книги, за да започнете вашето приключение</p>
                                 <a
                                     href="/all-boxes"
                                     className="inline-block rounded-full px-8 py-3 font-medium text-white transition-all duration-300 hover:shadow-lg"
@@ -87,9 +43,8 @@ export default function CartPage() {
                             </div>
                         ) : (
                             <div className="grid gap-8 lg:grid-cols-3">
-                                {/* Cart Items */}
                                 <div className="space-y-4 lg:col-span-2">
-                                    {cartItems.map((item) => (
+                                    {items.map((item) => (
                                         <div key={`${item.boxId}-${item.purchaseType}`} className="flex gap-4 bg-white p-4 shadow-md">
                                             <div className="relative h-32 w-32 flex-shrink-0 overflow-hidden">
                                                 <Image
@@ -102,10 +57,8 @@ export default function CartPage() {
 
                                             <div className="flex flex-1 flex-col justify-between">
                                                 <div>
-                                                    <h3 className="mb-1 text-lg font-semibold" style={{ color: "#2d2d2d" }}>
-                                                        {item.title}
-                                                    </h3>
-                                                    <p className="text-xl font-semibold" style={{ color: "#D176A3" }}>
+                                                    <h3 className="mb-1 text-lg font-semibold text-[#2d2d2d]">{item.title}</h3>
+                                                    <p className="text-xl font-semibold text-[#D176A3]">
                                                         {item.unitPrice.toFixed(2)} лв
                                                     </p>
                                                 </div>
@@ -113,7 +66,9 @@ export default function CartPage() {
                                                 <div className="flex items-center gap-4">
                                                     <div className="flex items-center gap-2">
                                                         <button
-                                                            onClick={() => updateQuantity(item.boxId, item.quantity - 1, item.purchaseType)}
+                                                            onClick={() =>
+                                                                add(item.boxId, item.purchaseType, -1)
+                                                            }
                                                             className="w-8 h-8 rounded-full flex items-center justify-center text-white"
                                                             style={{ backgroundColor: "#D176A3" }}
                                                         >
@@ -121,7 +76,9 @@ export default function CartPage() {
                                                         </button>
                                                         <span className="w-8 text-center font-medium">{item.quantity}</span>
                                                         <button
-                                                            onClick={() => updateQuantity(item.boxId, item.quantity + 1, item.purchaseType)}
+                                                            onClick={() =>
+                                                                add(item.boxId, item.purchaseType, 1)
+                                                            }
                                                             className="w-8 h-8 rounded-full flex items-center justify-center text-white"
                                                             style={{ backgroundColor: "#D176A3" }}
                                                         >
@@ -130,7 +87,7 @@ export default function CartPage() {
                                                     </div>
 
                                                     <button
-                                                        onClick={() => removeItem(item.boxId, item.purchaseType)}
+                                                        onClick={() => remove(item.boxId, item.purchaseType)}
                                                         className="ml-auto text-gray-500 hover:text-red-500 transition-colors duration-200"
                                                     >
                                                         <svg
@@ -157,7 +114,7 @@ export default function CartPage() {
                                 {/* Summary */}
                                 <div className="lg:col-span-1">
                                     <div className="sticky top-24 p-6 shadow-md" style={{ backgroundColor: "#fff5fa" }}>
-                                        <h2 className="mb-6 text-2xl font-semibold" style={{ color: "#2d2d2d" }}>
+                                        <h2 className="mb-6 text-2xl font-semibold text-[#2d2d2d]">
                                             Обобщение
                                         </h2>
                                         <div className="mb-6 space-y-3">
@@ -175,33 +132,25 @@ export default function CartPage() {
                                             </div>
                                         </div>
 
-                                        <button
+                                        <Button
                                             className="w-full rounded-full py-3 font-medium text-white transition-all duration-300 hover:shadow-lg"
                                             style={{ backgroundColor: "#D176A3" }}
                                         >
                                             Към плащане
-                                        </button>
+                                        </Button>
 
-                                        <a
-                                            href="/"
-                                            className="mt-4 block text-center text-gray-600 transition-colors duration-200 hover:text-[#D176A3]"
+                                        <button
+                                            onClick={clear}
+                                            className="mt-4 block w-full text-center text-gray-600 transition-colors duration-200 hover:text-[#D176A3]"
                                         >
-                                            Продължи с пазаруването
-                                        </a>
+                                            Изчисти количката
+                                        </button>
                                     </div>
                                 </div>
                             </div>
                         )}
                     </div>
                 </section>
-
-                <footer className="w-full px-4 py-8" style={{ backgroundColor: "#fff5fa" }}>
-                    <div className="mx-auto max-w-7xl text-center">
-                        <p className="text-sm font-light" style={{ color: "#6b6b6b" }}>
-                            © 2025 Knigarela – Твоето приказно време започва тук.
-                        </p>
-                    </div>
-                </footer>
             </main>
         </>
     );

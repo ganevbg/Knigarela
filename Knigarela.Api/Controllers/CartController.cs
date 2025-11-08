@@ -38,6 +38,11 @@ public class CartController : ControllerBase
         if (existing != null)
         {
             existing.Quantity += cartItem.Quantity;
+
+            if(existing.Quantity == 0)
+            {
+                items.Remove(existing);
+            }
         }
         else
         {
