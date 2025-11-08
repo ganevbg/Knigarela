@@ -4,6 +4,7 @@ import { Navbar } from "@/components/navbar";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/context/CartContext";
+import { CartItemCard } from "@/components/cart/CartItemCard";
 
 export default function CartPage() {
     const { items, add, remove, clear } = useCart();
@@ -44,71 +45,20 @@ export default function CartPage() {
                         ) : (
                             <div className="grid gap-8 lg:grid-cols-3">
                                 <div className="space-y-4 lg:col-span-2">
-                                    {items.map((item) => (
-                                        <div key={`${item.boxId}-${item.purchaseType}`} className="flex gap-4 bg-white p-4 shadow-md">
-                                            <div className="relative h-32 w-32 flex-shrink-0 overflow-hidden">
-                                                <Image
-                                                    src={`${baseUrl}${item.imageUrl}` || "/placeholder.svg"}
-                                                    alt={item.title}
-                                                    fill
-                                                    className="object-cover transition-transform duration-400 hover:scale-110"
-                                                />
-                                            </div>
-
-                                            <div className="flex flex-1 flex-col justify-between">
-                                                <div>
-                                                    <h3 className="mb-1 text-lg font-semibold text-[#2d2d2d]">{item.title}</h3>
-                                                    <p className="text-xl font-semibold text-[#D176A3]">
-                                                        {item.unitPrice.toFixed(2)} лв
-                                                    </p>
-                                                </div>
-
-                                                <div className="flex items-center gap-4">
-                                                    <div className="flex items-center gap-2">
-                                                        <button
-                                                            onClick={() =>
-                                                                add(item.boxId, item.purchaseType, -1)
-                                                            }
-                                                            className="w-8 h-8 rounded-full flex items-center justify-center text-white"
-                                                            style={{ backgroundColor: "#D176A3" }}
-                                                        >
-                                                            -
-                                                        </button>
-                                                        <span className="w-8 text-center font-medium">{item.quantity}</span>
-                                                        <button
-                                                            onClick={() =>
-                                                                add(item.boxId, item.purchaseType, 1)
-                                                            }
-                                                            className="w-8 h-8 rounded-full flex items-center justify-center text-white"
-                                                            style={{ backgroundColor: "#D176A3" }}
-                                                        >
-                                                            +
-                                                        </button>
-                                                    </div>
-
-                                                    <button
-                                                        onClick={() => remove(item.boxId, item.purchaseType)}
-                                                        className="ml-auto text-gray-500 hover:text-red-500 transition-colors duration-200"
-                                                    >
-                                                        <svg
-                                                            xmlns="http://www.w3.org/2000/svg"
-                                                            className="h-5 w-5"
-                                                            fill="none"
-                                                            viewBox="0 0 24 24"
-                                                            stroke="currentColor"
-                                                        >
-                                                            <path
-                                                                strokeLinecap="round"
-                                                                strokeLinejoin="round"
-                                                                strokeWidth={2}
-                                                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                                                            />
-                                                        </svg>
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ))}
+                                        {items.map((item) => (
+                                            <CartItemCard
+                                                key={`${item.boxId}-${item.purchaseType}`}
+                                                boxId={item.boxId}
+                                                title={item.title}
+                                                unitPrice={item.unitPrice}
+                                                quantity={item.quantity}
+                                                imageUrl={item.imageUrl}
+                                                purchaseType={item.purchaseType}
+                                                baseUrl={baseUrl}
+                                                onRemove={remove}
+                                                onUpdateQuantity={add}
+                                            />
+                                        ))}
                                 </div>
 
                                 {/* Summary */}
