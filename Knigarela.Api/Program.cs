@@ -4,6 +4,7 @@ using Knigarela.Core.Interfaces;
 using Knigarela.Infrastructure.Data;
 using Knigarela.Infrastructure.Files;
 using Knigarela.Infrastructure.Identity;
+using Knigarela.Infrastructure.Settings;
 using Knigarela.Services;
 using Knigarela.Services.Implementations;
 using Knigarela.Services.Interfaces;
@@ -47,6 +48,13 @@ builder.Services.AddAuthentication(options =>
 });
 
 builder.Services.AddAuthorization();
+
+// Bind the config section
+builder.Services.Configure<SpeedySettings>(
+    builder.Configuration.GetSection("Speedy"));
+
+// Register the HTTP client with typed config
+builder.Services.AddHttpClient<ISpeedyService, SpeedyService>();
 
 // DI
 builder.Services.AddScoped<IAuthService, AuthService>();

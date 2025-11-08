@@ -1,19 +1,21 @@
 ﻿using Knigarela.Core.Entities;
+using Knigarela.Core.Enums;
 using Knigarela.Infrastructure.Data;
 using Knigarela.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using System;
 using System.Text.RegularExpressions;
 
 public class ClientService : IClientService
 {
     private readonly KnigarelaDbContext _db;
+    private readonly ISpeedyService _speedy;
     private static readonly Regex PhoneRegex =
         new(@"^(0\d{9}|\+359\d{9}|00359\d{9})$", RegexOptions.Compiled);
 
-    public ClientService(KnigarelaDbContext db)
+    public ClientService(KnigarelaDbContext db, ISpeedyService speedy)
     {
         _db = db;
+        _speedy = speedy;
     }
 
     public async Task<Client> FindOrCreateClientAsync(string fullName, string email, string phone)
@@ -69,7 +71,9 @@ public class ClientService : IClientService
 
     public async Task<Client> CreateAsync(Client client)
     {
+        await ValidateCourierAddressesAsync(client);
         client.CreatedAt = DateTime.UtcNow;
+
         _db.Clients.Add(client);
         await _db.SaveChangesAsync();
         return client;
@@ -77,8 +81,13 @@ public class ClientService : IClientService
 
     public async Task<Client?> UpdateAsync(Guid id, Client updated)
     {
-        var existing = await _db.Clients.FindAsync(id);
+        var existing = await _db.Clients
+            .Include(c => c.Addresses)
+            .FirstOrDefaultAsync(c => c.Id == id);
+
         if (existing == null) return null;
+
+        await ValidateCourierAddressesAsync(updated);
 
         _db.Entry(existing).CurrentValues.SetValues(updated);
         await _db.SaveChangesAsync();
@@ -99,6 +108,24 @@ public class ClientService : IClientService
         return true;
     }
 
+    private async Task ValidateCourierAddressesAsync(Client client)
+    {
+        if (client.Addresses == null || client.Addresses.Count == 0)
+            return;
+
+        foreach (var address in client.Addresses)
+        {
+            if (address.Type == DeliveryType.Courier)
+            {
+                if (!string.IsNullOrWhiteSpace(address.OfficeId) &&
+                    !await _speedy.ValidateOfficeAsync(address.OfficeId))
+                    throw new InvalidOperationException($"Invalid Speedy office ID: {address.OfficeId}");
+            }
+
+            if (!await _speedy.ValidateSiteAsync(address.SiteId))
+                throw new InvalidOperationException($"Invalid Speedy site ID: {address.SiteId}");
+        }
+    }
 
     private static string NormalizePhone(string phone)
     {
