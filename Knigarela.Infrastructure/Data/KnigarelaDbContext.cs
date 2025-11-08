@@ -11,13 +11,18 @@ public class KnigarelaDbContext : IdentityDbContext<ApplicationUser>
         : base(options) { }
 
     public DbSet<Box> Boxes => Set<Box>();
+
     public DbSet<BoxImage> BoxImages => Set<BoxImage>();
 
     public DbSet<Client> Clients { get; set; }
+
     public DbSet<ClientAddress> ClientAddresses { get; set; }
 
     public DbSet<Order> Orders { get; set; }
+
     public DbSet<OrderItem> OrderItems { get; set; }
+
+    public DbSet<RefreshToken> RefreshTokens { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

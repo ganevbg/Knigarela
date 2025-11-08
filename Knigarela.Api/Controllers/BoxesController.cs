@@ -21,7 +21,6 @@ public class BoxesController : ControllerBase
     }
 
     [HttpGet]
-    [AllowAnonymous]
     public async Task<IActionResult> GetAll()
     {
         var boxes = await _boxService.GetAllAsync();
@@ -30,7 +29,6 @@ public class BoxesController : ControllerBase
     }
 
     [HttpGet("{id:guid}")]
-    [AllowAnonymous]
     public async Task<IActionResult> GetById(Guid id)
     {
         var box = await _boxService.GetByIdAsync(id);

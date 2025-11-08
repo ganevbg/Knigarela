@@ -1,5 +1,4 @@
 ﻿using Knigarela.Api.Dtos.Orders;
-using Knigarela.Services.Implementations;
 using Knigarela.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -42,6 +41,7 @@ public class OrderController : ControllerBase
     }
 
     [HttpGet]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> GetAll()
     {
         var list = await _orderService.GetAllAsync();

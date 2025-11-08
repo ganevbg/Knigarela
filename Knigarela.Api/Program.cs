@@ -110,11 +110,37 @@ builder.Services.AddScoped<IClientService, ClientService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IClientAddressService, ClientAddressService>();
 
+
+var allowedOrigins = builder.Configuration
+    .GetSection("AllowedFrontendOrigins")
+    .Get<string[]>() ?? Array.Empty<string>();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("FrontendPolicy", policy =>
+    {
+        policy.WithOrigins(allowedOrigins)
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
+    });
+});
+
 var app = builder.Build();
 app.UseSwagger();
-app.UseSwaggerUI();
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Knigarela API v1");
+    c.RoutePrefix = "swagger";
+
+    // Optional — restrict Swagger UI to allowed origins only
+    // (useful when deployed behind reverse proxy)
+    var env = app.Environment.EnvironmentName;
+    Console.WriteLine($"Swagger available in {env} environment.");
+});
 
 app.UseStaticFiles();
+app.UseCors("FrontendPolicy");
 
 app.UseAuthentication();
 app.UseAuthorization();
