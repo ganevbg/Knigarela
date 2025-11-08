@@ -19,4 +19,6 @@ public class BoxDto
     public bool IsActive { get; set; }
 
     public string? MainImageUrl { get; set; }
+
+    public string[] ImageUrls { get; set; }
 }

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -10,12 +10,13 @@ type Box = {
   title: string;
   slug: string;
   description: string;
-  MainImageUrl: string;
+  mainImageUrl: string;
 };
 
 export function ActiveBox() {
   const [box, setBox] = useState<Box | null>(null);
   const [loading, setLoading] = useState(true);
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL;
 
   useEffect(() => {
     async function fetchBox() {
@@ -33,7 +34,7 @@ export function ActiveBox() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-[300px] text-gray-500">
+      <div className="flex min-h-[300px] items-center justify-center text-gray-500">
         Зареждане...
       </div>
     );
@@ -41,7 +42,7 @@ export function ActiveBox() {
 
   if (!box) {
     return (
-      <div className="flex justify-center items-center min-h-[300px] text-gray-500">
+      <div className="flex min-h-[300px] items-center justify-center text-gray-500">
         Няма активна кутия в момента.
       </div>
     );
@@ -50,10 +51,10 @@ export function ActiveBox() {
   // pick main or first image
   // optional: extract month/year if you store CreatedAt
   const label ="Текуща кутия";
-
+    const imgUrl = `${baseUrl}${box.mainImageUrl}`;
   return (
     <div
-      className="bg-white shadow-lg overflow-hidden animate-fade-in"
+      className="animate-fade-in overflow-hidden bg-white shadow-lg"
       style={{
         animationDelay: "0.4s",
         opacity: 0,
@@ -62,11 +63,11 @@ export function ActiveBox() {
     >
       <div className="flex flex-col md:flex-row">
         {/* Image Section */}
-        <div className="md:w-1/2 relative">
-          <div className="aspect-square md:aspect-auto md:h-full relative">
-            <img src={box.MainImageUrl} alt={box.title} className="w-full h-full object-cover" />
+        <div className="relative md:w-1/2">
+          <div className="relative aspect-square md:aspect-auto md:h-full">
+                      <img src={imgUrl} alt={box.title} className="h-full w-full object-cover" />
             <div
-              className="absolute top-4 right-4 px-4 py-2 rounded-full text-white text-sm font-medium shadow-md"
+              className="absolute top-4 right-4 rounded-full px-4 py-2 text-sm font-medium text-white shadow-md"
               style={{ backgroundColor: "#ffcfe7" }}
             >
               {label}
@@ -75,18 +76,18 @@ export function ActiveBox() {
         </div>
 
         {/* Content Section */}
-        <div className="md:w-1/2 p-8 md:p-12 flex flex-col justify-center">
-          <h2 className="text-3xl md:text-4xl font-semibold mb-4" style={{ color: "#2d2d2d" }}>
+        <div className="flex flex-col justify-center p-8 md:w-1/2 md:p-12">
+          <h2 className="mb-4 text-3xl font-semibold md:text-4xl" style={{ color: "#2d2d2d" }}>
             {box.title}
           </h2>
-          <p className="text-base md:text-lg leading-relaxed mb-6" style={{ color: "#6b6b6b" }}>
+          <p className="mb-6 text-base leading-relaxed md:text-lg" style={{ color: "#6b6b6b" }}>
             {box.description}
           </p>
-          <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex flex-col gap-4 sm:flex-row">
             <Link href={`/box/${box.slug ?? box.id}`}>
               <Button
                 size="lg"
-                className="w-full sm:w-auto text-white font-medium rounded-full px-8 py-6 text-base shadow-md hover:shadow-lg transition-all duration-300"
+                className="w-full rounded-full px-8 py-6 text-base font-medium text-white shadow-md transition-all duration-300 hover:shadow-lg sm:w-auto"
                 style={{ backgroundColor: "#ffcfe7" }}
               >
                 Виж повече
