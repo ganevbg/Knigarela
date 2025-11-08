@@ -13,4 +13,6 @@ public interface IBoxService
     Task<Box?> UpdateAsync(Guid id, Box box);
 
     Task<bool> DeleteAsync(Guid id);
+
+    Task<Box?> GetActiveBox();
 }

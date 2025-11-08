@@ -20,11 +20,19 @@ public class BoxesController : ControllerBase
         _mapper = mapper;
     }
 
-    [HttpGet]
+    [HttpGet("")]
     public async Task<IActionResult> GetAll()
     {
         var boxes = await _boxService.GetAllAsync();
         var result = _mapper.Map<IEnumerable<BoxDto>>(boxes);
+        return Ok(result);
+    }
+
+    [HttpGet("active")]
+    public async Task<IActionResult> GetActiveBox()
+    {
+        var box = await _boxService.GetActiveBox();
+        var result = _mapper.Map<ActiveBoxDto>(box);
         return Ok(result);
     }
 

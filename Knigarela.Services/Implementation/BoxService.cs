@@ -79,4 +79,9 @@ public class BoxService : IBoxService
         await _db.SaveChangesAsync();
         return true;
     }
+
+    public async Task<Box?> GetActiveBox()
+    {
+        return await _db.Boxes.Include(b => b.Images).FirstOrDefaultAsync(x => x.IsActive);
+    }
 }

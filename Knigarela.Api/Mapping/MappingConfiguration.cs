@@ -13,6 +13,11 @@ namespace Knigarela.Api.Mapping
                     opt => opt.MapFrom(src => src.Images.FirstOrDefault(i => i.IsMain)!.Url));
 
             CreateMap<UpsertBoxDto, Box>();
+            CreateMap<Box, ActiveBoxDto>()
+                .ForMember(dest => dest.Description,
+                    opt => opt.MapFrom(src => src.Description.Length > 200 ? $"{src.Description.Substring(0, 200)}..." : src.Description))
+                .ForMember(dest => dest.MainImageUrl,
+                    opt => opt.MapFrom(src => src.Images.FirstOrDefault(i => i.IsMain)!.Url));
         }
     }
 }
