@@ -153,7 +153,7 @@ export default function BoxDetailPage() {
                                                             Поръчай само тази кутия
                                                         </p>
                                                     </div>
-                                                    <p className="text-xl font-bold" style={{ color: "#D176A3" }}>
+                                                    <p className="pl-2 text-xl font-bold" style={{ color: "#D176A3" }}>
                                                         {box.singlePrice} лв.
                                                     </p>
                                                 </div>
@@ -175,10 +175,10 @@ export default function BoxDetailPage() {
                                                             Месечен абонамент
                                                         </p>
                                                         <p className="text-sm" style={{ color: "#6b6b6b" }}>
-                                                            Спести 5 лв. на месец
+                                                            Спести {box.singlePrice - box.subscriptionPrice} лв. на месец
                                                         </p>
                                                     </div>
-                                                    <p className="text-xl font-bold" style={{ color: "#D176A3" }}>
+                                                    <p className="pl-2 text-xl font-bold" style={{ color: "#D176A3" }}>
                                                         {box.subscriptionPrice} лв./месец
                                                     </p>
                                                 </div>
