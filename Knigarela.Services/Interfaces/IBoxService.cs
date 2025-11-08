@@ -15,4 +15,6 @@ public interface IBoxService
     Task<bool> DeleteAsync(Guid id);
 
     Task<Box?> GetActiveBox();
+
+    Task<Box?> GetBySlugAsync(string slug);
 }

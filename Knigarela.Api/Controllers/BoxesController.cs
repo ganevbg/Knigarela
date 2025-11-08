@@ -69,4 +69,11 @@ public class BoxesController : ControllerBase
         var deleted = await _boxService.DeleteAsync(id);
         return deleted ? NoContent() : NotFound();
     }
+
+    [HttpGet("{slug}")]
+    public async Task<IActionResult> GetBySlug(string slug)
+    {
+        var box = await _boxService.GetBySlugAsync(slug);
+        return box == null ? NotFound() : Ok(_mapper.Map<BoxDto>(box));
+    }
 }

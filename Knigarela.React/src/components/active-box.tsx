@@ -16,7 +16,7 @@ type Box = {
 export function ActiveBox() {
   const [box, setBox] = useState<Box | null>(null);
   const [loading, setLoading] = useState(true);
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL;
 
   useEffect(() => {
     async function fetchBox() {
@@ -68,7 +68,7 @@ export function ActiveBox() {
                       <img src={imgUrl} alt={box.title} className="h-full w-full object-cover" />
             <div
               className="absolute top-4 right-4 rounded-full px-4 py-2 text-sm font-medium text-white shadow-md"
-              style={{ backgroundColor: "#ffcfe7" }}
+              style={{ backgroundColor: "#D176A3" }}
             >
               {label}
             </div>
@@ -88,7 +88,7 @@ export function ActiveBox() {
               <Button
                 size="lg"
                 className="w-full rounded-full px-8 py-6 text-base font-medium text-white shadow-md transition-all duration-300 hover:shadow-lg sm:w-auto"
-                style={{ backgroundColor: "#ffcfe7" }}
+                style={{ backgroundColor: "#D176A3" }}
               >
                 Виж повече
               </Button>

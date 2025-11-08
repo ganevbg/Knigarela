@@ -1,4 +1,6 @@
-﻿namespace Knigarela.Core.Entities;
+﻿using Knigarela.Core.Enums;
+
+namespace Knigarela.Core.Entities;
 
 public class Box : BaseEntity
 {
@@ -17,4 +19,9 @@ public class Box : BaseEntity
     public bool IsActive { get; set; }
 
     public ICollection<BoxImage> Images { get; set; }
+
+    public decimal GetPrice(PurchaseType type)
+    {
+        return type == PurchaseType.Single ? SinglePrice : SubscriptionPrice;
+    }
 }

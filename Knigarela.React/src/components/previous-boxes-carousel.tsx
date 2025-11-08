@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useRef } from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
@@ -63,44 +63,44 @@ export function PreviousBoxesCarousel() {
       <Button
         variant="outline"
         size="icon"
-        className="absolute left-0 top-1/2 -translate-y-1/2 z-10 rounded-full bg-white shadow-lg border-0 w-12 h-12 hidden md:flex"
+        className="absolute top-1/2 left-0 z-10 hidden h-12 w-12 -translate-y-1/2 rounded-full border-0 bg-white shadow-lg md:flex"
         onClick={() => scroll("left")}
-        style={{ color: "#ffcfe7" }}
+        style={{ color: "#D176A3" }}
       >
-        <ChevronLeft className="w-6 h-6" />
+        <ChevronLeft className="h-6 w-6" />
       </Button>
 
       <Button
         variant="outline"
         size="icon"
-        className="absolute right-0 top-1/2 -translate-y-1/2 z-10 rounded-full bg-white shadow-lg border-0 w-12 h-12 hidden md:flex"
+        className="absolute top-1/2 right-0 z-10 hidden h-12 w-12 -translate-y-1/2 rounded-full border-0 bg-white shadow-lg md:flex"
         onClick={() => scroll("right")}
-        style={{ color: "#ffcfe7" }}
+        style={{ color: "#D176A3" }}
       >
-        <ChevronRight className="w-6 h-6" />
+        <ChevronRight className="h-6 w-6" />
       </Button>
 
       {/* Carousel */}
-      <div ref={carouselRef} className="carousel-container flex gap-6 overflow-x-auto px-4 md:px-12 py-4">
+      <div ref={carouselRef} className="carousel-container flex gap-6 overflow-x-auto px-4 py-4 md:px-12">
         {previousBoxes.map((box, index) => (
           <div
             key={box.id}
-            className="flex-shrink-0 w-64 group cursor-pointer"
+            className="group w-64 flex-shrink-0 cursor-pointer"
             style={{
               animation: `fadeIn 0.8s ease-out ${0.6 + index * 0.1}s forwards`,
               opacity: 0,
             }}
           >
-            <div className="bg-white shadow-md overflow-hidden transition-all duration-300 group-hover:shadow-xl group-hover:scale-105">
-              <div className="aspect-[3/4] relative overflow-hidden">
+            <div className="overflow-hidden bg-white shadow-md transition-all duration-300 group-hover:scale-105 group-hover:shadow-xl">
+              <div className="relative aspect-[3/4] overflow-hidden">
                 <img
                   src={box.image || "/placeholder.svg"}
                   alt={box.title}
-                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                  className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
                 />
               </div>
               <div className="p-4">
-                <p className="text-sm font-medium mb-1" style={{ color: "#ffcfe7" }}>
+                <p className="mb-1 text-sm font-medium" style={{ color: "#D176A3" }}>
                   {box.month}
                 </p>
                 <h3 className="text-lg font-semibold" style={{ color: "#2d2d2d" }}>

@@ -3,6 +3,6 @@
     public enum PurchaseType
     {
         Single = 1,
-        Subscrption = 2,
+        Subscription = 2,
     }
 }

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
@@ -31,19 +31,19 @@ export default function LoginPage() {
   // If already logged in
   if (isAuthed) {
     return (
-      <div className="flex justify-center items-center h-[70vh] text-lg text-[#ffcfe7] font-medium">
+      <div className="flex h-[70vh] items-center justify-center text-lg font-medium text-[#D176A3]">
         Вече сте влезли ✅
       </div>
     );
   }
 
   return (
-    <div className="flex items-center justify-center min-h-[70vh] px-4">
+    <div className="flex min-h-[70vh] items-center justify-center px-4">
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-sm bg-white p-8 rounded-2xl shadow-md border border-gray-100"
+        className="w-full max-w-sm rounded-2xl border border-gray-100 bg-white p-8 shadow-md"
       >
-        <h1 className="text-2xl font-semibold text-center text-[#ffcfe7] mb-6">
+        <h1 className="mb-6 text-center text-2xl font-semibold text-[#D176A3]">
           Вход в Книгарела
         </h1>
 
@@ -54,7 +54,7 @@ export default function LoginPage() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ffcfe7]"
+            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D176A3]"
           />
 
           <input
@@ -63,7 +63,7 @@ export default function LoginPage() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ffcfe7]"
+            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D176A3]"
           />
 
           {error && <p className="text-sm text-red-600">{error}</p>}
@@ -71,7 +71,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-[#ffcfe7] text-white py-2 rounded-lg font-medium hover:bg-[#ff559e] transition-colors duration-200"
+            className="w-full rounded-lg bg-[#D176A3] py-2 font-medium text-white transition-colors duration-200 hover:bg-[#ff559e]"
           >
             {loading ? "Влизане..." : "Вход"}
           </button>

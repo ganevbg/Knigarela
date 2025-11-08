@@ -10,7 +10,7 @@ export default function Home() {
       <Navbar />
 
       <main className="min-h-screen">
-        <header className="w-full px-4 py-16" style={{ backgroundColor: "#ffcfe7" }}>
+              <header className="w-full px-4 py-16" style={{ backgroundColor: "#ffcfe7" }}>
           <div className="mx-auto max-w-7xl text-center">
             <div className="mb-4 flex justify-center">
               <img src="/logo.svg" alt="Книгарела" className="h-20 w-auto" loading="eager" />
@@ -42,21 +42,21 @@ export default function Home() {
             <div className="grid gap-8 md:grid-cols-3">
               <div className="text-center">
                 <div className="mb-4 text-5xl">📚</div>
-                <h3 className="mb-2 text-xl font-semibold" style={{ color: "#ffcfe7" }}>
+                <h3 className="mb-2 text-xl font-semibold" style={{ color: "#D176A3" }}>
                   Внимателно подбрани книги
                 </h3>
                 <p className="text-gray-600">Всяка книга е избрана с любов и внимание към детайла</p>
               </div>
               <div className="text-center">
                 <div className="mb-4 text-5xl">🎁</div>
-                <h3 className="mb-2 text-xl font-semibold" style={{ color: "#ffcfe7" }}>
+                <h3 className="mb-2 text-xl font-semibold" style={{ color: "#D176A3" }}>
                   Изненади всеки месец
                 </h3>
                 <p className="text-gray-600">Получавайте нови литературни приключения на вашата врата</p>
               </div>
               <div className="text-center">
                 <div className="mb-4 text-5xl">💝</div>
-                <h3 className="mb-2 text-xl font-semibold" style={{ color: "#ffcfe7" }}>
+                <h3 className="mb-2 text-xl font-semibold" style={{ color: "#D176A3" }}>
                   Перфектен подарък
                 </h3>
                 <p className="text-gray-600">Идеалният начин да покажете грижа към любителите на книги</p>

@@ -84,4 +84,9 @@ public class BoxService : IBoxService
     {
         return await _db.Boxes.Include(b => b.Images).FirstOrDefaultAsync(x => x.IsActive);
     }
+
+    public async Task<Box?> GetBySlugAsync(string slug)
+    {
+        return await _db.Boxes.Include(b => b.Images).FirstOrDefaultAsync(x => x.Slug.Equals(slug));
+    }
 }
