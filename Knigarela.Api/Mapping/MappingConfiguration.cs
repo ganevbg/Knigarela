@@ -21,7 +21,7 @@ namespace Knigarela.Api.Mapping
 
             CreateMap<Box, PrevBoxDto>()
                .ForMember(dest => dest.MainImageUrl,
-                   opt => opt.MapFrom(src => src.Images.FirstOrDefault(i => i.IsMain)!.ThumbnailUrl));
+                   opt => opt.MapFrom(src => src.Images.FirstOrDefault(i => i.IsMain)!.Url));
             
         }
     }

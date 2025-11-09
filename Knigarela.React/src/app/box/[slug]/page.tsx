@@ -10,6 +10,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
 import { addToCart } from "@/api/cart";
 import { useCart } from "@/context/CartContext";
+import { toast } from 'react-toastify';
 
 type Box = {
     id: string;
@@ -29,10 +30,31 @@ export default function BoxDetailPage() {
     const [purchaseType, setPurchaseType] = useState<"single" | "subscription">("single")
     const { refresh } = useCart();
 
-    const handleAddToCart = async (boxId: string, purchaseType: string = "single") => {
-        await addToCart(boxId, 1, purchaseType);
-        await refresh();
-    }
+    const handleAddToCart = async (
+        boxId: string,
+        purchaseType: string = "single"
+    ) => {
+        try {
+            const result = await addToCart(boxId, 1, purchaseType);
+
+            if (result.success) {
+                toast.success(result.message || "Добавено в количката! 🛒");
+                await refresh();
+            } else {
+                // Handle known error cases
+                if (result.availableQuantity) {
+                    toast.warning(
+                        `Можеш да добавиш само ${result.availableQuantity} налични артикула.`
+                    );
+                } else {
+                    toast.error(result.message || "Грешка при добавяне в количката.");
+                }
+            }
+        } catch (err) {
+            console.error("Add to cart failed:", err);
+            toast.error("Възникна неочаквана грешка. Опитай отново.");
+        }
+    };
 
     useEffect(() => {
         async function loadBox() {

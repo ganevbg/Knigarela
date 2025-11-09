@@ -1,10 +1,10 @@
 ﻿"use client";
 
 import { Navbar } from "@/components/navbar";
-import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/context/CartContext";
 import { CartItemCard } from "@/components/cart/CartItemCard";
+import { Header } from "@/components/header"
 
 export default function CartPage() {
     const { items, add, remove, clear } = useCart();
@@ -17,13 +17,8 @@ export default function CartPage() {
         <>
             <Navbar />
             <main className="min-h-screen">
-                <header className="w-full px-4 py-12" style={{ backgroundColor: "#D176A3" }}>
-                    <div className="mx-auto max-w-7xl">
-                        <h1 className="text-center text-3xl font-semibold text-white md:text-4xl">
-                            Моята количка
-                        </h1>
-                    </div>
-                </header>
+                <Header />
+
 
                 <section className="w-full bg-white px-4 py-16">
                     <div className="mx-auto max-w-7xl">

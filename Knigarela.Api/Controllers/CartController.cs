@@ -3,7 +3,6 @@ using System.Text.Json;
 using Knigarela.Infrastructure.Data;
 using Knigarela.Services.Interfaces;
 using Knigarela.Api.Dtos.Cart;
-using Knigarela.Core.Enums;
 
 namespace Knigarela.Api.Controllers;
 
@@ -31,6 +30,14 @@ public class CartController : ControllerBase
         var box = await boxService.GetByIdAsync(cartItem.BoxId);
         if (box == null)
             return NotFound("Box not found");
+
+        if(cartItem.Quantity > box.Count)
+            return Conflict(new
+            {
+                message = "Not Enought quantity!",
+                error = "InsufficientStock",
+                availableQuantity = box.Count
+            });
 
         var items = GetCart();
         var existing = items.FirstOrDefault(i => i.BoxId == cartItem.BoxId && i.PurchaseType == cartItem.PurchaseType);

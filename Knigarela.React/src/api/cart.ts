@@ -1,13 +1,58 @@
 import { api } from "@/lib/api";
 
-export async function getCart() {
-    const { data } = await api.get("/api/cart");
-    return data;
+export interface AddToCartResponse {
+    success: boolean;
+    message?: string;
+    availableQuantity?: number;
 }
 
-export async function addToCart(boxId: string, quantity: number = 1, purchaseType: string = "single") {
+export async function addToCart(
+    boxId: string,
+    quantity: number = 1,
+    purchaseType: string = "single"
+): Promise<AddToCartResponse> {
     const cartItem = { boxId, quantity, purchaseType };
-    const { data } = await api.post("/api/cart/add", cartItem);
+
+    try {
+        const response = await api.post("/api/cart/add", cartItem);
+        return {
+            success: true,
+            message: "Item added to cart."
+        };
+    } catch (error: any) {
+        if (error.response) {
+            const { status, data } = error.response;
+
+            if (status === 409 && data.error === "InsufficientStock") {
+                return {
+                    success: false,
+                    message: `Only ${data.availableQuantity} items are available.`,
+                    availableQuantity: data.availableQuantity,
+                };
+            }
+
+            if (status === 400) {
+                return {
+                    success: false,
+                    message: data.message || "Invalid cart request.",
+                };
+            }
+
+            return {
+                success: false,
+                message: data.message || "Failed to add to cart.",
+            };
+        }
+
+        return {
+            success: false,
+            message: "Network error - please try again.",
+        };
+    }
+}
+
+export async function getCart() {
+    const { data } = await api.get("/api/cart");
     return data;
 }
 

@@ -25,7 +25,7 @@ export function Navbar() {
                         <Link href="/" className="font-medium text-gray-700 transition-colors duration-200 hover:text-[#D176A3]">
                             Начало
                         </Link>
-                        <a href="all-boxes" className="font-medium text-gray-700 transition-colors duration-200 hover:text-[#D176A3]">
+                        <a href="/all-boxes" className="font-medium text-gray-700 transition-colors duration-200 hover:text-[#D176A3]">
                             Всички кутии
                         </a>
                         <a href="#about" className="font-medium text-gray-700 transition-colors duration-200 hover:text-[#D176A3]">

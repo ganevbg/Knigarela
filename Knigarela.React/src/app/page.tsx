@@ -2,6 +2,7 @@
 import { ActiveBox } from "@/components/active-box"
 import { PreviousBoxesCarousel } from "@/components/previous-boxes-carousel"
 import { Navbar } from "@/components/navbar"
+import { Header } from "@/components/header"
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 export default function Home() {
@@ -10,14 +11,8 @@ export default function Home() {
             <Navbar />
 
             <main className="min-h-screen">
-                <header className="w-full px-4 py-16" style={{ backgroundColor: "#ffcfe7" }}>
-                    <div className="mx-auto max-w-7xl text-center">
-                        <div className="mb-4 flex justify-center">
-                            <img src="/logo.svg" alt="Книгарела" className="h-20 w-auto" loading="eager" />
-                        </div>
-                        <p className="mt-6 text-xl font-light text-white md:text-2xl">Твоето приказно време започва тук.</p>
-                    </div>
-                </header>
+
+                <Header />
 
                 <section className="w-full bg-white px-4 py-16">
                     <div className="mx-auto max-w-5xl">

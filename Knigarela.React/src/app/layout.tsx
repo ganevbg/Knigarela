@@ -5,6 +5,7 @@ import { Analytics } from "@vercel/analytics/next"
 import "./globals.css"
 import { AuthProvider } from "@/context/AuthContext";
 import { CartProvider } from "@/context/CartContext";
+import { ToastContainer } from 'react-toastify';
 
 const poppins = Poppins({
     subsets: ["latin"],
@@ -18,21 +19,6 @@ export const metadata: Metadata = {
     generator: "v0.app",
 }
 
-// export default function RootLayout({
-//   children,
-// }: Readonly<{
-//   children: React.ReactNode
-// }>) {
-//   return (
-//     <html lang="en">
-//       <body className={`${poppins.variable} font-sans antialiased`}>
-//         {children}
-//         <Analytics />
-//       </body>
-//     </html>
-//   )
-// }
-
 export default function RootLayout({ children }: { children: React.ReactNode }) {
     return (
         <html lang="bg">
@@ -43,6 +29,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     </CartProvider>
                 </AuthProvider>
                 <Analytics />
+                <ToastContainer />
             </body>
 
         </html>
