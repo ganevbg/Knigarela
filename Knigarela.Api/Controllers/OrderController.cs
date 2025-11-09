@@ -19,16 +19,20 @@ public class OrderController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateOrderRequest req)
     {
-        var order = await _orderService.CreateOrderAsync(
-            req.FullName,
-            req.Email,
-            req.Phone,
-            req.Address,
-            req.Items.Select(i => (i.BoxId, i.Quantity, i.PurchaseType)).ToList(),
-            req.Notes
-        );
+        var result = await _orderService.CreateOrderWithStockCheckAsync(
+             req.FullName,
+             req.Email,
+             req.Phone,
+             req.Address,
+             req.Items.Select(i => (i.BoxId, i.Quantity, i.PurchaseType)).ToList(),
+             req.Notes,
+             useLock: true
+         );
 
-        return CreatedAtAction(nameof(GetById), new { id = order.Id }, order);
+        if (!result.Success)
+            return Conflict(new { error = "NotEnoughStock", items = result.Issues });
+
+        return CreatedAtAction(nameof(GetById), new { id = result.Order!.Id }, result.Order);
     }
 
     [HttpGet("{id:guid}")]
@@ -55,4 +59,23 @@ public class OrderController : ControllerBase
         var deleted = await _orderService.DeleteAsync(id);
         return deleted ? NoContent() : NotFound();
     }
+
+    [HttpPost("from-cart")]
+    public async Task<IActionResult> CreateFromCart([FromBody] CreateOrderRequest req)
+    {
+        var result = await _orderService.CreateOrderWithStockCheckAsync(
+            req.FullName,
+            req.Email,
+            req.Phone,
+            req.Address,
+            req.Items.Select(i => (i.BoxId, i.Quantity, i.PurchaseType)).ToList(),
+            req.Notes
+        );
+
+        if (!result.Success)
+            return Conflict(new { error = "NotEnoughStock", items = result.Issues });
+
+        return Ok(new { orderId = result.Order!.Id });
+    }
+
 }

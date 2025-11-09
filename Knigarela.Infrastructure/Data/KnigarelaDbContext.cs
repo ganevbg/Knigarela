@@ -101,5 +101,9 @@ public class KnigarelaDbContext : IdentityDbContext<ApplicationUser>
         builder.Entity<BoxImage>()
             .Property(x => x.Id)
             .HasDefaultValueSql("gen_random_uuid()");
+
+        builder.Entity<Box>()
+            .Property<uint>("xmin")
+            .IsRowVersion();
     }
 }

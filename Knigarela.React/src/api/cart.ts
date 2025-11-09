@@ -1,4 +1,4 @@
-import { api } from "@/lib/api";
+﻿import { api } from "@/lib/api";
 
 export interface AddToCartResponse {
     success: boolean;
@@ -17,7 +17,7 @@ export async function addToCart(
         const response = await api.post("/api/cart/add", cartItem);
         return {
             success: true,
-            message: "Item added to cart."
+            message: "Успешно добавяне в количката."
         };
     } catch (error: any) {
         if (error.response) {
@@ -26,7 +26,7 @@ export async function addToCart(
             if (status === 409 && data.error === "InsufficientStock") {
                 return {
                     success: false,
-                    message: `Only ${data.availableQuantity} items are available.`,
+                    message: `Няма достатъчна наличност. Налични са ${data.availableQuantity} броя.`,
                     availableQuantity: data.availableQuantity,
                 };
             }

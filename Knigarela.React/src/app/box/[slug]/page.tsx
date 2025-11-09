@@ -45,9 +45,7 @@ export default function BoxDetailPage() {
             } else {
                 // Handle known error cases
                 if (result.availableQuantity) {
-                    toast.warning(
-                        `Можеш да добавиш само ${result.availableQuantity} налични артикула.`
-                    );
+                    toast.warning(result.message);
                 } else {
                     toast.error(result.message || "Грешка при добавяне в количката.");
                 }

@@ -1,8 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using System.Text.Json;
+﻿using Knigarela.Api.Dtos.Cart;
+using Knigarela.Core.Entities;
 using Knigarela.Infrastructure.Data;
 using Knigarela.Services.Interfaces;
-using Knigarela.Api.Dtos.Cart;
+using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
 
 namespace Knigarela.Api.Controllers;
 
@@ -32,20 +33,23 @@ public class CartController : ControllerBase
             return NotFound("Box not found");
 
         if(cartItem.Quantity > box.Count)
-            return Conflict(new
-            {
-                message = "Not Enought quantity!",
-                error = "InsufficientStock",
-                availableQuantity = box.Count
-            });
+           return ValidateQuantity(box.Count);
 
         var items = GetCart();
-        var existing = items.FirstOrDefault(i => i.BoxId == cartItem.BoxId && i.PurchaseType == cartItem.PurchaseType);
 
+        var existingByBox = items.Where(x => x.BoxId == cartItem.BoxId)?.Sum(x => x.Quantity);
+        if(existingByBox + cartItem.Quantity > box.Count)
+            return ValidateQuantity(box.Count);
+
+        var existing = items.FirstOrDefault(i => i.BoxId == cartItem.BoxId && i.PurchaseType == cartItem.PurchaseType);
         if (existing != null)
         {
-            existing.Quantity+= cartItem.Quantity;
-            if(existing.Quantity == 0)
+            var newQuantity = existing.Quantity+= cartItem.Quantity;
+            if (newQuantity > box.Count)
+              return ValidateQuantity(box.Count);
+
+            existing.Quantity = newQuantity;
+            if (existing.Quantity == 0)
             {
                 items.Remove(existing);
             }
@@ -100,5 +104,15 @@ public class CartController : ControllerBase
     private void SaveCart(List<CartItemDto> items)
     {
         HttpContext.Session.SetString(SessionKey, JsonSerializer.Serialize(items));
+    }
+
+    private IActionResult ValidateQuantity(int availableQuantity)
+    {
+        return Conflict(new
+        {
+            message = "Not Enought quantity!",
+            error = "InsufficientStock",
+            availableQuantity = availableQuantity
+        });
     }
 }
