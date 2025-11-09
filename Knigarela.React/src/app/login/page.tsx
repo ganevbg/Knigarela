@@ -3,9 +3,6 @@
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
-import { Header } from "@/components/header"
-import { Navbar } from "@/components/navbar"
-
 export default function LoginPage() {
     const router = useRouter();
     const { login, isAuthed } = useAuth();
@@ -41,8 +38,6 @@ export default function LoginPage() {
 
     return (
         <>
-            <Navbar />
-            <Header />
             <div className="flex min-h-[70vh] items-center justify-center px-4">
                 <form
                     onSubmit={handleSubmit}

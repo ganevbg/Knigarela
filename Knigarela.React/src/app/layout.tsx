@@ -6,6 +6,9 @@ import "./globals.css"
 import { AuthProvider } from "@/context/AuthContext";
 import { CartProvider } from "@/context/CartContext";
 import { ToastContainer } from 'react-toastify';
+import { Header } from "@/components/header";
+import { Footer } from "@/components/footer";
+import { Navbar } from "@/components/navbar";
 
 const poppins = Poppins({
     subsets: ["latin"],
@@ -25,13 +28,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <body className={`${poppins.variable} font-sans antialiased`}>
                 <AuthProvider>
                     <CartProvider>
-                        {children}
+                        <Navbar />
+                        <Header />
+                        <main className="min-h-screen bg-white">{children}</main>
+                        <Footer />
                     </CartProvider>
                 </AuthProvider>
                 <Analytics />
                 <ToastContainer />
             </body>
-
         </html>
     );
 }
