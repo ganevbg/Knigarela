@@ -232,7 +232,7 @@ export default function BoxDetailPage() {
                         </h2>
                         <div className="rounded-lg bg-white p-8 shadow-md">
                             <div className="prose prose-lg max-w-none" style={{ color: "#6b6b6b" }}>
-                                {box.description?.split("\n\n").map((paragraph, index) => (
+                                {box.description?.split("\n").map((paragraph, index) => (
                                     <p key={index} className="mb-4 text-base leading-relaxed">
                                         {paragraph}
                                     </p>

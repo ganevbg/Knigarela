@@ -76,4 +76,12 @@ public class BoxesController : ControllerBase
         var box = await _boxService.GetBySlugAsync(slug);
         return box == null ? NotFound() : Ok(_mapper.Map<BoxDto>(box));
     }
+
+    [HttpGet("previous")]
+    public async Task<IActionResult> GetNotActiveBox()
+    {
+        var boxes = await _boxService.GetNotActiveBox();
+        var result = _mapper.Map<List<PrevBoxDto>>(boxes);
+        return Ok(result);
+    }
 }

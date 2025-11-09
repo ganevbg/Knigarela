@@ -17,4 +17,6 @@ public interface IBoxService
     Task<Box?> GetActiveBox();
 
     Task<Box?> GetBySlugAsync(string slug);
+
+    Task<IEnumerable<Box>> GetNotActiveBox();
 }

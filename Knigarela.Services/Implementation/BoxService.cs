@@ -89,4 +89,11 @@ public class BoxService : IBoxService
     {
         return await _db.Boxes.Include(b => b.Images).FirstOrDefaultAsync(x => x.Slug.Equals(slug));
     }
+
+    public async Task<IEnumerable<Box>> GetNotActiveBox()
+    {
+        return await _db.Boxes
+            .Include(b => b.Images)
+            .Where(x => x.IsActive == false).ToListAsync();
+    }
 }

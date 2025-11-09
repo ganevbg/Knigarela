@@ -18,6 +18,11 @@ namespace Knigarela.Api.Mapping
                     opt => opt.MapFrom(src => src.Description.Length > 200 ? $"{src.Description.Substring(0, 200)}..." : src.Description))
                 .ForMember(dest => dest.MainImageUrl,
                     opt => opt.MapFrom(src => src.Images.FirstOrDefault(i => i.IsMain)!.Url));
+
+            CreateMap<Box, PrevBoxDto>()
+               .ForMember(dest => dest.MainImageUrl,
+                   opt => opt.MapFrom(src => src.Images.FirstOrDefault(i => i.IsMain)!.ThumbnailUrl));
+            
         }
     }
 }
