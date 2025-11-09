@@ -7,7 +7,8 @@ import { useCart } from "@/context/CartContext";
 
 export function Navbar() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-    const { isAuthed, logout } = useAuth();
+    const { user, isAuthed, logout } = useAuth();
+
     const { totalCount } = useCart();
 
     return (
@@ -17,7 +18,6 @@ export function Navbar() {
                     {/* Logo */}
                     <Link href="/" className="flex-shrink-0">
                         <img src="/carriage.svg" alt="Книгарела" className="h-10 w-auto" loading="eager" />
-
                     </Link>
 
                     {/* Desktop Navigation */}
@@ -25,12 +25,22 @@ export function Navbar() {
                         <Link href="/" className="font-medium text-gray-700 transition-colors duration-200 hover:text-[#D176A3]">
                             Начало
                         </Link>
-                        <a href="/all-boxes" className="font-medium text-gray-700 transition-colors duration-200 hover:text-[#D176A3]">
+                        <Link href="/all-boxes" className="font-medium text-gray-700 transition-colors duration-200 hover:text-[#D176A3]">
                             Всички кутии
-                        </a>
-                        <a href="#about" className="font-medium text-gray-700 transition-colors duration-200 hover:text-[#D176A3]">
+                        </Link>
+                        <Link href="#about" className="font-medium text-gray-700 transition-colors duration-200 hover:text-[#D176A3]">
                             За нас
-                        </a>
+                        </Link>
+
+                        {user?.role === "Admin" && (
+                            <>
+                                <Link href="/admin/boxes" className="font-medium text-gray-700 transition-colors duration-200 hover:text-[#D176A3]">Кутии</Link>
+                                <Link href="/admin/orders" className="font-medium text-gray-700 transition-colors duration-200 hover:text-[#D176A3]">Поръчки</Link>
+                                <Link href="/admin/clients" className="font-medium text-gray-700 transition-colors duration-200 hover:text-[#D176A3]">Клиенти</Link>
+                                <Link href="/admin/clientaddresses" className="font-medium text-gray-700 transition-colors duration-200 hover:text-[#D176A3]">Адреси на клиенти</Link>
+                            </>
+                        )}
+
                         {!isAuthed ? (
                             <Link href="/login" className="font-medium text-gray-700 hover:text-[#D176A3]" >
                                 Вход
@@ -112,22 +122,49 @@ export function Navbar() {
                         >
                             Начало
                         </Link>
-
-                        <a
+                        <Link
                             href="#boxes"
                             className="block px-3 py-2 text-gray-700 transition-colors duration-200 hover:bg-gray-50 hover:text-[#D176A3]"
                             onClick={() => setMobileMenuOpen(false)}
                         >
                             Всички кутии
-                        </a>
-
-                        <a
+                        </Link>
+                        <Link
                             href="#about"
                             className="block px-3 py-2 text-gray-700 transition-colors duration-200 hover:bg-gray-50 hover:text-[#D176A3]"
                             onClick={() => setMobileMenuOpen(false)}
                         >
                             За нас
-                        </a>
+                        </Link>
+
+                        {user?.role === "Admin" && (
+                            <>
+                                <Link
+                                    href="/admin/boxes"
+                                    className="block px-3 py-2 text-gray-700 transition-colors duration-200 hover:bg-gray-50 hover:text-[#D176A3]"
+                                    onClick={() => setMobileMenuOpen(false)}>
+                                    Кутии
+                                </Link>
+                                <Link
+                                    href="/admin/orders"
+                                    className="block px-3 py-2 text-gray-700 transition-colors duration-200 hover:bg-gray-50 hover:text-[#D176A3]"
+                                    onClick={() => setMobileMenuOpen(false)}>
+                                    Поръчки
+                                </Link>
+                                <Link
+                                    href="/admin/clients"
+                                    className="block px-3 py-2 text-gray-700 transition-colors duration-200 hover:bg-gray-50 hover:text-[#D176A3]"
+                                    onClick={() => setMobileMenuOpen(false)}>
+                                    Клиенти
+                                </Link>
+                                <Link
+                                    href="/admin/clientaddresses"
+                                    className="block px-3 py-2 text-gray-700 transition-colors duration-200 hover:bg-gray-50 hover:text-[#D176A3]"
+                                    onClick={() => setMobileMenuOpen(false)}>
+                                    Адреси на клиенти
+                                </Link>
+                            </>
+                        )}
 
                         {/* ✅ Add auth links */}
                         {!isAuthed ? (

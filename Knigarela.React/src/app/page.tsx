@@ -1,8 +1,6 @@
 ﻿"use client";
-import { ActiveBox } from "@/components/active-box"
-import { PreviousBoxesCarousel } from "@/components/previous-boxes-carousel"
-import { useState } from "react";
-import { useAuth } from "@/context/AuthContext";
+import { ActiveBox } from "@/components/active-box";
+import { PreviousBoxesCarousel } from "@/components/previous-boxes-carousel";
 
 export default function Home() {
     return (
@@ -54,37 +52,4 @@ export default function Home() {
             </section>
         </>
     )
-}
-
-export function LoginPage() {
-    const { login, isAuthed } = useAuth();
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [err, setErr] = useState<string | null>(null);
-    const [busy, setBusy] = useState(false);
-
-    async function submit(e: React.FormEvent) {
-        e.preventDefault();
-        setErr(null);
-        setBusy(true);
-        try {
-            await login(email, password);
-        } catch (e: any) {
-            setErr(e?.message || "Login failed");
-        } finally {
-            setBusy(false);
-        }
-    }
-
-    if (isAuthed) return <div className="p-6">Вече сте логнати ✅</div>;
-
-    return (
-        <form onSubmit={submit} className="mx-auto max-w-sm space-y-3 p-6">
-            <h1 className="text-xl font-semibold">Вход</h1>
-            <input className="w-full rounded border p-2" placeholder="Имейл" value={email} onChange={e => setEmail(e.target.value)} />
-            <input className="w-full rounded border p-2" placeholder="Парола" type="password" value={password} onChange={e => setPassword(e.target.value)} />
-            {err && <div className="text-sm text-red-600">{err}</div>}
-            <button disabled={busy} className="rounded bg-black px-4 py-2 text-white">{busy ? "..." : "Влез"}</button>
-        </form>
-    );
 }

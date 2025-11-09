@@ -67,7 +67,7 @@ export function PreviousBoxesCarousel() {
             <Button
                 variant="outline"
                 size="icon"
-                className="absolute top-1/2 left-0 z-10 hidden h-12 w-12 -translate-y-1/2 rounded-full border-0 bg-white shadow-lg md:flex"
+                className="absolute top-1/2 left-0 z-10 hidden h-12 w-12 -translate-y-1/2 rounded-full border border-[#D176A3] bg-white shadow-lg md:flex"
                 onClick={() => scroll("left")}
                 style={{ color: "#D176A3" }}
             >
@@ -77,7 +77,7 @@ export function PreviousBoxesCarousel() {
             <Button
                 variant="outline"
                 size="icon"
-                className="absolute top-1/2 right-0 z-10 hidden h-12 w-12 -translate-y-1/2 rounded-full border-0 bg-white shadow-lg md:flex"
+                className="absolute top-1/2 right-0 z-10 hidden h-12 w-12 -translate-y-1/2 rounded-full border border-[#D176A3] bg-white shadow-lg md:flex"
                 onClick={() => scroll("right")}
                 style={{ color: "#D176A3" }}
             >
