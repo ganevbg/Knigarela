@@ -7,7 +7,7 @@ import { Navbar } from "@/components/navbar"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { Header } from "@/components/header"
-    
+
 export default function CheckoutPage() {
     const [formData, setFormData] = useState({
         firstName: "",
@@ -50,10 +50,8 @@ export default function CheckoutPage() {
     return (
         <>
             <Navbar />
+            <Header />
             <main className="min-h-screen bg-white">
-                {/* Header */}
-                <Header />
-
                 {/* Checkout Content */}
                 <section className="w-full px-4 py-16">
                     <div className="mx-auto max-w-7xl">

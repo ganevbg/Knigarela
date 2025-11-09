@@ -12,7 +12,7 @@ export async function addToCart(
     purchaseType: string = "single"
 ): Promise<AddToCartResponse> {
     const cartItem = { boxId, quantity, purchaseType };
-
+    debugger;
     try {
         const response = await api.post("/api/cart/add", cartItem);
         return {

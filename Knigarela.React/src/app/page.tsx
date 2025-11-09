@@ -9,11 +9,9 @@ export default function Home() {
     return (
         <>
             <Navbar />
+            <Header />
 
             <main className="min-h-screen">
-
-                <Header />
-
                 <section className="w-full bg-white px-4 py-16">
                     <div className="mx-auto max-w-5xl">
                         <ActiveBox />

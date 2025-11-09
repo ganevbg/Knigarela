@@ -8,7 +8,6 @@ import { useEffect, useState } from "react";
 import Link from "next/link"
 
 type Box = {
-    id: string;
     title: string;
     slug: string;
     mainImageUrl: string;
@@ -89,7 +88,7 @@ export function PreviousBoxesCarousel() {
             <div ref={carouselRef} className="carousel-container flex gap-6 overflow-x-auto px-4 py-4 md:px-12">
                 {boxes.map((box, index) => (
                     <div
-                        key={box.id}
+                        key={`${box.slug}-${index}`}
                         className="group w-64 flex-shrink-0 cursor-pointer"
                         style={{
                             animation: `fadeIn 0.8s ease-out ${0.6 + index * 0.1}s forwards`,

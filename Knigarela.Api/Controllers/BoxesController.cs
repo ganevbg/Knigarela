@@ -24,7 +24,7 @@ public class BoxesController : ControllerBase
     public async Task<IActionResult> GetAll()
     {
         var boxes = await _boxService.GetAllAsync();
-        var result = _mapper.Map<IEnumerable<BoxDto>>(boxes);
+        var result = _mapper.Map<IEnumerable<AllBoxDto>>(boxes);
         return Ok(result);
     }
 

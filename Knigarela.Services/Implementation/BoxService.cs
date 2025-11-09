@@ -20,7 +20,7 @@ public class BoxService : IBoxService
 
     public async Task<IEnumerable<Box>> GetAllAsync() =>
         await _db.Boxes.Include(b => b.Images)
-                       .OrderByDescending(b => b.CreatedAt)
+                       .OrderBy(b => b.CreatedAt)
                        .ToListAsync();
 
     public async Task<Box?> GetByIdAsync(Guid id) =>

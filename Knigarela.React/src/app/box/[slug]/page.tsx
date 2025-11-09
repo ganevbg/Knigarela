@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label"
 import { addToCart } from "@/api/cart";
 import { useCart } from "@/context/CartContext";
 import { toast } from 'react-toastify';
+import { Header } from "@/components/header"
 
 type Box = {
     id: string;
@@ -21,6 +22,7 @@ type Box = {
     subscriptionPrice: number;
     mainImageUrl?: string;
     imageUrls?: string[];
+    available: boolean;
 };
 
 export default function BoxDetailPage() {
@@ -92,6 +94,7 @@ export default function BoxDetailPage() {
     return (
         <>
             <Navbar />
+            <Header />
             <main className="min-h-screen bg-white">
                 {/* Hero Section */}
                 <section className="w-full px-4 py-8" style={{ backgroundColor: "#fff5fa" }}>
@@ -149,99 +152,107 @@ export default function BoxDetailPage() {
                                     {box.title}
                                 </h1>
 
-                                <div className="mb-6">
-                                    <Label className="mb-3 block text-base font-medium" style={{ color: "#2d2d2d" }}>
-                                        Избери тип покупка
-                                    </Label>
-                                    <RadioGroup
-                                        value={purchaseType}
-                                        onValueChange={(value) => setPurchaseType(value as "single" | "subscription")}
-                                    >
-                                        <div
-                                            className="mb-3 flex cursor-pointer items-center space-x-3 rounded-lg border-2 p-4 transition-all"
-                                            style={{
-                                                borderColor: purchaseType === "single" ? "#D176A3" : "#e5e5e5",
-                                                backgroundColor: purchaseType === "single" ? "#fff5fa" : "white",
-                                            }}
-                                            onClick={() => setPurchaseType("single")}
-                                        >
-                                            <RadioGroupItem value="single" id="single" style={{ borderColor: "#D176A3" }} />
-                                            <Label htmlFor="single" className="flex-1 cursor-pointer">
-                                                <div className="flex items-center justify-between">
-                                                    <div>
-                                                        <p className="font-medium" style={{ color: "#2d2d2d" }}>
-                                                            Еднократна покупка
-                                                        </p>
-                                                        <p className="text-sm" style={{ color: "#6b6b6b" }}>
-                                                            Поръчай само тази кутия
-                                                        </p>
-                                                    </div>
-                                                    <p className="pl-2 text-xl font-bold" style={{ color: "#D176A3" }}>
-                                                        {box.singlePrice} лв.
-                                                    </p>
-                                                </div>
+                                {box.available ? (
+                                    <>
+                                        <div className="mb-6">
+                                            <Label className="mb-3 block text-base font-medium" style={{ color: "#2d2d2d" }}>
+                                                Избери тип покупка
                                             </Label>
-                                        </div>
-                                        <div
-                                            className="flex cursor-pointer items-center space-x-3 rounded-lg border-2 p-4 transition-all"
-                                            style={{
-                                                borderColor: purchaseType === "subscription" ? "#D176A3" : "#e5e5e5",
-                                                backgroundColor: purchaseType === "subscription" ? "#fff5fa" : "white",
-                                            }}
-                                            onClick={() => setPurchaseType("subscription")}
-                                        >
-                                            <RadioGroupItem value="subscription" id="subscription" style={{ borderColor: "#D176A3" }} />
-                                            <Label htmlFor="subscription" className="flex-1 cursor-pointer">
-                                                <div className="flex items-center justify-between">
-                                                    <div>
-                                                        <p className="font-medium" style={{ color: "#2d2d2d" }}>
-                                                            Месечен абонамент
-                                                        </p>
-                                                        <p className="text-sm" style={{ color: "#6b6b6b" }}>
-                                                            Спести {box.singlePrice - box.subscriptionPrice} лв. на месец
-                                                        </p>
-                                                    </div>
-                                                    <p className="pl-2 text-xl font-bold" style={{ color: "#D176A3" }}>
-                                                        {box.subscriptionPrice} лв./месец
-                                                    </p>
+                                            <RadioGroup
+                                                value={purchaseType}
+                                                onValueChange={(value) => setPurchaseType(value as "single" | "subscription")}
+                                            >
+                                                <div
+                                                    className="mb-3 flex cursor-pointer items-center space-x-3 rounded-lg border-2 p-4 transition-all"
+                                                    style={{
+                                                        borderColor: purchaseType === "single" ? "#D176A3" : "#e5e5e5",
+                                                        backgroundColor: purchaseType === "single" ? "#fff5fa" : "white",
+                                                    }}
+                                                    onClick={() => setPurchaseType("single")}
+                                                >
+                                                    <RadioGroupItem value="single" id="single" style={{ borderColor: "#D176A3" }} />
+                                                    <Label htmlFor="single" className="flex-1 cursor-pointer">
+                                                        <div className="flex items-center justify-between">
+                                                            <div>
+                                                                <p className="font-medium" style={{ color: "#2d2d2d" }}>
+                                                                    Еднократна покупка
+                                                                </p>
+                                                                <p className="text-sm" style={{ color: "#6b6b6b" }}>
+                                                                    Поръчай само тази кутия
+                                                                </p>
+                                                            </div>
+                                                            <p className="pl-2 text-xl font-bold" style={{ color: "#D176A3" }}>
+                                                                {box.singlePrice} лв.
+                                                            </p>
+                                                        </div>
+                                                    </Label>
                                                 </div>
-                                            </Label>
+                                                <div
+                                                    className="flex cursor-pointer items-center space-x-3 rounded-lg border-2 p-4 transition-all"
+                                                    style={{
+                                                        borderColor: purchaseType === "subscription" ? "#D176A3" : "#e5e5e5",
+                                                        backgroundColor: purchaseType === "subscription" ? "#fff5fa" : "white",
+                                                    }}
+                                                    onClick={() => setPurchaseType("subscription")}
+                                                >
+                                                    <RadioGroupItem value="subscription" id="subscription" style={{ borderColor: "#D176A3" }} />
+                                                    <Label htmlFor="subscription" className="flex-1 cursor-pointer">
+                                                        <div className="flex items-center justify-between">
+                                                            <div>
+                                                                <p className="font-medium" style={{ color: "#2d2d2d" }}>
+                                                                    Месечен абонамент
+                                                                </p>
+                                                                <p className="text-sm" style={{ color: "#6b6b6b" }}>
+                                                                    Спести {box.singlePrice - box.subscriptionPrice} лв. на месец
+                                                                </p>
+                                                            </div>
+                                                            <p className="pl-2 text-xl font-bold" style={{ color: "#D176A3" }}>
+                                                                {box.subscriptionPrice} лв./месец
+                                                            </p>
+                                                        </div>
+                                                    </Label>
+                                                </div>
+                                            </RadioGroup>
                                         </div>
-                                    </RadioGroup>
-                                </div>
+                                        <div className="flex flex-col gap-4 sm:flex-row">
+                                            <Button
+                                                size="lg"
+                                                onClick={() => handleAddToCart(box.id, purchaseType)}
+                                                className="rounded-full px-8 py-6 text-base font-medium text-white shadow-md transition-all duration-300 hover:shadow-lg"
+                                                style={{ backgroundColor: "#D176A3" }}
+                                            >
+                                                Добави в количката
+                                            </Button>
+                                            <Link href="/all-boxes">
+                                                <Button
+                                                    size="lg"
+                                                    variant="outline"
+                                                    className="w-full rounded-full border-2 bg-transparent px-8 py-6 text-base font-medium transition-all duration-300"
+                                                    style={{
+                                                        borderColor: "#D176A3",
+                                                        color: "#D176A3",
+                                                    }}
+                                                >
+                                                    Виж всички кутии
+                                                </Button>
+                                            </Link>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <span className="text-sm font-medium text-gray-400">Няма наличност</span>
+                                )}
 
-                                <div className="mb-8">
-                                    <p className="mb-2 text-xl font-bold" style={{ color: "#D176A3" }}>
-                                        {currentPrice} лв.
-                                    </p>
-                                    <p className="text-sm" style={{ color: "#6b6b6b" }}>
-                                        Включени са всички данъци и доставка
-                                    </p>
-                                </div>
+                                
 
-                                <div className="flex flex-col gap-4 sm:flex-row">
-                                    <Button
-                                        size="lg"
-                                        onClick={() => handleAddToCart(box.id, purchaseType)}
-                                        className="rounded-full px-8 py-6 text-base font-medium text-white shadow-md transition-all duration-300 hover:shadow-lg"
-                                        style={{ backgroundColor: "#D176A3" }}
-                                    >
-                                        Добави в количката
-                                    </Button>
-                                    <Link href="/all-boxes">
-                                        <Button
-                                            size="lg"
-                                            variant="outline"
-                                            className="w-full rounded-full border-2 bg-transparent px-8 py-6 text-base font-medium transition-all duration-300"
-                                            style={{
-                                                borderColor: "#D176A3",
-                                                color: "#D176A3",
-                                            }}
-                                        >
-                                            Виж всички кутии
-                                        </Button>
-                                    </Link>
-                                </div>
+                                {/*<div className="mb-8">*/}
+                                {/*    <p className="mb-2 text-xl font-bold" style={{ color: "#D176A3" }}>*/}
+                                {/*        {currentPrice} лв.*/}
+                                {/*    </p>*/}
+                                {/*    <p className="text-sm" style={{ color: "#6b6b6b" }}>*/}
+                                {/*        Включени са всички данъци и доставка*/}
+                                {/*    </p>*/}
+                                {/*</div>*/}
+
                             </div>
                         </div>
                     </div>

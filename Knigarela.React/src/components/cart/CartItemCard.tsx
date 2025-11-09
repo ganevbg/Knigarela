@@ -49,7 +49,7 @@ export function CartItemCard({
                     {/* Quantity controls */}
                     <div className="flex items-center gap-2">
                         <button
-                            onClick={() => onUpdateQuantity(boxId, purchaseType, quantity - 1)}
+                            onClick={() => onUpdateQuantity(boxId, purchaseType, -1)}
                             className="w-8 h-8 rounded-full flex items-center justify-center text-white"
                             style={{ backgroundColor: "#D176A3" }}
                         >
@@ -57,7 +57,7 @@ export function CartItemCard({
                         </button>
                         <span className="w-8 text-center font-medium">{quantity}</span>
                         <button
-                            onClick={() => onUpdateQuantity(boxId, purchaseType, quantity + 1)}
+                            onClick={() => onUpdateQuantity(boxId, purchaseType, 1)}
                             className="w-8 h-8 rounded-full flex items-center justify-center text-white"
                             style={{ backgroundColor: "#D176A3" }}
                         >

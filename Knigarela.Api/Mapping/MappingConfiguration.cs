@@ -8,11 +8,12 @@ namespace Knigarela.Api.Mapping
     {
         public MappingConfiguration()
         {
+            CreateMap<UpsertBoxDto, Box>();
+
             CreateMap<Box, BoxDto>()
                 .ForMember(dest => dest.ImageUrls, opt => opt.MapFrom(src => src.Images.Where(x => !x.IsMain).OrderBy(x => x.SortOrder).Select(i => i.Url)))
                 .ForMember(dest => dest.MainImageUrl, opt => opt.MapFrom(src => src.Images.FirstOrDefault(i => i.IsMain)!.Url));
 
-            CreateMap<UpsertBoxDto, Box>();
             CreateMap<Box, ActiveBoxDto>()
                 .ForMember(dest => dest.Description,
                     opt => opt.MapFrom(src => src.Description.Length > 200 ? $"{src.Description.Substring(0, 200)}..." : src.Description))
@@ -22,7 +23,11 @@ namespace Knigarela.Api.Mapping
             CreateMap<Box, PrevBoxDto>()
                .ForMember(dest => dest.MainImageUrl,
                    opt => opt.MapFrom(src => src.Images.FirstOrDefault(i => i.IsMain)!.Url));
-            
+
+            CreateMap<Box, AllBoxDto>()
+               .ForMember(dest => dest.Available, opt => opt.MapFrom(src => src.Count > 0))
+               .ForMember(dest => dest.MainImageUrl,opt => opt.MapFrom(src => src.Images.FirstOrDefault(i => i.IsMain)!.Url));
+
         }
     }
 }

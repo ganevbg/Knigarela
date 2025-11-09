@@ -1,99 +1,82 @@
-﻿import { Navbar } from "@/components/navbar"
+﻿"use client";
+
+import { Navbar } from "@/components/navbar"
 import Link from "next/link"
 import { Header } from "@/components/header"
+import { useEffect, useState } from "react";
+import { getAllBoxes } from "@/api/boxes";
 
-const allBoxes = [
-    {
-        id: "january-2025",
-        month: "Януари 2025",
-        title: "Зимни приказки",
-        image: "/elegant-book-subscription-box-with-beautiful-hardc.jpg",
-        price: 49.99,
-        available: true,
-    },
-    {
-        id: "december-2024",
-        month: "Декември 2024",
-        title: "Коледна магия",
-        image: "/festive-holiday-book-collection-with-red-and-gold-.jpg",
-        price: 49.99,
-        available: true,
-    },
-    {
-        id: "november-2024",
-        month: "Ноември 2024",
-        title: "Есенно четиво",
-        image: "/autumn-themed-books-with-warm-orange-and-brown-ton.jpg",
-        price: 49.99,
-        available: false,
-    },
-    {
-        id: "october-2024",
-        month: "Октомври 2024",
-        title: "Мистерия и трилър",
-        image: "/mystery-thriller-books-with-dark-atmospheric-cover.jpg",
-        price: 49.99,
-        available: false,
-    },
-    {
-        id: "september-2024",
-        month: "Септември 2024",
-        title: "Обратно към книгите",
-        image: "/contemporary-fiction-books-with-modern-minimalist-.jpg",
-        price: 49.99,
-        available: false,
-    },
-    {
-        id: "august-2024",
-        month: "Август 2024",
-        title: "Лятна романтика",
-        image: "/romantic-summer-beach-reads-with-pastel-covers.jpg",
-        price: 49.99,
-        available: false,
-    },
-]
+
+type Box = {
+    title: string;
+    slug: string;
+    mainImageUrl: string;
+    available: boolean;
+};
+
 
 export default function AllBoxesPage() {
+
+    const [boxes, setBox] = useState<Box[] | null>(null);
+    const [loading, setLoading] = useState(true);
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+
+    useEffect(() => {
+        async function fetchBoxes() {
+            try {
+                const data = await getAllBoxes();
+                setBox(data);
+            } catch (error) {
+                console.error("Failed to load active box:", error);
+            } finally {
+                setLoading(false);
+            }
+        }
+        fetchBoxes();
+    }, []);
+
+    if (loading) {
+        return (
+            <div className="flex min-h-[300px] items-center justify-center text-gray-500">
+                Зареждане...
+            </div>
+        );
+    }
+
+    if (!boxes || boxes.length === 0) {
+        return (
+            <div className="flex min-h-[300px] items-center justify-center text-gray-500">
+                Няма налични кутии.
+            </div>
+        );
+    }
+
     return (
         <>
             <Navbar />
+            <Header />
+
             <main className="min-h-screen bg-white">
-                {/* Header */}
-                <Header />
 
                 {/* Boxes Grid */}
                 <section className="w-full px-4 py-16">
                     <div className="mx-auto max-w-7xl">
                         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-                            {allBoxes.map((box) => (
-                                <Link key={box.id} href={`/box/${box.id}`} className="group">
+                            {boxes.map((box) => (
+                                <Link key={box.slug} href={`/box/${box.slug}`} className="group">
                                     <div className="overflow-hidden rounded-lg bg-white shadow-md transition-all duration-300 group-hover:scale-105 group-hover:shadow-xl">
                                         <div className="relative aspect-[3/4] overflow-hidden">
                                             <img
-                                                src={box.image || "/placeholder.svg"}
+                                                src={`${baseUrl}${box.mainImageUrl}` || "/placeholder.svg"}
                                                 alt={box.title}
                                                 className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
                                             />
-                                            {!box.available && (
-                                                <div className="bg-opacity-50 absolute inset-0 flex items-center justify-center bg-black">
-                                                    <span className="text-lg font-semibold text-white">Изчерпана</span>
-                                                </div>
-                                            )}
-                                            <div
-                                                className="absolute top-4 right-4 rounded-full px-3 py-1 text-sm font-medium text-white shadow-md"
-                                                style={{ backgroundColor: "#D176A3" }}
-                                            >
-                                                {box.month}
-                                            </div>
                                         </div>
                                         <div className="p-6">
                                             <h3 className="mb-2 text-xl font-semibold" style={{ color: "#2d2d2d" }}>
                                                 {box.title}
                                             </h3>
                                             <div className="flex items-center justify-between">
-                                                <p className="text-2xl font-bold" style={{ color: "#D176A3" }}>
-                                                    {box.price} лв.
-                                                </p>
                                                 {box.available ? (
                                                     <span className="text-sm font-medium" style={{ color: "#6b6b6b" }}>
                                                         В наличност

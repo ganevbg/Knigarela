@@ -16,10 +16,8 @@ export default function CartPage() {
     return (
         <>
             <Navbar />
+            <Header />
             <main className="min-h-screen">
-                <Header />
-
-
                 <section className="w-full bg-white px-4 py-16">
                     <div className="mx-auto max-w-7xl">
                         {items.length === 0 ? (
@@ -40,20 +38,20 @@ export default function CartPage() {
                         ) : (
                             <div className="grid gap-8 lg:grid-cols-3">
                                 <div className="space-y-4 lg:col-span-2">
-                                        {items.map((item) => (
-                                            <CartItemCard
-                                                key={`${item.boxId}-${item.purchaseType}`}
-                                                boxId={item.boxId}
-                                                title={item.title}
-                                                unitPrice={item.unitPrice}
-                                                quantity={item.quantity}
-                                                imageUrl={item.imageUrl}
-                                                purchaseType={item.purchaseType}
-                                                baseUrl={baseUrl}
-                                                onRemove={remove}
-                                                onUpdateQuantity={add}
-                                            />
-                                        ))}
+                                    {items.map((item) => (
+                                        <CartItemCard
+                                            key={`${item.boxId}-${item.purchaseType}`}
+                                            boxId={item.boxId}
+                                            title={item.title}
+                                            unitPrice={item.unitPrice}
+                                            quantity={item.quantity}
+                                            imageUrl={item.imageUrl}
+                                            purchaseType={item.purchaseType}
+                                            baseUrl={baseUrl}
+                                            onRemove={remove}
+                                            onUpdateQuantity={add}
+                                        />
+                                    ))}
                                 </div>
 
                                 {/* Summary */}

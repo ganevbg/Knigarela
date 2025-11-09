@@ -21,4 +21,6 @@ public class BoxDto
     public string? MainImageUrl { get; set; }
 
     public string[] ImageUrls { get; set; }
+
+    public bool Available => Count > 0;
 }

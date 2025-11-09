@@ -6,7 +6,6 @@ import Link from "next/link";
 import { getActiveBox } from "@/api/boxes";
 
 type Box = {
-  id: string;
   title: string;
   slug: string;
   description: string;
@@ -84,7 +83,7 @@ export function ActiveBox() {
             {box.description}
           </p>
           <div className="flex flex-col gap-4 sm:flex-row">
-            <Link href={`/box/${box.slug ?? box.id}`}>
+            <Link href={`/box/${box.slug}`}>
               <Button
                 size="lg"
                 className="w-full rounded-full px-8 py-6 text-base font-medium text-white shadow-md transition-all duration-300 hover:shadow-lg sm:w-auto"
