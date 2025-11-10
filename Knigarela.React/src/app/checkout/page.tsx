@@ -4,19 +4,27 @@ import type React from "react"
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
+import { Label } from "@/components/ui/label"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import Link from "next/link"
-
+import { getOffices, getSites } from "@/api/speedy"
 export default function CheckoutPage() {
     const [formData, setFormData] = useState({
-        firstName: "",
-        lastName: "",
+        name: "",
         email: "",
         phone: "",
+        addressType: "courier" as "personal" | "courier",
+        state: "",
         address: "",
-        city: "",
-        postalCode: "",
-        country: "България",
+        office: "",
     })
+
+    const [stateQuery, setStateQuery] = useState("")
+    const [officeQuery, setOfficeQuery] = useState("")
+    const [stateResults, setStateResults] = useState<Array<{ id: string; name: string }>>([])
+    const [officeResults, setOfficeResults] = useState<Array<{ id: string; name: string }>>([])
+    const [showStateResults, setShowStateResults] = useState(false)
+    const [showOfficeResults, setShowOfficeResults] = useState(false)
 
     const cartItems = [
         {
@@ -45,6 +53,42 @@ export default function CheckoutPage() {
         })
     }
 
+    const handleStateSearch = async (query: string) => {
+        setStateQuery(query)
+        if (query.length < 3) {
+            setStateResults([])
+            setShowStateResults(false)
+            return
+        }
+
+        setStateResults(await getSites(query));
+        setShowStateResults(true)
+    }
+
+    const handleOfficeSearch = async (query: string) => {
+        setOfficeQuery(query)
+        if (query.length < 3) {
+            setOfficeResults([])
+            setShowOfficeResults(false)
+            return
+        }
+
+        setOfficeResults(await getOffices(query));
+        setShowOfficeResults(true);
+    }
+
+    const selectState = (state: { id: string; name: string }) => {
+        setFormData({ ...formData, state: state.name })
+        setStateQuery(state.name)
+        setShowStateResults(false)
+    }
+
+    const selectOffice = (office: { id: string; name: string }) => {
+        setFormData({ ...formData, office: office.name })
+        setOfficeQuery(office.name)
+        setShowOfficeResults(false)
+    }
+
     return (
         <>
             {/* Checkout Content */}
@@ -59,74 +103,62 @@ export default function CheckoutPage() {
                                     <h2 className="mb-6 text-2xl font-semibold" style={{ color: "#2d2d2d" }}>
                                         Контактна информация
                                     </h2>
-                                    <div className="grid gap-4 md:grid-cols-2">
+                                    <div className="space-y-4">
                                         <div>
-                                            <label
-                                                htmlFor="firstName"
-                                                className="mb-2 block text-sm font-medium"
-                                                style={{ color: "#2d2d2d" }}
-                                            >
+                                            <label htmlFor="name" className="mb-2 block text-sm font-medium" style={{ color: "#2d2d2d" }}>
                                                 Име *
                                             </label>
                                             <input
                                                 type="text"
-                                                id="firstName"
-                                                name="firstName"
+                                                id="name"
+                                                name="name"
                                                 required
-                                                value={formData.firstName}
+                                                value={formData.name}
                                                 onChange={handleChange}
                                                 className="w-full rounded-lg border border-gray-300 px-4 py-3 transition-all focus:ring-2 focus:outline-none"
                                                 style={{ "--tw-ring-color": "#D176A3" } as React.CSSProperties}
+                                                placeholder="Вашето пълно име"
                                             />
                                         </div>
-                                        <div>
-                                            <label
-                                                htmlFor="lastName"
-                                                className="mb-2 block text-sm font-medium"
-                                                style={{ color: "#2d2d2d" }}
-                                            >
-                                                Фамилия *
-                                            </label>
-                                            <input
-                                                type="text"
-                                                id="lastName"
-                                                name="lastName"
-                                                required
-                                                value={formData.lastName}
-                                                onChange={handleChange}
-                                                className="w-full rounded-lg border border-gray-300 px-4 py-3 transition-all focus:ring-2 focus:outline-none"
-                                                style={{ "--tw-ring-color": "#D176A3" } as React.CSSProperties}
-                                            />
-                                        </div>
-                                        <div>
-                                            <label htmlFor="email" className="mb-2 block text-sm font-medium" style={{ color: "#2d2d2d" }}>
-                                                Email *
-                                            </label>
-                                            <input
-                                                type="email"
-                                                id="email"
-                                                name="email"
-                                                required
-                                                value={formData.email}
-                                                onChange={handleChange}
-                                                className="w-full rounded-lg border border-gray-300 px-4 py-3 transition-all focus:ring-2 focus:outline-none"
-                                                style={{ "--tw-ring-color": "#D176A3" } as React.CSSProperties}
-                                            />
-                                        </div>
-                                        <div>
-                                            <label htmlFor="phone" className="mb-2 block text-sm font-medium" style={{ color: "#2d2d2d" }}>
-                                                Телефон *
-                                            </label>
-                                            <input
-                                                type="tel"
-                                                id="phone"
-                                                name="phone"
-                                                required
-                                                value={formData.phone}
-                                                onChange={handleChange}
-                                                className="w-full rounded-lg border border-gray-300 px-4 py-3 transition-all focus:ring-2 focus:outline-none"
-                                                style={{ "--tw-ring-color": "#D176A3" } as React.CSSProperties}
-                                            />
+                                        <div className="grid gap-4 md:grid-cols-2">
+                                            <div>
+                                                <label
+                                                    htmlFor="email"
+                                                    className="mb-2 block text-sm font-medium"
+                                                    style={{ color: "#2d2d2d" }}
+                                                >
+                                                    Email *
+                                                </label>
+                                                <input
+                                                    type="email"
+                                                    id="email"
+                                                    name="email"
+                                                    required
+                                                    value={formData.email}
+                                                    onChange={handleChange}
+                                                    className="w-full rounded-lg border border-gray-300 px-4 py-3 transition-all focus:ring-2 focus:outline-none"
+                                                    style={{ "--tw-ring-color": "#D176A3" } as React.CSSProperties}
+                                                />
+                                            </div>
+                                            <div>
+                                                <label
+                                                    htmlFor="phone"
+                                                    className="mb-2 block text-sm font-medium"
+                                                    style={{ color: "#2d2d2d" }}
+                                                >
+                                                    Телефон *
+                                                </label>
+                                                <input
+                                                    type="tel"
+                                                    id="phone"
+                                                    name="phone"
+                                                    required
+                                                    value={formData.phone}
+                                                    onChange={handleChange}
+                                                    className="w-full rounded-lg border border-gray-300 px-4 py-3 transition-all focus:ring-2 focus:outline-none"
+                                                    style={{ "--tw-ring-color": "#D176A3" } as React.CSSProperties}
+                                                />
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -139,82 +171,131 @@ export default function CheckoutPage() {
                                     <div className="space-y-4">
                                         <div>
                                             <label
-                                                htmlFor="address"
+                                                htmlFor="addressType"
                                                 className="mb-2 block text-sm font-medium"
                                                 style={{ color: "#2d2d2d" }}
                                             >
-                                                Адрес *
-                                            </label>
-                                            <input
-                                                type="text"
-                                                id="address"
-                                                name="address"
-                                                required
-                                                value={formData.address}
-                                                onChange={handleChange}
-                                                className="w-full rounded-lg border border-gray-300 px-4 py-3 transition-all focus:ring-2 focus:outline-none"
-                                                style={{ "--tw-ring-color": "#D176A3" } as React.CSSProperties}
-                                                placeholder="Улица, номер, етаж"
-                                            />
-                                        </div>
-                                        <div className="grid gap-4 md:grid-cols-2">
-                                            <div>
-                                                <label htmlFor="city" className="mb-2 block text-sm font-medium" style={{ color: "#2d2d2d" }}>
-                                                    Град *
-                                                </label>
-                                                <input
-                                                    type="text"
-                                                    id="city"
-                                                    name="city"
-                                                    required
-                                                    value={formData.city}
-                                                    onChange={handleChange}
-                                                    className="w-full rounded-lg border border-gray-300 px-4 py-3 transition-all focus:ring-2 focus:outline-none"
-                                                    style={{ "--tw-ring-color": "#D176A3" } as React.CSSProperties}
-                                                />
-                                            </div>
-                                            <div>
-                                                <label
-                                                    htmlFor="postalCode"
-                                                    className="mb-2 block text-sm font-medium"
-                                                    style={{ color: "#2d2d2d" }}
-                                                >
-                                                    Пощенски код *
-                                                </label>
-                                                <input
-                                                    type="text"
-                                                    id="postalCode"
-                                                    name="postalCode"
-                                                    required
-                                                    value={formData.postalCode}
-                                                    onChange={handleChange}
-                                                    className="w-full rounded-lg border border-gray-300 px-4 py-3 transition-all focus:ring-2 focus:outline-none"
-                                                    style={{ "--tw-ring-color": "#D176A3" } as React.CSSProperties}
-                                                />
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <label
-                                                htmlFor="country"
-                                                className="mb-2 block text-sm font-medium"
-                                                style={{ color: "#2d2d2d" }}
-                                            >
-                                                Държава *
+                                                Тип адрес *
                                             </label>
                                             <select
-                                                id="country"
-                                                name="country"
+                                                id="addressType"
+                                                name="addressType"
                                                 required
-                                                value={formData.country}
+                                                value={formData.addressType}
                                                 onChange={handleChange}
                                                 className="w-full rounded-lg border border-gray-300 px-4 py-3 transition-all focus:ring-2 focus:outline-none"
                                                 style={{ "--tw-ring-color": "#D176A3" } as React.CSSProperties}
                                             >
-                                                <option value="България">България</option>
-                                                <option value="Румъния">Румъния</option>
-                                                <option value="Гърция">Гърция</option>
+                                                <option value="personal">Личен адрес</option>
+                                                <option value="courier">Офис на куриер</option>
                                             </select>
                                         </div>
+
+                                        {formData.addressType === "personal" ? (
+                                            <>
+                                                {/* State Autocomplete */}
+                                                <div className="relative">
+                                                    <label
+                                                        htmlFor="state"
+                                                        className="mb-2 block text-sm font-medium"
+                                                        style={{ color: "#2d2d2d" }}
+                                                    >
+                                                        Населено място *
+                                                    </label>
+                                                    <input
+                                                        type="text"
+                                                        id="state"
+                                                        name="state"
+                                                        required
+                                                        value={stateQuery}
+                                                        onChange={(e) => handleStateSearch(e.target.value)}
+                                                        onFocus={() => stateQuery.length >= 2 && setShowStateResults(true)}
+                                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 transition-all"
+                                                        style={{ "--tw-ring-color": "#D176A3" } as React.CSSProperties}
+                                                        placeholder="Започнете да пишете..."
+                                                        autoComplete="off"
+                                                    />
+                                                    {showStateResults && stateResults.length > 0 && (
+                                                        <div className="absolute z-10 mt-1 max-h-60 w-full overflow-y-auto rounded-lg border border-gray-300 bg-white shadow-lg">
+                                                            {stateResults.map((state) => (
+                                                                <button
+                                                                    key={state.id}
+                                                                    type="button"
+                                                                    onClick={() => selectState(state)}
+                                                                    className="w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors"
+                                                                    style={{ color: "#2d2d2d" }}
+                                                                >
+                                                                    {state.name}
+                                                                </button>
+                                                            ))}
+                                                        </div>
+                                                    )}
+                                                </div>
+
+                                                {/* Address Text Input */}
+                                                <div>
+                                                    <label
+                                                        htmlFor="address"
+                                                        className="mb-2 block text-sm font-medium"
+                                                        style={{ color: "#2d2d2d" }}
+                                                    >
+                                                        Адрес *
+                                                    </label>
+                                                    <input
+                                                        type="text"
+                                                        id="address"
+                                                        name="address"
+                                                        required
+                                                        value={formData.address}
+                                                        onChange={handleChange}
+                                                        className="w-full rounded-lg border border-gray-300 px-4 py-3 transition-all focus:ring-2 focus:outline-none"
+                                                        style={{ "--tw-ring-color": "#D176A3" } as React.CSSProperties}
+                                                        placeholder="Улица, номер, етаж, апартамент"
+                                                    />
+                                                </div>
+                                            </>
+                                        ) : (
+                                            <>
+                                                {/* Office Autocomplete */}
+                                                <div className="relative">
+                                                    <label
+                                                        htmlFor="office"
+                                                        className="mb-2 block text-sm font-medium"
+                                                        style={{ color: "#2d2d2d" }}
+                                                    >
+                                                        Офис на куриер *
+                                                    </label>
+                                                    <input
+                                                        type="text"
+                                                        id="office"
+                                                        name="office"
+                                                        required
+                                                        value={officeQuery}
+                                                        onChange={(e) => handleOfficeSearch(e.target.value)}
+                                                        onFocus={() => officeQuery.length >= 2 && setShowOfficeResults(true)}
+                                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 transition-all"
+                                                        style={{ "--tw-ring-color": "#D176A3" } as React.CSSProperties}
+                                                        placeholder="Започнете да пишете име на офис..."
+                                                        autoComplete="off"
+                                                    />
+                                                    {showOfficeResults && officeResults.length > 0 && (
+                                                        <div className="absolute z-10 mt-1 max-h-60 w-full overflow-y-auto rounded-lg border border-gray-300 bg-white shadow-lg">
+                                                            {officeResults.map((office) => (
+                                                                <button
+                                                                    key={office.id}
+                                                                    type="button"
+                                                                    onClick={() => selectOffice(office)}
+                                                                    className="w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors"
+                                                                    style={{ color: "#2d2d2d" }}
+                                                                >
+                                                                    {office.name}
+                                                                </button>
+                                                            ))}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </>
+                                        )}
                                     </div>
                                 </div>
 
@@ -223,30 +304,27 @@ export default function CheckoutPage() {
                                     <h2 className="mb-6 text-2xl font-semibold" style={{ color: "#2d2d2d" }}>
                                         Метод на плащане
                                     </h2>
-                                    <div className="space-y-4">
-                                        <label className="flex cursor-pointer items-center gap-3 rounded-lg border-2 p-4 transition-colors hover:bg-gray-50">
-                                            <input type="radio" name="payment" value="card" defaultChecked className="h-5 w-5" />
-                                            <div className="flex-1">
-                                                <p className="font-medium" style={{ color: "#2d2d2d" }}>
-                                                    Кредитна / Дебитна карта
-                                                </p>
-                                                <p className="text-sm" style={{ color: "#6b6b6b" }}>
-                                                    Visa, Mastercard, American Express
-                                                </p>
-                                            </div>
-                                        </label>
-                                        <label className="flex cursor-pointer items-center gap-3 rounded-lg border-2 p-4 transition-colors hover:bg-gray-50">
-                                            <input type="radio" name="payment" value="cod" className="h-5 w-5" />
-                                            <div className="flex-1">
-                                                <p className="font-medium" style={{ color: "#2d2d2d" }}>
-                                                    Наложен платеж
-                                                </p>
-                                                <p className="text-sm" style={{ color: "#6b6b6b" }}>
-                                                    Плащане при доставка
-                                                </p>
-                                            </div>
-                                        </label>
-                                    </div>
+                                    <RadioGroup defaultValue="cod">
+                                        <div
+                                            className="flex cursor-pointer items-center space-x-3 rounded-lg border-2 p-4 transition-all"
+                                            style={{
+                                                borderColor: "#D176A3",
+                                                backgroundColor: "#fff5fa",
+                                            }}
+                                        >
+                                            <RadioGroupItem value="cod" id="cod" style={{ borderColor: "#D176A3" }} />
+                                            <Label htmlFor="cod" className="flex-1 cursor-pointer">
+                                                <div>
+                                                    <p className="font-medium" style={{ color: "#2d2d2d" }}>
+                                                        Наложен платеж (COD)
+                                                    </p>
+                                                    <p className="text-sm" style={{ color: "#6b6b6b" }}>
+                                                        Плащане в брой или с карта при доставка
+                                                    </p>
+                                                </div>
+                                            </Label>
+                                        </div>
+                                    </RadioGroup>
                                 </div>
 
                                 {/* Submit Buttons */}
@@ -279,7 +357,7 @@ export default function CheckoutPage() {
 
                         {/* Order Summary */}
                         <div className="lg:col-span-1">
-                            <div className="sticky top-24 rounded-lg p-6 shadow-md" style={{ backgroundColor: "#fff5fa" }}>
+                            <div className="sticky top-24 rounded-lg p-6 shadow-md" style={{ backgroundColor: "#ffcfe7" }}>
                                 <h2 className="mb-6 text-2xl font-semibold" style={{ color: "#2d2d2d" }}>
                                     Вашата поръчка
                                 </h2>
