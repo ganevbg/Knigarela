@@ -1,7 +1,9 @@
-﻿using Knigarela.Api.Dtos.Orders;
+﻿using Knigarela.Api.Dtos.Cart;
+using Knigarela.Api.Dtos.Orders;
 using Knigarela.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
 
 namespace Knigarela.Api.Controllers.Admin;
 
@@ -10,6 +12,7 @@ namespace Knigarela.Api.Controllers.Admin;
 public class OrderController : ControllerBase
 {
     private readonly IOrderService _orderService;
+    private const string SessionKey = "CartItems";
 
     public OrderController(IOrderService orderService)
     {
@@ -17,6 +20,7 @@ public class OrderController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Create([FromBody] CreateOrderRequest req)
     {
         var result = await _orderService.CreateOrderWithStockCheckAsync(
@@ -61,14 +65,20 @@ public class OrderController : ControllerBase
     }
 
     [HttpPost("from-cart")]
-    public async Task<IActionResult> CreateFromCart([FromBody] CreateOrderRequest req)
+    public async Task<IActionResult> CreateFromCart([FromBody] CreateOrderFromCartRequest req)
     {
+        var items = GetCart();
+        if (items == null || !items.Any())
+        {
+            return Conflict(new { error = "NotFound" });
+        }
+
         var result = await _orderService.CreateOrderWithStockCheckAsync(
             req.FullName,
             req.Email,
             req.Phone,
             req.Address,
-            req.Items.Select(i => (i.BoxId, i.Quantity, i.PurchaseType)).ToList(),
+            items.Select(i => (i.BoxId, i.Quantity, i.PurchaseType)).ToList(),
             req.Notes
         );
 
@@ -78,4 +88,11 @@ public class OrderController : ControllerBase
         return Ok(new { orderId = result.Order!.Id });
     }
 
+    private List<CartItemDto> GetCart()
+    {
+        var json = HttpContext.Session.GetString(SessionKey);
+        return json != null
+            ? JsonSerializer.Deserialize<List<CartItemDto>>(json) ?? new List<CartItemDto>()
+            : new List<CartItemDto>();
+    }
 }

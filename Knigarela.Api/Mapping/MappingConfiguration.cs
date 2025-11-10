@@ -28,6 +28,7 @@ namespace Knigarela.Api.Mapping
                .ForMember(dest => dest.Available, opt => opt.MapFrom(src => src.Count > 0))
                .ForMember(dest => dest.MainImageUrl,opt => opt.MapFrom(src => src.Images.FirstOrDefault(i => i.IsMain)!.Url));
 
+            CreateMap<OrderAddress, ClientAddress>();
         }
     }
 }

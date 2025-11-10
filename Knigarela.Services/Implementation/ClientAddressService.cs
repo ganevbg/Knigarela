@@ -19,7 +19,7 @@ public class ClientAddressService : IClientAddressService
         return await _db.ClientAddresses
             .Where(a => a.ClientId == clientId)
             .OrderByDescending(a => a.IsDefault)
-            .ThenBy(a => a.City)
+            .ThenBy(a => a.SiteName)
             .ToListAsync();
     }
 

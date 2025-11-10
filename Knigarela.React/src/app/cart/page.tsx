@@ -70,12 +70,14 @@ export default function CartPage() {
                                         </div>
                                     </div>
 
-                                    <Button
-                                        className="w-full rounded-full py-3 font-medium text-white transition-all duration-300 hover:shadow-lg"
-                                        style={{ backgroundColor: "#D176A3" }}
-                                    >
-                                        Към плащане
-                                    </Button>
+                                    <a href="/checkout">
+                                        <Button
+                                            className="w-full rounded-full py-3 font-medium text-white transition-all duration-300 hover:shadow-lg"
+                                            style={{ backgroundColor: "#D176A3" }}
+                                        >
+                                            Към плащане
+                                        </Button>
+                                    </a>
 
                                     <button
                                         onClick={clear}

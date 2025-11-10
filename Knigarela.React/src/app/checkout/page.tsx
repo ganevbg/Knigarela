@@ -1,42 +1,36 @@
 ﻿"use client"
 
 import type React from "react"
-
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import Link from "next/link"
 import { getOffices, getSites } from "@/api/speedy"
+import { saveOrder } from "@/api/checkout"
+import { useCart } from "@/context/CartContext";
+
 export default function CheckoutPage() {
     const [formData, setFormData] = useState({
-        name: "",
-        email: "",
-        phone: "",
-        addressType: "courier" as "personal" | "courier",
-        state: "",
-        address: "",
-        office: "",
+            name: "",
+            email: "",
+            phone: "",
+            addressType: "courier" as "personal" | "courier",
+            siteId: "",
+            site: "",
+            address: "",
+            officeId: "",
+            office: "",
     })
-
-    const [stateQuery, setStateQuery] = useState("")
+    const [siteQuery, setSiteQuery] = useState("")
     const [officeQuery, setOfficeQuery] = useState("")
-    const [stateResults, setStateResults] = useState<Array<{ id: string; name: string }>>([])
+    const [siteResults, setSiteResults] = useState<Array<{ id: string; name: string }>>([])
     const [officeResults, setOfficeResults] = useState<Array<{ id: string; name: string }>>([])
-    const [showStateResults, setShowStateResults] = useState(false)
+    const [showSiteResults, setShowSiteResults] = useState(false)
     const [showOfficeResults, setShowOfficeResults] = useState(false)
+    const cartItems = useCart().items;
 
-    const cartItems = [
-        {
-            id: 1,
-            title: "Зимни приказки",
-            price: 49.99,
-            quantity: 1,
-            month: "Януари 2025",
-        },
-    ]
-
-    const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
+    const subtotal = cartItems.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0)
     const shipping = 5.99
     const total = subtotal + shipping
 
@@ -44,6 +38,8 @@ export default function CheckoutPage() {
         e.preventDefault()
         console.log("Order submitted:", formData)
         // Handle checkout logic here
+
+        saveOrder(formData);
     }
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -53,16 +49,16 @@ export default function CheckoutPage() {
         })
     }
 
-    const handleStateSearch = async (query: string) => {
-        setStateQuery(query)
+    const handlesiteSearch = async (query: string) => {
+        setSiteQuery(query)
         if (query.length < 3) {
-            setStateResults([])
-            setShowStateResults(false)
+            setSiteResults([])
+            setShowSiteResults(false)
             return
         }
 
-        setStateResults(await getSites(query));
-        setShowStateResults(true)
+        setSiteResults(await getSites(query));
+        setShowSiteResults(true)
     }
 
     const handleOfficeSearch = async (query: string) => {
@@ -77,14 +73,14 @@ export default function CheckoutPage() {
         setShowOfficeResults(true);
     }
 
-    const selectState = (state: { id: string; name: string }) => {
-        setFormData({ ...formData, state: state.name })
-        setStateQuery(state.name)
-        setShowStateResults(false)
+    const selectsite = (site: { id: string; name: string }) => {
+        setFormData({ ...formData, site: site.name, siteId: site.id })
+        setSiteQuery(site.name)
+        setShowSiteResults(false)
     }
 
     const selectOffice = (office: { id: string; name: string }) => {
-        setFormData({ ...formData, office: office.name })
+        setFormData({ ...formData, office: office.name, officeId: office.id })
         setOfficeQuery(office.name)
         setShowOfficeResults(false)
     }
@@ -193,10 +189,10 @@ export default function CheckoutPage() {
 
                                         {formData.addressType === "personal" ? (
                                             <>
-                                                {/* State Autocomplete */}
+                                                {/* site Autocomplete */}
                                                 <div className="relative">
                                                     <label
-                                                        htmlFor="state"
+                                                        htmlFor="site"
                                                         className="mb-2 block text-sm font-medium"
                                                         style={{ color: "#2d2d2d" }}
                                                     >
@@ -204,28 +200,28 @@ export default function CheckoutPage() {
                                                     </label>
                                                     <input
                                                         type="text"
-                                                        id="state"
-                                                        name="state"
+                                                        id="site"
+                                                        name="site"
                                                         required
-                                                        value={stateQuery}
-                                                        onChange={(e) => handleStateSearch(e.target.value)}
-                                                        onFocus={() => stateQuery.length >= 2 && setShowStateResults(true)}
+                                                        value={siteQuery}
+                                                        onChange={(e) => handlesiteSearch(e.target.value)}
+                                                        onFocus={() => siteQuery.length >= 2 && setShowSiteResults(true)}
                                                         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 transition-all"
                                                         style={{ "--tw-ring-color": "#D176A3" } as React.CSSProperties}
                                                         placeholder="Започнете да пишете..."
                                                         autoComplete="off"
                                                     />
-                                                    {showStateResults && stateResults.length > 0 && (
+                                                    {showSiteResults && siteResults.length > 0 && (
                                                         <div className="absolute z-10 mt-1 max-h-60 w-full overflow-y-auto rounded-lg border border-gray-300 bg-white shadow-lg">
-                                                            {stateResults.map((state) => (
+                                                            {siteResults.map((site) => (
                                                                 <button
-                                                                    key={state.id}
+                                                                    key={site.id}
                                                                     type="button"
-                                                                    onClick={() => selectState(state)}
+                                                                    onClick={() => selectsite(site)}
                                                                     className="w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors"
                                                                     style={{ color: "#2d2d2d" }}
                                                                 >
-                                                                    {state.name}
+                                                                    {site.name}
                                                                 </button>
                                                             ))}
                                                         </div>
@@ -365,20 +361,17 @@ export default function CheckoutPage() {
                                 {/* Cart Items */}
                                 <div className="mb-6 space-y-4">
                                     {cartItems.map((item) => (
-                                        <div key={item.id} className="flex gap-3">
+                                        <div key={`${item.boxId} - ${item.purchaseType}`} className="flex gap-3">
                                             <div className="flex-1">
                                                 <h4 className="mb-1 text-sm font-medium" style={{ color: "#2d2d2d" }}>
                                                     {item.title}
                                                 </h4>
                                                 <p className="text-xs" style={{ color: "#6b6b6b" }}>
-                                                    {item.month}
-                                                </p>
-                                                <p className="text-xs" style={{ color: "#6b6b6b" }}>
                                                     Количество: {item.quantity}
                                                 </p>
                                             </div>
                                             <p className="font-semibold" style={{ color: "#D176A3" }}>
-                                                {item.price.toFixed(2)} лв
+                                                {item.unitPrice.toFixed(2)} лв
                                             </p>
                                         </div>
                                     ))}

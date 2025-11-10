@@ -48,7 +48,6 @@ public class BoxImageService : IBoxImageService
 
         var img = new BoxImage
         {
-            Id = Guid.NewGuid(),
             BoxId = boxId,
             Url = relUrl,
             ThumbnailUrl = thumbUrl,

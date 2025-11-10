@@ -18,11 +18,11 @@ public class ClientService : IClientService
         _speedy = speedy;
     }
 
-    public async Task<Client> FindOrCreateClientAsync(string fullName, string email, string phone)
+    public async Task<Client> FindOrCreateClientAsync(Client model)
     {
-        var normName = fullName.Trim().ToLowerInvariant();
-        var normEmail = email?.Trim().ToLowerInvariant();
-        var normPhone = NormalizePhone(phone);
+        var normName = model.FullName.Trim().ToLowerInvariant();
+        var normEmail = model.Email?.Trim().ToLowerInvariant();
+        var normPhone = NormalizePhone(model.Phone);
         var normPhoneDigits = Regex.Replace(normPhone, @"\D", "");
 
         var existing = await _db.Clients
@@ -35,18 +35,7 @@ public class ClientService : IClientService
         if (existing != null)
             return existing;
 
-        var client = new Client
-        {
-            Id = Guid.NewGuid(),
-            FullName = fullName,
-            Email = email,
-            Phone = normPhone,
-            CreatedAt = DateTime.UtcNow
-        };
-
-        _db.Clients.Add(client);
-        await _db.SaveChangesAsync();
-        return client;
+        return await CreateClientAsync(model);
     }
 
     public async Task<List<Client>> GetAllAsync()
@@ -71,12 +60,7 @@ public class ClientService : IClientService
 
     public async Task<Client> CreateAsync(Client client)
     {
-        await ValidateCourierAddressesAsync(client);
-        client.CreatedAt = DateTime.UtcNow;
-
-        _db.Clients.Add(client);
-        await _db.SaveChangesAsync();
-        return client;
+        return await CreateClientAsync(client);
     }
 
     public async Task<Client?> UpdateAsync(Guid id, Client updated)
@@ -108,6 +92,16 @@ public class ClientService : IClientService
         return true;
     }
 
+    private async Task<Client> CreateClientAsync(Client client)
+    {
+        await ValidateCourierAddressesAsync(client);
+        client.CreatedAt = DateTime.UtcNow;
+
+        _db.Clients.Add(client);
+        await _db.SaveChangesAsync();
+        return client;
+    }
+
     private async Task ValidateCourierAddressesAsync(Client client)
     {
         if (client.Addresses == null || client.Addresses.Count == 0)
@@ -115,14 +109,14 @@ public class ClientService : IClientService
 
         foreach (var address in client.Addresses)
         {
-            if (address.Type == DeliveryType.Courier)
+            if (address.DeliveryType == DeliveryType.Courier)
             {
                 if (!string.IsNullOrWhiteSpace(address.OfficeId) &&
                     !await _speedy.ValidateOfficeAsync(address.OfficeId))
                     throw new InvalidOperationException($"Invalid Speedy office ID: {address.OfficeId}");
             }
 
-            if (!await _speedy.ValidateSiteAsync(address.SiteId))
+            if (!string.IsNullOrWhiteSpace(address.SiteId) && !await _speedy.ValidateSiteAsync(address.SiteId))
                 throw new InvalidOperationException($"Invalid Speedy site ID: {address.SiteId}");
         }
     }

@@ -30,8 +30,8 @@ public class SpeedyService : ISpeedyService
 
         try
         {
-            var response = await _http.GetAsync($"/location/site/{siteId}");
-            return response.IsSuccessStatusCode;
+            var response = await SearchSite(siteId);
+            return response.Any();
         }
         catch (Exception ex)
         {
@@ -47,8 +47,8 @@ public class SpeedyService : ISpeedyService
 
         try
         {
-            var response = await _http.GetAsync($"/location/offices/{officeId}");
-            return response.IsSuccessStatusCode;
+            var response = await SearchOffice(officeId);
+            return response.Any();
         }
         catch (Exception ex)
         {

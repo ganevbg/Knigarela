@@ -4,7 +4,7 @@ namespace Knigarela.Services.Interfaces
 {
     public interface IClientService
     {
-        Task<Client> FindOrCreateClientAsync(string fullName, string email, string phone);
+        Task<Client> FindOrCreateClientAsync(Client model);
 
         Task<List<Client>> GetAllAsync();
 

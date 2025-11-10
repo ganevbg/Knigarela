@@ -1,4 +1,5 @@
 ﻿using System.Data;
+using AutoMapper;
 using Knigarela.Core.Entities;
 using Knigarela.Core.Enums;
 using Knigarela.Infrastructure.Data;
@@ -12,16 +13,18 @@ public class OrderService : IOrderService
 {
     private readonly KnigarelaDbContext _db;
     private readonly IClientService _clientService;
+    private readonly IMapper _mapper;
 
     private readonly int MaxConcurrencyRetries;
     private readonly int RetryDelayMs;
 
-    public OrderService(KnigarelaDbContext db, IClientService clientService, IConfiguration configuration)
+    public OrderService(KnigarelaDbContext db, IClientService clientService, IConfiguration configuration, IMapper mapper)
     {
         _db = db;
         _clientService = clientService;
         MaxConcurrencyRetries = int.TryParse(configuration["Concurrency:MaxRetries"], out int mr) ? mr : 5;
         RetryDelayMs = int.TryParse(configuration["Concurrency:RetryDelayMs"], out int rd) ? rd : 250;
+        _mapper = mapper;
     }
 
     // --------------------------------------------------------------------
@@ -124,10 +127,9 @@ public class OrderService : IOrderService
                 return new CreateOrderResult(null, issues);
 
             // Build client + order
-            var client = await _clientService.FindOrCreateClientAsync(fullName, email, phone);
+            var client = await _clientService.FindOrCreateClientAsync(new Client { FullName = fullName, Email = email, Phone = phone, Addresses = new List<ClientAddress> { _mapper.Map<ClientAddress>(address) } });
             var order = new Order
             {
-                Id = Guid.NewGuid(),
                 ClientId = client.Id,
                 Client = client,
                 Address = address,
@@ -143,7 +145,6 @@ public class OrderService : IOrderService
 
                 order.Items.Add(new OrderItem
                 {
-                    Id = Guid.NewGuid(),
                     BoxId = box.Id,
                     Quantity = quantity,
                     PurchaseType = type,
@@ -232,11 +233,10 @@ public class OrderService : IOrderService
             foreach (var (boxId, quantity, _) in items)
                 boxes[boxId].Count -= quantity;
 
-            var client = await _clientService.FindOrCreateClientAsync(fullName, email, phone);
+            var client = await _clientService.FindOrCreateClientAsync(new Client { FullName = fullName, Email = email, Phone = phone, Addresses = new List<ClientAddress> { _mapper.Map<ClientAddress>(address) } });
 
             var order = new Order
             {
-                Id = Guid.NewGuid(),
                 ClientId = client.Id,
                 Client = client,
                 Address = address,
@@ -250,7 +250,6 @@ public class OrderService : IOrderService
                 var box = boxes[boxId];
                 order.Items.Add(new OrderItem
                 {
-                    Id = Guid.NewGuid(),
                     BoxId = box.Id,
                     Quantity = quantity,
                     PurchaseType = type,
