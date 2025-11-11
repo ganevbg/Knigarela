@@ -34,14 +34,13 @@ public class BoxesController : ControllerBase
         var box = await _boxService.GetActiveBox();
         var result = _mapper.Map<ActiveBoxDto>(box);
         return Ok(result);
-    }
+    }       
 
-    [HttpGet("{id:guid}")]
-    public async Task<IActionResult> GetById(Guid id)
+    [HttpGet("{slug}")]
+    public async Task<IActionResult> GetBySlug(string slug)
     {
-        var box = await _boxService.GetByIdAsync(id);
-        if (box == null) return NotFound();
-        return Ok(_mapper.Map<BoxDto>(box));
+        var box = await _boxService.GetBySlugAsync(slug);
+        return box == null ? NotFound() : Ok(_mapper.Map<BoxDto>(box));
     }
 
     [HttpPost]
@@ -62,26 +61,35 @@ public class BoxesController : ControllerBase
         return updated == null ? NotFound() : Ok(_mapper.Map<BoxDto>(updated));
     }
 
-    [HttpDelete("{id:guid}")]
+    [HttpDelete("admin/{id:guid}")]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Delete(Guid id)
     {
         var deleted = await _boxService.DeleteAsync(id);
         return deleted ? NoContent() : NotFound();
     }
-
-    [HttpGet("{slug}")]
-    public async Task<IActionResult> GetBySlug(string slug)
-    {
-        var box = await _boxService.GetBySlugAsync(slug);
-        return box == null ? NotFound() : Ok(_mapper.Map<BoxDto>(box));
-    }
-
     [HttpGet("previous")]
     public async Task<IActionResult> GetNotActiveBox()
     {
         var boxes = await _boxService.GetNotActiveBox();
         var result = _mapper.Map<List<PrevBoxDto>>(boxes);
+        return Ok(result);
+    }
+
+    [HttpGet("admin/{id:guid}")]
+    public async Task<IActionResult> GetById(Guid id)
+    {
+        var box = await _boxService.GetByIdAsync(id);
+        if (box == null) return NotFound();
+        return Ok(_mapper.Map<BoxDto>(box));
+    }
+
+    [HttpGet("admin")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> GetAllAdmin()
+    {
+        var boxes = await _boxService.GetAllAsync();
+        var result = _mapper.Map<IEnumerable<AdminBoxDto>>(boxes);
         return Ok(result);
     }
 }

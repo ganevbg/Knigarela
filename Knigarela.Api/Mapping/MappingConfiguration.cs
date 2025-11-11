@@ -13,6 +13,8 @@ namespace Knigarela.Api.Mapping
         {
             CreateMap<UpsertBoxDto, Box>();
 
+            CreateMap<Box, AdminBoxDto>();
+
             CreateMap<Box, BoxDto>()
                 .ForMember(dest => dest.ImageUrls, opt => opt.MapFrom(src => src.Images.Where(x => !x.IsMain).OrderBy(x => x.SortOrder).Select(i => i.Url)))
                 .ForMember(dest => dest.MainImageUrl, opt => opt.MapFrom(src => src.Images.FirstOrDefault(i => i.IsMain)!.Url));

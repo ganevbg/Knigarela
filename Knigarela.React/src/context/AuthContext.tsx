@@ -26,7 +26,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [accessToken, setAccessToken] = useState<string | null>(null);
     const [user, setUser] = useState<UserInfo | null>(null);
 
-    // 🧠 Helper to decode JWT and extract claims
     function decodeToken(token: string): UserInfo | null {
         try {
             const decoded: any = jwtDecode(token);
@@ -51,7 +50,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
     }
 
-    // 🪄 Hydrate on mount
     useEffect(() => {
         const token = tokenStore.access;
         if (token) {
@@ -60,7 +58,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
     }, []);
 
-    // 🟢 Login
     async function login(email: string, password: string) {
         await apiLogin(email, password);
         const token = tokenStore.access;
@@ -68,7 +65,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(token ? decodeToken(token) : null);
     }
 
-    // 🔴 Logout
     async function logout() {
         await apiLogout();
         setAccessToken(null);
