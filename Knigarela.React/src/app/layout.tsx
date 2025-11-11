@@ -36,15 +36,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 </AuthProvider>
                 <Analytics />
                 <ToastContainer
+                    className="!mt-[70px] sm:!mt-[80px]"
                     position="top-right"
-                    autoClose={3000}
-                    hideProgressBar
-                    newestOnTop
-                    closeOnClick
-                    draggable
-                    pauseOnHover
-                    theme="light"
-                    style={{ marginTop: "80px" }}
                 />
             </body>
         </html>
