@@ -11,43 +11,8 @@ export async function addToCart(
     quantity: number = 1,
     purchaseType: string = "single"
 ): Promise<AddToCartResponse> {
-    const cartItem = { boxId, quantity, purchaseType };
-    try {
-        const response = await api.post("/api/cart/add", cartItem);
-        return {
-            success: true,
-            message: "Успешно добавяне в количката."
-        };
-    } catch (error: any) {
-        if (error.response) {
-            const { status, data } = error.response;
-
-            if (status === 409 && data.error === "InsufficientStock") {
-                return {
-                    success: false,
-                    message: `Няма достатъчна наличност. Налични са ${data.availableQuantity} броя.`,
-                    availableQuantity: data.availableQuantity,
-                };
-            }
-
-            if (status === 400) {
-                return {
-                    success: false,
-                    message: data.message || "Invalid cart request.",
-                };
-            }
-
-            return {
-                success: false,
-                message: data.message || "Failed to add to cart.",
-            };
-        }
-
-        return {
-            success: false,
-            message: "Network error - please try again.",
-        };
-    }
+    const { data } = await api.post("/api/cart/add", { boxId, quantity, purchaseType });
+    return data;
 }
 
 export async function getCart() {

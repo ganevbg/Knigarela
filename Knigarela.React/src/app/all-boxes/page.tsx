@@ -19,15 +19,16 @@ export default function AllBoxesPage() {
 
     useEffect(() => {
         async function fetchBoxes() {
+            setLoading(true);
             try {
                 const data = await getAllBoxes();
-                setBox(data);
-            } catch (error) {
-                console.error("Failed to load active box:", error);
-            } finally {
+                setBox(data ?? []); // fallback if null/undefined
+            }
+            finally {
                 setLoading(false);
             }
         }
+
         fetchBoxes();
     }, []);
 

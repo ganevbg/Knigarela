@@ -21,3 +21,8 @@ export async function saveOrder(formData: any) {
     const { data } = await api.post(`/api/order/from-cart`, req);
     return data;
 }
+
+export async function getOrder(id: string) {
+    const { data } = await api.get(`/api/order/${id}`);
+    return data;
+}

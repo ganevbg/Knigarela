@@ -1,6 +1,9 @@
 ﻿using AutoMapper;
 using Knigarela.Api.Dtos.Boxes;
+using Knigarela.Api.Dtos.Cart;
+using Knigarela.Api.Dtos.Orders;
 using Knigarela.Core.Entities;
+using Knigarela.Core.Enums;
 
 namespace Knigarela.Api.Mapping
 {
@@ -29,6 +32,19 @@ namespace Knigarela.Api.Mapping
                .ForMember(dest => dest.MainImageUrl,opt => opt.MapFrom(src => src.Images.FirstOrDefault(i => i.IsMain)!.Url));
 
             CreateMap<OrderAddress, ClientAddress>();
+            CreateMap<Order, OrderByIdDto>()
+               .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Client.Email))
+               .ForMember(dest => dest.Client, opt => opt.MapFrom(src => src.Client.FullName))
+               .ForMember(dest => dest.OrderNumber, opt => opt.MapFrom(src => src.Id))
+               .ForMember(dest => dest.Date, opt => opt.MapFrom(src => src.CreatedAt))
+               .ForMember(dest => dest.AddressType, opt => opt.MapFrom(src => src.Address.DeliveryTypeText))
+               .ForMember(dest => dest.AddressDetailText, opt => opt.MapFrom(src => src.Address.AddressDetailText))
+            .ForMember(dest => dest.SubTotal, opt => opt.MapFrom(src => src.TotalAmount));
+
+            CreateMap<OrderItem, CartItemDto>()
+                   .ForMember(dest => dest.BoxId, opt => opt.MapFrom(src => src.BoxId))
+                   .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Box.Title))
+                   .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src => src.Box.Images.FirstOrDefault(x => x.IsMain).ThumbnailUrl));
         }
     }
 }

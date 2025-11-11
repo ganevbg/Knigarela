@@ -57,7 +57,7 @@ public class OrderService : IOrderService
     {
         return await _db.Orders
             .Include(o => o.Client)
-            .Include(o => o.Items).ThenInclude(i => i.Box)
+            .Include(o => o.Items).ThenInclude(i => i.Box).ThenInclude(b => b.Images)
             .FirstOrDefaultAsync(o => o.Id == id);
     }
 

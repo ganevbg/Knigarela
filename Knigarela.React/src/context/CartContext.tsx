@@ -31,12 +31,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }, []);
 
     async function refresh() {
-        try {
-            const data = await getCart();
-            setItems(data);
-        } catch (err) {
-            console.error("Failed to load cart:", err);
-        }
+        const data = await getCart();
+        setItems(data);
     }
 
     async function add(boxId: string, purchaseType: string, quantity = 1) {

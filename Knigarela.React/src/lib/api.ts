@@ -1,5 +1,6 @@
-import axios, { AxiosError } from "axios";
+﻿import axios, { AxiosError } from "axios";
 import { tokenStore } from "./tokenStore";
+import { toast } from "react-toastify";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "/";
 const TIMEOUT = Number(process.env.NEXT_PUBLIC_API_TIMEOUT ?? 10000);
@@ -61,4 +62,57 @@ api.interceptors.response.use(
       throw e;
     }
   }
+);
+
+api.interceptors.response.use(
+    (response) => response,
+    (error: AxiosError) => {
+        // Allow the token-refresh interceptor above to handle 401s
+        if (error.response?.status === 401) {
+            return Promise.reject(error);
+        }
+
+        // Handle network error (no response at all)
+        if (!error.response) {
+            toast.error("Няма връзка със сървъра. Опитайте отново по-късно.");
+            return Promise.reject(error);
+        }
+
+        const { status, data } = error.response;
+
+        switch (status) {
+            case 400:
+                toast.error((data as any)?.message || "Невалидна заявка.");
+                break;
+            case 403:
+                toast.error("Нямате достъп до тази операция.");
+                break;
+            case 404:
+                toast.error("Не е намерен ресурс.");
+                break;
+            case 409:
+                const error = (data as any)?.error as string;
+                switch (error) {
+                    case "InsufficientStock":
+                        toast.error(`Няма достатъчна наличност. Налични са ${(data as any)?.availableQuantity ?? "0"} броя.`);
+                        break;
+                    case "CartIsEmpty":
+                        toast.error(`Няма добавени артикули в количката.`);
+                        break;
+                    default:
+                        toast.error((data as any)?.message || "Конфликт при обработка на заявката.");
+                        break;
+                }
+                break;
+            case 500:
+                toast.error("Грешка на сървъра. Моля, опитайте отново по-късно.");
+                break;
+            default:
+                toast.error((data as any)?.message || "Възникна неочаквана грешка.");
+                break;
+        }
+
+        // Always reject so local code can still catch if needed
+        return Promise.reject(error);
+    }
 );

@@ -15,5 +15,7 @@ namespace Knigarela.Api.Dtos.Cart
         public string ImageUrl { get; set; }
 
         public PurchaseType PurchaseType { get; set; }
+
+        public string PurchaseTypeText => PurchaseType == PurchaseType.Single ? "Еднократно" : "Абонамент";
     }
 }

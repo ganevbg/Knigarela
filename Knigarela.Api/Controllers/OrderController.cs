@@ -1,4 +1,5 @@
-﻿using Knigarela.Api.Dtos.Cart;
+﻿using AutoMapper;
+using Knigarela.Api.Dtos.Cart;
 using Knigarela.Api.Dtos.Orders;
 using Knigarela.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -12,11 +13,13 @@ namespace Knigarela.Api.Controllers.Admin;
 public class OrderController : ControllerBase
 {
     private readonly IOrderService _orderService;
+    private readonly IMapper mapper;
     private const string SessionKey = "CartItems";
 
-    public OrderController(IOrderService orderService)
+    public OrderController(IOrderService orderService, IMapper mapper)
     {
         _orderService = orderService;
+        this.mapper = mapper;
     }
 
     [HttpPost]
@@ -34,7 +37,7 @@ public class OrderController : ControllerBase
          );
 
         if (!result.Success)
-            return Conflict(new { error = "NotEnoughStock", items = result.Issues });
+            return Conflict(new { error = "InsufficientStock", items = result.Issues });
 
         return CreatedAtAction(nameof(GetById), new { id = result.Order!.Id }, result.Order);
     }
@@ -45,7 +48,7 @@ public class OrderController : ControllerBase
         var order = await _orderService.GetByIdAsync(id);
         if (order == null)
             return NotFound();
-        return Ok(order);
+        return Ok(mapper.Map<OrderByIdDto>(order));
     }
 
     [HttpGet]
@@ -70,7 +73,7 @@ public class OrderController : ControllerBase
         var items = GetCart();
         if (items == null || !items.Any())
         {
-            return Conflict(new { error = "NotFound" });
+            return Conflict(new { error = "CartIsEmpty" });
         }
 
         var result = await _orderService.CreateOrderWithStockCheckAsync(
@@ -83,7 +86,7 @@ public class OrderController : ControllerBase
         );
 
         if (!result.Success)
-            return Conflict(new { error = "NotEnoughStock", items = result.Issues });
+            return Conflict(new { error = "InsufficientStock", items = result.Issues });
 
         return Ok(new { orderId = result.Order!.Id });
     }

@@ -15,5 +15,9 @@ namespace Knigarela.Core.Entities
         public string? OfficeName { get; set; }
 
         public DeliveryType DeliveryType { get; set; }
+
+        public string DeliveryTypeText => DeliveryType == DeliveryType.Courier ? "Офис на куриер" : "Личен адрес";
+
+        public string AddressDetailText => DeliveryType == DeliveryType.Courier ?  $"{OfficeName}" : $"{SiteName}, {AddressText}";
     }
 }

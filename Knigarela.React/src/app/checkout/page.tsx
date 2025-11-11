@@ -7,10 +7,13 @@ import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import Link from "next/link"
 import { getOffices, getSites } from "@/api/speedy"
-import { saveOrder } from "@/api/checkout"
+import { saveOrder } from "@/api/orders"
 import { useCart } from "@/context/CartContext";
+import { useRouter } from "next/navigation";
 
 export default function CheckoutPage() {
+    const router = useRouter();
+
     const [formData, setFormData] = useState({
             name: "",
             email: "",
@@ -29,17 +32,18 @@ export default function CheckoutPage() {
     const [showSiteResults, setShowSiteResults] = useState(false)
     const [showOfficeResults, setShowOfficeResults] = useState(false)
     const cartItems = useCart().items;
+    const clear = useCart().clear;
 
     const subtotal = cartItems.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0)
     const shipping = 5.99
     const total = subtotal + shipping
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
-        console.log("Order submitted:", formData)
-        // Handle checkout logic here
 
-        saveOrder(formData);
+        const data = await saveOrder(formData);
+        router.push(`/order-success/${data.orderId}`);
+        clear();
     }
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
