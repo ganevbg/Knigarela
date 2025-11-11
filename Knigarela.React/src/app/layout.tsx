@@ -35,7 +35,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     </CartProvider>
                 </AuthProvider>
                 <Analytics />
-                <ToastContainer />
+                <ToastContainer
+                    position="top-right"
+                    autoClose={3000}
+                    hideProgressBar
+                    newestOnTop
+                    closeOnClick
+                    draggable
+                    pauseOnHover
+                    theme="light"
+                    style={{ marginTop: "80px" }}
+                />
             </body>
         </html>
     );

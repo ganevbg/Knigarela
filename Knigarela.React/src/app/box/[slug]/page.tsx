@@ -9,6 +9,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
 import { addToCart } from "@/api/cart";
 import { useCart } from "@/context/CartContext";
+import { toast } from "react-toastify";
 
 type Box = {
     id: string;
@@ -35,6 +36,7 @@ export default function BoxDetailPage() {
     ) => {
         await addToCart(boxId, 1, purchaseType);
         await refresh();
+        toast.success("Добавено в количката! 🛒");
     };
 
     useEffect(() => {
