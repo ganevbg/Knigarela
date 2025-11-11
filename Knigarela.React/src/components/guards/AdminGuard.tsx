@@ -1,26 +1,37 @@
 ﻿"use client";
-
-import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { useAuth } from "@/context/AuthContext";
+import { useRouter, usePathname } from "next/navigation";
+import { useAuth } from "@/context/AuthContext"; // adjust path if needed
+import { Loader2 } from "lucide-react";
 
 export default function AdminGuard({ children }: { children: React.ReactNode }) {
-    const { isAuthed, user } = useAuth(); // assumes user?.role is available
     const router = useRouter();
+    const pathname = usePathname();
+    const { isAuthed, user, hydrated } = useAuth();
 
     useEffect(() => {
-        if (!isAuthed) router.replace("/");
-        else if (user?.role !== "Admin") router.replace("/"); // or "/not-authorized"
-    }, [isAuthed, user?.role, router]);
+        if (!hydrated) return; // ⏳ wait for tokenStore load
 
-    // Minimal anti-flicker while checking
-    if (!isAuthed || user?.role !== "Admin") {
+        if (!isAuthed) {
+            router.replace(`/login?redirect=${encodeURIComponent(pathname)}`);
+        } else if (user?.role !== "Admin") {
+            router.replace("/");
+        }
+    }, [hydrated, isAuthed, user, pathname, router]);
+
+    // While loading, render a spinner
+    if (!hydrated) {
         return (
-            <div className="flex min-h-[40vh] items-center justify-center text-gray-500">
-                Проверка на достъп...
+            <div className="flex h-screen items-center justify-center">
+                <Loader2 className="h-8 w-8 animate-spin text-pink-500" />
             </div>
         );
     }
 
-    return <>{children}</>;
+    // Once hydrated, show page only if user is admin
+    if (isAuthed && user?.role === "Admin") {
+        return <>{children}</>;
+    }
+
+    return null;
 }

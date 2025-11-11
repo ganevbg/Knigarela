@@ -1,9 +1,9 @@
 ﻿"use client";
 
 import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { jwtDecode } from "jwt-decode";
 import { login as apiLogin, logout as apiLogout } from "@/api/auth";
 import { tokenStore } from "@/lib/tokenStore";
-import { jwtDecode } from "jwt-decode";
 
 type UserInfo = {
     id: string | null;
@@ -16,6 +16,7 @@ type AuthCtx = {
     isAuthed: boolean;
     accessToken: string | null;
     user: UserInfo | null;
+    hydrated: boolean;
     login: (email: string, password: string) => Promise<void>;
     logout: () => Promise<void>;
 };
@@ -25,11 +26,11 @@ const Ctx = createContext<AuthCtx | null>(null);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [accessToken, setAccessToken] = useState<string | null>(null);
     const [user, setUser] = useState<UserInfo | null>(null);
+    const [hydrated, setHydrated] = useState(false);
 
     function decodeToken(token: string): UserInfo | null {
         try {
             const decoded: any = jwtDecode(token);
-
             const role =
                 decoded.role ||
                 decoded.roles?.[0] ||
@@ -50,12 +51,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
     }
 
+    // Load token from tokenStore on startup
     useEffect(() => {
         const token = tokenStore.access;
         if (token) {
             setAccessToken(token);
             setUser(decodeToken(token));
         }
+        setHydrated(true); // ✅ prevents redirect flicker
     }, []);
 
     async function login(email: string, password: string) {
@@ -71,15 +74,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(null);
     }
 
+    // Optional: auto logout if token expired
+    useEffect(() => {
+        if (user?.exp && Date.now() / 1000 > user.exp) logout();
+    }, [user]);
+
     const value = useMemo(
         () => ({
             isAuthed: !!accessToken,
             accessToken,
             user,
+            hydrated,
             login,
             logout,
         }),
-        [accessToken, user]
+        [accessToken, user, hydrated]
     );
 
     return <Ctx.Provider value={value}>{children}</Ctx.Provider>;

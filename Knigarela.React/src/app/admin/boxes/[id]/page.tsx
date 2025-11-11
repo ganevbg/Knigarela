@@ -1,146 +1,190 @@
-﻿"use client"
+﻿"use client";
 
-import type React from "react"
-
-import { useState, useEffect } from "react"
-import { useRouter, useParams } from "next/navigation"
-import Link from "next/link"
-import Image from "next/image"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Checkbox } from "@/components/ui/checkbox"
-import { ArrowLeft, Upload, X, GripVertical, Save } from "lucide-react"
-import { getById, create, update } from "@/api/boxes"
+import type React from "react";
+import { useState, useEffect } from "react";
+import { useRouter, useParams } from "next/navigation";
+import Link from "next/link";
+import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
+import { ArrowLeft, Upload, X, GripVertical, Save, Star } from "lucide-react";
+import { getById, create, update } from "@/api/boxes";
+import {
+    listImages,
+    uploadImage,
+    deleteImage,
+    reorderImages,
+    setMainImage,
+} from "@/api/boxImages";
 
 interface BoxImage {
-    id: string
-    url: string
-    order: number
+    id: string;
+    url: string;
+    sortOrder: number;
+    isMain: boolean;
 }
 
 interface BoxFormData {
-    id: string
-    title: string
-    description: string
-    singlePrice: string
-    subscriptionPrice: string
-    isActive: boolean
-    count: string
-    //images: BoxImage[]
+    id: string;
+    title: string;
+    description: string;
+    singlePrice: string;
+    subscriptionPrice: string;
+    isActive: boolean;
+    count: string;
+    images: BoxImage[];
 }
 
 export default function AdminBoxFormPage() {
-    const router = useRouter()
-    const params = useParams()
-    const isEdit = params.id !== "create"
-    const boxId = params.id as string
+    const router = useRouter();
+    const params = useParams();
+    const isEdit = params.id !== "create";
+    const boxId = params.id as string;
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL;
 
-    const [loading, setLoading] = useState(false)
-    const [saving, setSaving] = useState(false)
-    const [draggedIndex, setDraggedIndex] = useState<number | null>(null)
+    const [loading, setLoading] = useState(false);
+    const [saving, setSaving] = useState(false);
+    const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
 
     const [formData, setFormData] = useState<BoxFormData>({
-        id:"",
+        id: "",
         title: "",
         description: "",
         singlePrice: "",
         subscriptionPrice: "",
         isActive: true,
         count: "",
-        //images: [],
-    })
+        images: [],
+    });
 
-    // Load box data if editing
+    // Load box + images when editing
     useEffect(() => {
         if (isEdit) {
             const loadBox = async () => {
-                setLoading(true)
-
-                var data = await getById(boxId);
-                setFormData(data as BoxFormData)
-                setLoading(false)
-            }
-
-            loadBox()
+                setLoading(true);
+                const data = await getById(boxId);
+                const imgs = await listImages(boxId);
+                setFormData({ ...data, images: imgs });
+                setLoading(false);
+            };
+            loadBox();
         }
-    }, [isEdit])
+    }, [isEdit]);
 
     const handleInputChange = (field: keyof BoxFormData, value: string | boolean) => {
-        setFormData((prev) => ({ ...prev, [field]: value }))
+        setFormData((prev) => ({ ...prev, [field]: value }));
+    };
+
+    // Ensure box exists before uploading
+    const ensureBoxExists = async (): Promise<string> => {
+        if (formData.id) return formData.id;
+
+        const created = await create({
+            title: formData.title || "Нова кутия",
+            description: formData.description || "",
+            singlePrice: formData.singlePrice || "0",
+            subscriptionPrice: formData.subscriptionPrice || "0",
+            isActive: false,
+            count: formData.count || "0",
+        });
+
+        setFormData((prev) => ({ ...prev, id: created.id }));
+        router.replace(`/admin/boxes/${created.id}`); // Move to edit mode
+        return created.id;
+    };
+
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = e.target.files;
+        if (!files) return;
+
+        const ensuredId = await ensureBoxExists();
+
+        for (const file of Array.from(files)) {
+            const uploaded = await uploadImage(ensuredId, file);
+            setFormData((prev) => ({
+                ...prev,
+                images: [...(prev.images || []), uploaded],
+            }));
+        }
+    };
+
+    const handleImageDelete = async (imageId: string) => {
+        if (!formData.id) return;
+        await deleteImage(formData.id, imageId);
+        setFormData((prev) => ({
+            ...prev,
+            images: prev.images.filter((img) => img.id !== imageId),
+        }));
+    };
+
+    const handleSetMainImage = async (imageId: string) => {
+        await setMainImage(formData.id, imageId);
+
+        setFormData((prev) => ({
+            ...prev,
+            images: prev.images.map((img) => ({
+                ...img,
+                isMain: img.id === imageId,
+            })),
+        }));
     }
 
-    //const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    //    const files = e.target.files
-    //    if (!files) return
+    const handleDragStart = (index: number) => setDraggedIndex(index);
 
-    //    // In production, upload images to server and get URLs
-    //    const newImages: BoxImage[] = Array.from(files).map((file, index) => ({
-    //        id: `new-${Date.now()}-${index}`,
-    //        url: URL.createObjectURL(file),
-    //        order: formData.images.length + index,
-    //    }))
+    const handleDragOver = (e: React.DragEvent, index: number) => {
+        e.preventDefault();
+        if (draggedIndex === null || draggedIndex === index) return;
 
-    //    setFormData((prev) => ({
-    //        ...prev,
-    //        images: [...prev.images, ...newImages],
-    //    }))
-    //}
+        const newImages = [...formData.images];
+        const draggedImage = newImages[draggedIndex];
+        newImages.splice(draggedIndex, 1);
+        newImages.splice(index, 0, draggedImage);
 
-    //const handleImageDelete = (imageId: string) => {
-    //    setFormData((prev) => ({
-    //        ...prev,
-    //        images: prev.images.filter((img) => img.id !== imageId).map((img, index) => ({ ...img, order: index })),
-    //    }))
-    //}
+        const reordered = newImages.map((img, i) => ({ ...img, order: i }));
+        setFormData((prev) => ({ ...prev, images: reordered }));
+        setDraggedIndex(index);
+    };
 
-    //const handleDragStart = (index: number) => {
-    //    setDraggedIndex(index)
-    //}
-
-    //const handleDragOver = (e: React.DragEvent, index: number) => {
-    //    e.preventDefault()
-
-    //    if (draggedIndex === null || draggedIndex === index) return
-
-    //    const newImages = [...formData.images]
-    //    const draggedImage = newImages[draggedIndex]
-
-    //    newImages.splice(draggedIndex, 1)
-    //    newImages.splice(index, 0, draggedImage)
-
-    //    // Update order
-    //    const reorderedImages = newImages.map((img, idx) => ({ ...img, order: idx }))
-
-    //    setFormData((prev) => ({ ...prev, images: reorderedImages }))
-    //    setDraggedIndex(index)
-    //}
-
-    //const handleDragEnd = () => {
-    //    setDraggedIndex(null)
-    //}
+    const handleDragEnd = async () => {
+        if (!formData.id || !formData.images.length) return;
+        setDraggedIndex(null);
+        await reorderImages(
+            formData.id,
+            formData.images.map((img, idx) => ({
+                imageId: img.id,
+                sortOrder: idx,
+            }))
+        );
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault()
-        setSaving(true)
+        e.preventDefault();
+        setSaving(true);
 
-
-        if (isEdit) {
-            await update(formData);
-        } else {
-            await create(formData);
+        try {
+            let savedBox: BoxFormData;
+            if (isEdit) {
+                savedBox = await update(formData);
+            } else {
+                savedBox = await create(formData);
+                setFormData((prev) => ({ ...prev, id: savedBox.id }));
+                router.replace(`/admin/boxes/${savedBox.id}`);
+            }
+            router.push("/admin/boxes");
+        } finally {
+            setSaving(false);
         }
-        setSaving(false)
-        router.push("/admin/boxes")
-    }
+    };
 
     if (loading) {
         return (
             <div className="flex min-h-screen items-center justify-center bg-[var(--knigarela-bg)]">
                 <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-[var(--knigarela-pink)]"></div>
             </div>
-        )
+        );
     }
 
     return (
@@ -285,85 +329,101 @@ export default function AdminBoxFormPage() {
                     </div>
 
                     {/* Images */}
-                    {/*<div className="space-y-6 rounded-lg bg-white p-6 shadow-sm">*/}
-                    {/*    <div className="flex items-center justify-between border-b border-gray-200 pb-3">*/}
-                    {/*        <h2 className="text-xl font-semibold text-[var(--knigarela-text)]">Снимки на Продукти</h2>*/}
-                    {/*        <Label htmlFor="imageUpload" className="cursor-pointer">*/}
-                    {/*            <div className="flex items-center gap-2 rounded-lg bg-[var(--knigarela-pink-light)]/30 px-4 py-2 text-[var(--knigarela-pink)] transition-colors hover:bg-[var(--knigarela-pink-light)]/50">*/}
-                    {/*                <Upload className="h-4 w-4" />*/}
-                    {/*                <span className="text-sm font-medium">Качете Снимки</span>*/}
-                    {/*            </div>*/}
-                    {/*            <Input*/}
-                    {/*                id="imageUpload"*/}
-                    {/*                type="file"*/}
-                    {/*                accept="image/*"*/}
-                    {/*                multiple*/}
-                    {/*                onChange={handleImageUpload}*/}
-                    {/*                className="hidden"*/}
-                    {/*            />*/}
-                    {/*        </Label>*/}
-                    {/*    </div>*/}
+                    <div className="space-y-6 rounded-lg bg-white p-6 shadow-sm">
+                        <div className="flex items-center justify-between border-b border-gray-200 pb-3">
+                            <h2 className="text-xl font-semibold text-[var(--knigarela-text)]">Снимки на Продукти</h2>
+                            <Label htmlFor="imageUpload" className="cursor-pointer">
+                                <div className="flex items-center gap-2 rounded-lg bg-[var(--knigarela-pink-light)]/30 px-4 py-2 text-[var(--knigarela-pink)] transition-colors hover:bg-[var(--knigarela-pink-light)]/50">
+                                    <Upload className="h-4 w-4" />
+                                    <span className="text-sm font-medium">Качете Снимки</span>
+                                </div>
+                                <Input
+                                    id="imageUpload"
+                                    type="file"
+                                    accept="image/*"
+                                    multiple
+                                    onChange={handleImageUpload}
+                                    className="hidden"
+                                />
+                            </Label>
+                        </div>
 
-                    {/*    <p className="text-sm text-[var(--knigarela-text-light)]">*/}
-                    {/*        Качете снимки на продуктите в кутията. Плъзгайте снимките, за да ги подредите.*/}
-                    {/*    </p>*/}
+                        <p className="text-sm text-[var(--knigarela-text-light)]">
+                            Качете снимки на продуктите в кутията. Плъзгайте снимките, за да ги подредите. Кликнете на звездичката, за
+                            да изберете главна снимка.
+                        </p>
 
-                    {/*    {formData.images.length === 0 ? (*/}
-                    {/*        <div className="rounded-lg border-2 border-dashed border-gray-300 p-12 text-center">*/}
-                    {/*            <Upload className="mx-auto mb-4 h-12 w-12 text-gray-400" />*/}
-                    {/*            <p className="mb-2 text-[var(--knigarela-text-light)]">Няма качени снимки</p>*/}
-                    {/*            <Label htmlFor="imageUpload" className="cursor-pointer">*/}
-                    {/*                <span className="text-[var(--knigarela-pink)] hover:underline">Качете снимки</span>*/}
-                    {/*            </Label>*/}
-                    {/*        </div>*/}
-                    {/*    ) : (*/}
-                    {/*        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">*/}
-                    {/*            {formData.images.map((image, index) => (*/}
-                    {/*                <div*/}
-                    {/*                    key={image.id}*/}
-                    {/*                    draggable*/}
-                    {/*                    onDragStart={() => handleDragStart(index)}*/}
-                    {/*                    onDragOver={(e) => handleDragOver(e, index)}*/}
-                    {/*                    onDragEnd={handleDragEnd}*/}
-                    {/*                    className={`relative group rounded-lg overflow-hidden border-2 transition-all cursor-move ${draggedIndex === index*/}
-                    {/*                            ? "border-[var(--knigarela-pink)] opacity-50"*/}
-                    {/*                            : "border-gray-200 hover:border-[var(--knigarela-pink)]"*/}
-                    {/*                        }`}*/}
-                    {/*                >*/}
-                    {/*                    <div className="relative aspect-square bg-gray-100">*/}
-                    {/*                        <Image*/}
-                    {/*                            src={image.url || "/placeholder.svg"}*/}
-                    {/*                            alt={`Product ${index + 1}`}*/}
-                    {/*                            fill*/}
-                    {/*                            className="object-cover"*/}
-                    {/*                        />*/}
-                    {/*                    </div>*/}
+                        {formData.images.length === 0 ? (
+                            <div className="rounded-lg border-2 border-dashed border-gray-300 p-12 text-center">
+                                <Upload className="mx-auto mb-4 h-12 w-12 text-gray-400" />
+                                <p className="mb-2 text-[var(--knigarela-text-light)]">Няма качени снимки</p>
+                                <Label htmlFor="imageUpload" className="cursor-pointer">
+                                    <span className="text-[var(--knigarela-pink)] hover:underline">Качете снимки</span>
+                                </Label>
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+                                {formData.images.map((image, index) => (
+                                    <div
+                                        key={image.id}
+                                        draggable
+                                        onDragStart={() => handleDragStart(index)}
+                                        onDragOver={(e) => handleDragOver(e, index)}
+                                        onDragEnd={handleDragEnd}
+                                        className={`relative group rounded-lg overflow-hidden border-2 transition-all cursor-move ${draggedIndex === index
+                                                ? "border-[var(--knigarela-pink)] opacity-50"
+                                                : image.isMain
+                                                    ? "border-[var(--knigarela-pink)] ring-2 ring-[var(--knigarela-pink)]/30"
+                                                    : "border-gray-200 hover:border-[var(--knigarela-pink)]"
+                                            }`}
+                                    >
+                                        <div className="relative aspect-square bg-gray-100">
+                                            <Image
+                                                src={`${baseUrl}${image.url}` || "/placeholder.svg"}
+                                                alt={`Product ${index + 1}`}
+                                                fill
+                                                className="object-cover"
+                                            />
+                                        </div>
 
-                    {/*                    */}{/* Order Badge */}
-                    {/*                    <div className="absolute top-2 left-2 rounded bg-white/90 px-2 py-1 text-xs font-semibold text-[var(--knigarela-text)] backdrop-blur-sm">*/}
-                    {/*                        #{index + 1}*/}
-                    {/*                    </div>*/}
+                                        {/* Order Badge */}
+                                        <div className="absolute top-2 left-2 rounded bg-white/90 px-2 py-1 text-xs font-semibold text-[var(--knigarela-text)] backdrop-blur-sm">
+                                            #{index + 1}
+                                        </div>
 
-                    {/*                    */}{/* Drag Handle */}
-                    {/*                    <div className="absolute top-2 right-2 rounded bg-white/90 p-1 opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100">*/}
-                    {/*                        <GripVertical className="h-4 w-4 text-[var(--knigarela-text)]" />*/}
-                    {/*                    </div>*/}
+                                        <button
+                                            type="button"
+                                            onClick={() => handleSetMainImage(image.id)}
+                                            className={`absolute top-2 right-2 p-1.5 rounded transition-all ${image.isMain
 
-                    {/*                    */}{/* Delete Button */}
-                    {/*                    <button*/}
-                    {/*                        type="button"*/}
-                    {/*                        onClick={() => handleImageDelete(image.id)}*/}
-                    {/*                        className="absolute bottom-2 right-2 bg-red-500 text-white p-1.5 rounded opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"*/}
-                    {/*                    >*/}
-                    {/*                        <X className="h-4 w-4" />*/}
-                    {/*                    </button>*/}
-                    {/*                </div>*/}
-                    {/*            ))}*/}
-                    {/*        </div>*/}
-                    {/*    )}*/}
-                    {/*</div>*/}
+                                                ? "bg-[var(--knigarela-pink)] text-white"
+                                                : "bg-white/90 backdrop-blur-sm text-gray-400 hover:text-[var(--knigarela-pink)]"
+                                                }`}
+                                            title={image.isMain ? "Главна снимка" : "Задай като главна"}
+                                        >
+                                            <Star className={`w-4 h-4 ${image.isMain ? "fill-current" : ""}`} />
+                                        </button>
 
-                    {/* Submit Button */}
+                                        {/* Drag Handle */}
+                                        <div className="absolute bottom-2 left-2 rounded bg-white/90 p-1 opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100">
+                                            <GripVertical className="h-4 w-4 text-[var(--knigarela-text)]" />
+                                        </div>
+
+                                        {/* Delete Button */}
+                                        <button
+                                            type="button"
+                                            onClick={() => handleImageDelete(image.id)}
+                                            className="absolute bottom-2 right-2 bg-red-500 text-white p-1.5 rounded opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
+                                        >
+                                            <X className="h-4 w-4" />
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Buttons */}
                     <div className="flex items-center justify-end gap-4 pt-4">
                         <Link href="/admin/boxes">
                             <Button type="button" variant="outline" className="border-gray-300 bg-transparent">
@@ -391,5 +451,5 @@ export default function AdminBoxFormPage() {
                 </div>
             </form>
         </div>
-    )
+    );
 }
