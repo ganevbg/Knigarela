@@ -92,24 +92,32 @@ export default function AdminBoxFormPage() {
         });
 
         setFormData((prev) => ({ ...prev, id: created.id }));
+
         router.replace(`/admin/boxes/${created.id}`); // Move to edit mode
         return created.id;
     };
 
     const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = e.target.files;
-        if (!files) return;
+        if (!files || files.length === 0) return;
 
         const ensuredId = await ensureBoxExists();
 
-        for (const file of Array.from(files)) {
-            const uploaded = await uploadImage(ensuredId, file);
-            setFormData((prev) => ({
-                ...prev,
-                images: [...(prev.images || []), uploaded],
-            }));
-        }
+        // Upload all images in parallel
+        const uploadedImages = await Promise.all(
+            Array.from(files).map(async (file) => {
+                const uploaded = await uploadImage(ensuredId, file);
+                return uploaded as BoxImage;
+            })
+        );
+
+        // Update form data once after all uploads complete
+        setFormData((prev) => ({
+            ...prev,
+            images: [...(prev.images || []), ...uploadedImages],
+        }));
     };
+
 
     const handleImageDelete = async (imageId: string) => {
         if (!formData.id) return;
@@ -371,10 +379,10 @@ export default function AdminBoxFormPage() {
                                         onDragOver={(e) => handleDragOver(e, index)}
                                         onDragEnd={handleDragEnd}
                                         className={`relative group rounded-lg overflow-hidden border-2 transition-all cursor-move ${draggedIndex === index
-                                                ? "border-[var(--knigarela-pink)] opacity-50"
-                                                : image.isMain
-                                                    ? "border-[var(--knigarela-pink)] ring-2 ring-[var(--knigarela-pink)]/30"
-                                                    : "border-gray-200 hover:border-[var(--knigarela-pink)]"
+                                            ? "border-[var(--knigarela-pink)] opacity-50"
+                                            : image.isMain
+                                                ? "border-[var(--knigarela-pink)] ring-2 ring-[var(--knigarela-pink)]/30"
+                                                : "border-gray-200 hover:border-[var(--knigarela-pink)]"
                                             }`}
                                     >
                                         <div className="relative aspect-square bg-gray-100">
