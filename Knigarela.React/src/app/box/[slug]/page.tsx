@@ -30,6 +30,8 @@ export default function BoxDetailPage() {
     const [loading, setLoading] = useState(true);
     const [purchaseType, setPurchaseType] = useState<"single" | "subscription">("single")
     const { refresh } = useCart();
+    const [selectedImage, setSelectedImage] = useState(0)
+    const [isFullscreen, setIsFullscreen] = useState(false)
 
     const handleAddToCart = async (
         boxId: string,
@@ -91,9 +93,11 @@ export default function BoxDetailPage() {
                     <div className="grid gap-12 md:grid-cols-2">
                         <div className="space-y-4">
                             {/* Main Image */}
-                            <div className="relative aspect-square overflow-hidden rounded-lg shadow-xl">
+                            <div
+                                className="relative aspect-square cursor-pointer overflow-hidden rounded-lg shadow-xl transition-opacity hover:opacity-95"
+                                onClick={() => setIsFullscreen(true)}                            >
                                 <img
-                                    src={imageUrl || "/placeholder.svg"}
+                                    src={resolveImageUrl(box.imageUrls?.[selectedImage] as string)  || imageUrl || "/placeholder.svg"}
                                     alt={box.title}
                                     className="h-full w-full object-cover"
                                 />
@@ -107,11 +111,16 @@ export default function BoxDetailPage() {
                             {/* Additional Images */}
                             {box.imageUrls && box.imageUrls.length > 1 && (
                                 <div className="grid grid-cols-3 gap-4">
-                                    {box.imageUrls.slice(1).map((img, index) => (
-                                        <div key={index} className="relative aspect-square overflow-hidden rounded-lg shadow-md">
+                                    {box.imageUrls.map((img, index) => (
+                                        <div
+                                            key={index}
+                                            className={`relative aspect-square rounded-lg overflow-hidden shadow-md cursor-pointer transition-all hover:scale-105 ${selectedImage === index ? "ring-4 ring-[#ff6fb7]" : ""
+                                                }`}
+                                            onClick={() => setSelectedImage(index)}
+                                        >
                                             <img
                                                 src={resolveImageUrl(img) || "/placeholder.svg"}
-                                                alt={`${box.title} ${index + 2}`}
+                                                alt={`${box.title} ${index + 1}`}
                                                 className="h-full w-full object-cover"
                                             />
                                         </div>
@@ -236,6 +245,69 @@ export default function BoxDetailPage() {
                     </div>
                 </div>
             </section>
+            {isFullscreen && (
+                <div
+                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4"
+                    onClick={() => setIsFullscreen(false)}
+                >
+                    {/* Close button */}
+                    <button
+                        onClick={() => setIsFullscreen(false)}
+                        className="absolute top-4 right-4 z-10 p-2 bg-white/10 hover:bg-white/20 rounded-full transition-colors"
+                        aria-label="Close fullscreen"
+                    >
+                        <svg className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+
+                    {/* Navigation buttons */}
+                    {box.imageUrls && box.imageUrls.length > 1 && (
+                        <>
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation()
+                                    setSelectedImage((prev) => (prev > 0 ? prev - 1 : box.imageUrls!.length - 1))
+                                }}
+                                className="absolute left-4 z-10 p-3 bg-white/10 hover:bg-white/20 rounded-full transition-colors"
+                                aria-label="Previous image"
+                            >
+                                <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                                </svg>
+                            </button>
+
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation()
+                                    setSelectedImage((prev) => (prev < box.imageUrls!.length - 1 ? prev + 1 : 0))
+                                }}
+                                className="absolute right-4 z-10 rounded-full bg-white/10 p-3 transition-colors hover:bg-white/20"
+                                aria-label="Next image"
+                            >
+                                <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                </svg>
+                            </button>
+                        </>
+                    )}
+
+                    {/* Main image */}
+                    <img
+                        src={resolveImageUrl(box.imageUrls?.[selectedImage] as string) || imageUrl || "/placeholder.svg"}
+                        alt={box.title}
+                        className="max-h-[90vh] max-w-[90vw] object-contain"
+                        onClick={(e) => e.stopPropagation()}
+                    />
+
+                    {/* Image counter */}
+                    {box.imageUrls && box.imageUrls.length > 1 && (
+                        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full bg-white/10 px-4 py-2 text-sm text-white backdrop-blur-sm">
+                            {selectedImage + 1} / {box.imageUrls.length}
+                        </div>
+                    )}
+                </div>
+            )}
         </>
     );
 }
