@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { getActiveBox } from "@/api/boxes";
+import { resolveImageUrl } from "@/lib/utils";
 
 type Box = {
   title: string;
@@ -50,7 +51,7 @@ export function ActiveBox() {
   // pick main or first image
   // optional: extract month/year if you store CreatedAt
   const label ="Текуща кутия";
-    const imgUrl = `${baseUrl}${box.mainImageUrl}`;
+    const imgUrl = resolveImageUrl(box.mainImageUrl);
   return (
     <div
       className="animate-fade-in overflow-hidden bg-white shadow-lg"

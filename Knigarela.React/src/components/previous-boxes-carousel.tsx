@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { getNotActiveBoxes } from "@/api/boxes";
 import { useEffect, useState } from "react";
 import Link from "next/link"
+import { resolveImageUrl } from "@/lib/utils";
 
 type Box = {
     title: string;
@@ -107,7 +108,7 @@ export function PreviousBoxesCarousel() {
                             <div className="overflow-hidden bg-white shadow-md transition-all duration-300 group-hover:scale-105 group-hover:shadow-xl">
                                 <div className="relative aspect-[3/4] overflow-hidden">
                                     <img
-                                        src={`${baseUrl}${box.mainImageUrl}` || "/placeholder.svg"}
+                                        src={resolveImageUrl(box.mainImageUrl) || "/placeholder.svg"}
                                         alt={box.title}
                                         className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
                                     />

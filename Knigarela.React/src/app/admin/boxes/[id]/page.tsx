@@ -20,6 +20,8 @@ import {
     setMainImage,
 } from "@/api/boxImages";
 
+import { resolveImageUrl } from "@/lib/utils";
+
 interface BoxImage {
     id: string;
     url: string;
@@ -387,7 +389,7 @@ export default function AdminBoxFormPage() {
                                     >
                                         <div className="relative aspect-square bg-gray-100">
                                             <Image
-                                                src={`${baseUrl}${image.url}` || "/placeholder.svg"}
+                                                src={resolveImageUrl(image.url) || "/placeholder.svg"}
                                                 alt={`Product ${index + 1}`}
                                                 fill
                                                 className="object-cover"

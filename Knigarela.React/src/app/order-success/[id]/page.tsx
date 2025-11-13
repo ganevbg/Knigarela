@@ -2,6 +2,7 @@
 import { CheckCircle2, Package, Mail, MapPin } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { getOrder } from "@/api/orders"
+import { resolveImageUrl } from "@/lib/utils";
 
 export default async function OrderSuccessPage({ params }: { params: { id: string } }) {
     const baseUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -123,7 +124,7 @@ export default async function OrderSuccessPage({ params }: { params: { id: strin
                                 {order.items.map((item: any) => (
                                     <div key={item.boxId} className="flex gap-4 border-b pb-4 last:border-b-0">
                                         <img
-                                            src={`${baseUrl}${item.imageUrl}` || "/placeholder.svg"}
+                                            src={resolveImageUrl(item.imageUrl) || "/placeholder.svg"}
                                             alt={item.title}
                                             className="h-20 w-20 rounded-lg object-cover"
                                         />

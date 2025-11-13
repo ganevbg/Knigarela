@@ -1,6 +1,7 @@
 ﻿"use client";
 
 import Image from "next/image";
+import { resolveImageUrl } from "@/lib/utils";
 
 interface CartItemCardProps {
     boxId: string;
@@ -30,7 +31,7 @@ export function CartItemCard({
             {/* Image */}
             <div className="relative h-32 w-32 flex-shrink-0 overflow-hidden rounded-md">
                 <Image
-                    src={`${baseUrl}${imageUrl}` || "/placeholder.svg"}
+                    src={resolveImageUrl(imageUrl) || "/placeholder.svg"}
                     alt={title}
                     fill
                     className="object-cover transition-transform duration-300 hover:scale-110"

@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label"
 import { addToCart } from "@/api/cart";
 import { useCart } from "@/context/CartContext";
 import { toast } from "react-toastify";
+import { resolveImageUrl } from "../../../lib/utils";
 
 type Box = {
     id: string;
@@ -65,8 +66,7 @@ export default function BoxDetailPage() {
         notFound();
     }
 
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL;
-    const imageUrl = `${baseUrl}${box.mainImageUrl}`;
+    const imageUrl = resolveImageUrl(box.mainImageUrl ?? "");
 
     return (
         <>
@@ -110,7 +110,7 @@ export default function BoxDetailPage() {
                                     {box.imageUrls.slice(1).map((img, index) => (
                                         <div key={index} className="relative aspect-square overflow-hidden rounded-lg shadow-md">
                                             <img
-                                                src={`${baseUrl}${img}` || "/placeholder.svg"}
+                                                src={resolveImageUrl(img) || "/placeholder.svg"}
                                                 alt={`${box.title} ${index + 2}`}
                                                 className="h-full w-full object-cover"
                                             />
