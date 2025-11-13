@@ -1,0 +1,334 @@
+﻿"use client"
+
+import type React from "react"
+
+import { useState, useEffect } from "react"
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+import { Search, Plus, Pencil, Trash2, ChevronLeft, ChevronRight } from "lucide-react"
+
+export interface Column<T> {
+    key: keyof T
+    label: string
+    sortable?: boolean
+    render?: (value: any, row: T) => React.ReactNode
+}
+
+export interface FilterOption {
+    label: string
+    value: string
+}
+
+export interface DataTableConfig<T> {
+    title: string
+    description: string
+    columns: Column<T>[]
+    createUrl: string
+    editUrl: (id: string) => string
+    fetchData: (params: {
+        searchQuery: string
+        filterValue: string
+        sortColumn: keyof T
+        sortDirection: "asc" | "desc"
+        page: number
+        itemsPerPage: number
+    }) => Promise<{ data: T[]; total: number }>
+    deleteItem?: (id: string) => Promise<void>
+    searchPlaceholder?: string
+    filterOptions?: FilterOption[]
+    filterLabel?: string
+    itemsPerPage?: number
+    enableCreate?: boolean
+    enableEdit?: boolean
+    enableDelete?: boolean
+    deleteConfirmation?: {
+        title: string
+        description: (item: T) => string
+    }
+}
+
+export function DataTable<T extends { id: string }>({ config }: { config: DataTableConfig<T> }) {
+    const [items, setItems] = useState<T[]>([])
+    const [loading, setLoading] = useState(true)
+    const [searchQuery, setSearchQuery] = useState("")
+    const [filterValue, setFilterValue] = useState(config.filterOptions?.[0]?.value || "all")
+    const [sortColumn, setSortColumn] = useState<keyof T>(config.columns[0].key)
+    const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc")
+    const [currentPage, setCurrentPage] = useState(1)
+    const [totalPages, setTotalPages] = useState(1)
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+    const [itemToDelete, setItemToDelete] = useState<T | null>(null)
+    const itemsPerPage = config.itemsPerPage || 10
+
+    const enableCreate = config.enableCreate !== false
+    const enableEdit = config.enableEdit !== false
+    const enableDelete = config.enableDelete !== false
+
+    useEffect(() => {
+        const fetchItems = async () => {
+            setLoading(true)
+            try {
+                const result = await config.fetchData({
+                    searchQuery,
+                    filterValue,
+                    sortColumn,
+                    sortDirection,
+                    page: currentPage,
+                    itemsPerPage,
+                })
+                setItems(result.data)
+                setTotalPages(Math.ceil(result.total / itemsPerPage))
+            } catch (error) {
+                console.error("Error fetching data:", error)
+            } finally {
+                setLoading(false)
+            }
+        }
+
+        fetchItems()
+    }, [searchQuery, filterValue, sortColumn, sortDirection, currentPage])
+
+    const handleSort = (column: keyof T) => {
+        const columnConfig = config.columns.find((col) => col.key === column)
+        if (columnConfig?.sortable === false) return
+
+        if (sortColumn === column) {
+            setSortDirection(sortDirection === "asc" ? "desc" : "asc")
+        } else {
+            setSortColumn(column)
+            setSortDirection("asc")
+        }
+    }
+
+    const handleDelete = (item: T) => {
+        setItemToDelete(item)
+        setDeleteDialogOpen(true)
+    }
+
+    const confirmDelete = async () => {
+        if (itemToDelete && config.deleteItem) {
+            try {
+                await config.deleteItem(itemToDelete.id)
+                setItems(items.filter((item) => item.id !== itemToDelete.id))
+                setDeleteDialogOpen(false)
+                setItemToDelete(null)
+            } catch (error) {
+                console.error("Error deleting item:", error)
+            }
+        }
+    }
+
+    const SortIcon = ({ column }: { column: keyof T }) => {
+        if (sortColumn !== column) return null
+        return sortDirection === "asc" ? "↑" : "↓"
+    }
+
+    return (
+        <div className="min-h-screen bg-[var(--knigarela-bg)]">
+            {/* Header */}
+            <div className="border-b border-gray-200 bg-white">
+                <div className="container mx-auto px-4 py-6">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <h1 className="text-3xl font-bold text-[var(--knigarela-text)]">{config.title}</h1>
+                            <p className="mt-1 text-[var(--knigarela-text-light)]">{config.description}</p>
+                        </div>
+                        {enableCreate && (
+                            <Link href={config.createUrl}>
+                                <Button className="bg-[var(--knigarela-pink)] text-white hover:bg-[var(--knigarela-pink)]/90">
+                                    <Plus className="mr-2 h-5 w-5" />
+                                    Създай Нов
+                                </Button>
+                            </Link>
+                        )}
+                    </div>
+                </div>
+            </div>
+
+            {/* Filters and Search */}
+            <div className="container mx-auto px-4 py-6">
+                <div className="mb-6 rounded-lg bg-white p-6 shadow-sm">
+                    <div className="flex flex-col gap-4 md:flex-row">
+                        {/* Search */}
+                        <div className="flex-1">
+                            <div className="relative">
+                                <Search className="absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 text-gray-400" />
+                                <Input
+                                    type="text"
+                                    placeholder={config.searchPlaceholder || "Търсене..."}
+                                    value={searchQuery}
+                                    onChange={(e) => {
+                                        setSearchQuery(e.target.value)
+                                        setCurrentPage(1)
+                                    }}
+                                    className="pl-10"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Filter */}
+                        {config.filterOptions && (
+                            <div className="w-full md:w-48">
+                                <Select
+                                    value={filterValue}
+                                    onValueChange={(value) => {
+                                        setFilterValue(value)
+                                        setCurrentPage(1)
+                                    }}
+                                >
+                                    <SelectTrigger>
+                                        <SelectValue placeholder={config.filterLabel || "Филтър"} />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {config.filterOptions.map((option) => (
+                                            <SelectItem key={option.value} value={option.value}>
+                                                {option.label}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                {/* Table */}
+                <div className="overflow-hidden rounded-lg bg-white shadow-sm">
+                    {loading ? (
+                        <div className="flex items-center justify-center py-12">
+                            <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-[var(--knigarela-pink)]"></div>
+                        </div>
+                    ) : items.length === 0 ? (
+                        <div className="py-12 text-center">
+                            <p className="text-lg text-[var(--knigarela-text-light)]">Няма намерени резултати</p>
+                        </div>
+                    ) : (
+                        <>
+                            <Table>
+                                <TableHeader>
+                                    <TableRow className="bg-[var(--knigarela-pink-light)]/20 hover:bg-[var(--knigarela-pink-light)]/20">
+                                        {config.columns.map((column) => (
+                                            <TableHead
+                                                key={String(column.key)}
+                                                className={`font-semibold text-[var(--knigarela-text)] ${column.sortable !== false ? "cursor-pointer select-none" : ""
+                                                    }`}
+                                                onClick={() => column.sortable !== false && handleSort(column.key)}
+                                            >
+                                                <div className="flex items-center gap-2">
+                                                    {column.label} {column.sortable !== false && <SortIcon column={column.key} />}
+                                                </div>
+                                            </TableHead>
+                                        ))}
+                                        {(enableEdit || enableDelete) && (
+                                            <TableHead className="text-right font-semibold text-[var(--knigarela-text)]">Действия</TableHead>
+                                        )}
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {items.map((item) => (
+                                        <TableRow key={item.id} className="hover:bg-[var(--knigarela-bg)]">
+                                            {config.columns.map((column) => (
+                                                <TableCell key={String(column.key)} className="text-[var(--knigarela-text-light)]">
+                                                    {column.render ? column.render(item[column.key], item) : String(item[column.key])}
+                                                </TableCell>
+                                            ))}
+                                            {(enableEdit || enableDelete) && (
+                                                <TableCell className="text-right">
+                                                    <div className="flex items-center justify-end gap-2">
+                                                        {enableEdit && (
+                                                            <Link href={config.editUrl(item.id)}>
+                                                                <Button
+                                                                    variant="outline"
+                                                                    size="sm"
+                                                                    className="border-[var(--knigarela-pink)] bg-transparent text-[var(--knigarela-pink)] hover:bg-[var(--knigarela-pink-light)]/50"
+                                                                >
+                                                                    <Pencil className="h-4 w-4" />
+                                                                </Button>
+                                                            </Link>
+                                                        )}
+                                                        {enableDelete && config.deleteItem && (
+                                                            <Button
+                                                                variant="outline"
+                                                                size="sm"
+                                                                onClick={() => handleDelete(item)}
+                                                                className="border-red-500 text-red-500 hover:bg-red-50"
+                                                            >
+                                                                <Trash2 className="h-4 w-4" />
+                                                            </Button>
+                                                        )}
+                                                    </div>
+                                                </TableCell>
+                                            )}
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+
+                            {/* Pagination */}
+                            <div className="flex items-center justify-between border-t border-gray-200 px-6 py-4">
+                                <p className="text-sm text-[var(--knigarela-text-light)]">
+                                    Страница {currentPage} от {totalPages}
+                                </p>
+                                <div className="flex items-center gap-2">
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                                        disabled={currentPage === 1}
+                                        className="border-gray-300"
+                                    >
+                                        <ChevronLeft className="h-4 w-4" />
+                                        Назад
+                                    </Button>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+                                        disabled={currentPage === totalPages}
+                                        className="border-gray-300"
+                                    >
+                                        Напред
+                                        <ChevronRight className="h-4 w-4" />
+                                    </Button>
+                                </div>
+                            </div>
+                        </>
+                    )}
+                </div>
+            </div>
+
+            {/* Delete Confirmation Dialog */}
+            {config.deleteConfirmation && (
+                <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>{config.deleteConfirmation.title}</AlertDialogTitle>
+                            <AlertDialogDescription>
+                                {itemToDelete && config.deleteConfirmation.description(itemToDelete)}
+                            </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                            <AlertDialogCancel>Отказ</AlertDialogCancel>
+                            <AlertDialogAction onClick={confirmDelete} className="bg-red-500 text-white hover:bg-red-600">
+                                Изтриване
+                            </AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
+            )}
+        </div>
+    )
+}

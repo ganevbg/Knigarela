@@ -32,6 +32,55 @@ export default function BoxDetailPage() {
     const { refresh } = useCart();
     const [selectedImage, setSelectedImage] = useState(0)
     const [isFullscreen, setIsFullscreen] = useState(false)
+    const [touchStart, setTouchStart] = useState<number | null>(null)
+    const [touchEnd, setTouchEnd] = useState<number | null>(null)
+
+    const goToNextImage = () => {
+        if (box?.imageUrls && box.imageUrls.length > 1) {
+            setSelectedImage((prev) => (prev < box.imageUrls!.length - 1 ? prev + 1 : 0))
+        }
+    }
+
+    const goToPrevImage = () => {
+        if (box?.imageUrls && box?.imageUrls.length > 1) {
+            setSelectedImage((prev) => (prev > 0 ? prev - 1 : box.imageUrls!.length - 1))
+        }
+    }
+
+    const minSwipeDistance = 50
+
+    const onTouchStart = (e: React.TouchEvent) => {
+        setTouchEnd(null)
+        setTouchStart(e.targetTouches[0].clientX)
+    }
+
+    const onTouchMove = (e: React.TouchEvent) => {
+        setTouchEnd(e.targetTouches[0].clientX)
+    }
+
+    const onTouchEnd = () => {
+        if (!touchStart || !touchEnd) return
+        const distance = touchStart - touchEnd
+        const isLeftSwipe = distance > minSwipeDistance
+        const isRightSwipe = distance < -minSwipeDistance
+        if (isLeftSwipe) {
+            goToNextImage()
+        }
+        if (isRightSwipe) {
+            goToPrevImage()
+        }
+    }
+
+    useEffect(() => {
+        if (isFullscreen) {
+            document.body.style.overflow = "hidden"
+        } else {
+            document.body.style.overflow = "unset"
+        }
+        return () => {
+            document.body.style.overflow = "unset"
+        }
+    }, [isFullscreen])
 
     const handleAddToCart = async (
         boxId: string,
@@ -95,7 +144,8 @@ export default function BoxDetailPage() {
                             {/* Main Image */}
                             <div
                                 className="relative aspect-square cursor-pointer overflow-hidden rounded-lg shadow-xl transition-opacity hover:opacity-95"
-                                onClick={() => setIsFullscreen(true)}                            >
+                                onClick={() => setIsFullscreen(true)} 
+                                >
                                 <img
                                     src={resolveImageUrl(box.imageUrls?.[selectedImage] as string)  || imageUrl || "/placeholder.svg"}
                                     alt={box.title}
@@ -249,11 +299,17 @@ export default function BoxDetailPage() {
                 <div
                     className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4"
                     onClick={() => setIsFullscreen(false)}
+                    onTouchStart={onTouchStart}
+                    onTouchMove={onTouchMove}
+                    onTouchEnd={onTouchEnd}
                 >
                     {/* Close button */}
                     <button
-                        onClick={() => setIsFullscreen(false)}
-                        className="absolute top-4 right-4 z-10 p-2 bg-white/10 hover:bg-white/20 rounded-full transition-colors"
+                        onClick={(e) => {
+                            e.stopPropagation()
+                            setIsFullscreen(false)
+                        }}
+                        className="absolute top-4 right-4 z-10 p-2 bg-white/10 hover:bg-white/20 rounded-full transition-colors touch-manipulation"
                         aria-label="Close fullscreen"
                     >
                         <svg className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -267,9 +323,9 @@ export default function BoxDetailPage() {
                             <button
                                 onClick={(e) => {
                                     e.stopPropagation()
-                                    setSelectedImage((prev) => (prev > 0 ? prev - 1 : box.imageUrls!.length - 1))
+                                    goToPrevImage()
                                 }}
-                                className="absolute left-4 z-10 p-3 bg-white/10 hover:bg-white/20 rounded-full transition-colors"
+                                className="absolute left-4 z-10 p-3 bg-white/10 hover:bg-white/20 rounded-full transition-colors touch-manipulation"
                                 aria-label="Previous image"
                             >
                                 <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -280,9 +336,9 @@ export default function BoxDetailPage() {
                             <button
                                 onClick={(e) => {
                                     e.stopPropagation()
-                                    setSelectedImage((prev) => (prev < box.imageUrls!.length - 1 ? prev + 1 : 0))
+                                    goToNextImage()
                                 }}
-                                className="absolute right-4 z-10 rounded-full bg-white/10 p-3 transition-colors hover:bg-white/20"
+                                className="absolute right-4 z-10 p-3 bg-white/10 hover:bg-white/20 rounded-full transition-colors touch-manipulation"
                                 aria-label="Next image"
                             >
                                 <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
