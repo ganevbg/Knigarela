@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using Knigarela.Api.Dtos;
+using Knigarela.Api.Dtos.Clients;
 using Knigarela.Core.Entities;
 using Knigarela.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -36,26 +36,26 @@ public class ClientsController : ControllerBase
         if (client == null)
             return NotFound();
 
-        return Ok(client);
+        return Ok(mapper.Map<UpsertClientDto>(client));
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] Client client)
+    public async Task<IActionResult> Create([FromBody] UpsertClientDto client)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        var created = await _clientService.CreateAsync(client);
+        var created = await _clientService.CreateAsync(mapper.Map<Client>(client));
         return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(Guid id, [FromBody] Client client)
+    public async Task<IActionResult> Update(Guid id, [FromBody] UpsertClientDto client)
     {
-        if (id != client.Id)
-            return BadRequest("ID mismatch");
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
 
-        var updated = await _clientService.UpdateAsync(id, client);
+        var updated = await _clientService.UpdateAsync(id, mapper.Map<Client>(client));
         if (updated == null)
             return NotFound();
 

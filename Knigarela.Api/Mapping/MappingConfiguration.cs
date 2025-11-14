@@ -1,10 +1,9 @@
 ﻿using AutoMapper;
-using Knigarela.Api.Dtos;
 using Knigarela.Api.Dtos.Boxes;
 using Knigarela.Api.Dtos.Cart;
+using Knigarela.Api.Dtos.Clients;
 using Knigarela.Api.Dtos.Orders;
 using Knigarela.Core.Entities;
-using Knigarela.Core.Enums;
 
 namespace Knigarela.Api.Mapping
 {
@@ -13,6 +12,7 @@ namespace Knigarela.Api.Mapping
         public MappingConfiguration()
         {
             CreateMap<UpsertBoxDto, Box>();
+            CreateMap<UpsertClientDto, Client>().ReverseMap();
 
             CreateMap<Box, AdminBoxDto>();
 

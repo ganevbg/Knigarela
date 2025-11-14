@@ -1,4 +1,4 @@
-﻿namespace Knigarela.Api.Dtos
+﻿namespace Knigarela.Api.Dtos.Clients
 {
     public class ClientAllDto
     {
@@ -14,7 +14,7 @@
 
         public string? Notes { get; set; }
 
-        public DateTime? SubscriptionDate { get; set; }
+        public DateOnly? SubscriptionDate { get; set; }
 
         public int SubscriptionCancellationCount { get; set; }
 

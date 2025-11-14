@@ -47,7 +47,6 @@ export async function create(formData: any) {
 
 export async function update(formData: any) {
     const req = {
-        id: formData.id,
         title: formData.title,
         description: formData.description,
         singlePrice: formData.singlePrice,
@@ -56,7 +55,7 @@ export async function update(formData: any) {
         isActive: formData.isActive,
     };
 
-    const { data } = await api.put(`/api/boxes/${req.id}`, req);
+    const { data } = await api.put(`/api/boxes/${formData.id}`, req);
     return data;
 }
 

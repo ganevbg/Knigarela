@@ -45,7 +45,6 @@ export default function AdminBoxFormPage() {
     const params = useParams();
     const isEdit = params.id !== "create";
     const boxId = params.id as string;
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL;
 
     const [loading, setLoading] = useState(false);
     const [saving, setSaving] = useState(false);

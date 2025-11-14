@@ -27,10 +27,6 @@ public class OrderService : IOrderService
         _mapper = mapper;
     }
 
-    // --------------------------------------------------------------------
-    // CUSTOMER / PUBLIC: validates stock and decrements atomically
-    // can switch between optimistic or pessimistic mode
-    // --------------------------------------------------------------------
     public async Task<CreateOrderResult> CreateOrderWithStockCheckAsync(
         string fullName,
         string email,
@@ -50,9 +46,6 @@ public class OrderService : IOrderService
     }
 
 
-    // --------------------------------------------------------------------
-    // Other standard CRUD
-    // --------------------------------------------------------------------
     public async Task<Order?> GetByIdAsync(Guid id)
     {
         return await _db.Orders
@@ -81,9 +74,6 @@ public class OrderService : IOrderService
     }
 
 
-    // --------------------------------------------------------------------
-    // OPTIMISTIC VERSION (xmin + retry)
-    // --------------------------------------------------------------------
     private async Task<CreateOrderResult> CreateOrderOptimisticAsync(
         string fullName,
         string email,
@@ -137,7 +127,7 @@ public class OrderService : IOrderService
                     {
                         _mapper.Map<ClientAddress>(address)
                     },
-                    SubscriptionDate = items.Any(x => x.type == PurchaseType.Subscription) ? DateTime.Now : null
+                    SubscriptionDate = items.Any(x => x.type == PurchaseType.Subscription) ? DateOnly.FromDateTime(DateTime.UtcNow) : null
                 });
             var order = new Order
             {
@@ -191,9 +181,6 @@ public class OrderService : IOrderService
         });
     }
 
-    // --------------------------------------------------------------------
-    // PESSIMISTIC VERSION (FOR UPDATE)
-    // --------------------------------------------------------------------
     private async Task<CreateOrderResult> CreateOrderPessimisticAsync(
         string fullName,
         string email,

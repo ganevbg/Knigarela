@@ -67,14 +67,17 @@ public class ClientService : IClientService
     public async Task<Client?> UpdateAsync(Guid id, Client updated)
     {
         var existing = await _db.Clients
-            .Include(c => c.Addresses)
             .FirstOrDefaultAsync(c => c.Id == id);
 
         if (existing == null) return null;
 
-        await ValidateCourierAddressesAsync(updated);
 
-        _db.Entry(existing).CurrentValues.SetValues(updated);
+        existing.FullName = updated.FullName;
+        existing.Email = updated.Email;
+        existing.Phone= updated.Phone;
+        existing.SubscriptionDate = updated.SubscriptionDate.HasValue ? updated.SubscriptionDate.Value : existing.SubscriptionDate;
+        existing.UpdatedAt = DateTime.UtcNow;
+
         await _db.SaveChangesAsync();
         return existing;
     }

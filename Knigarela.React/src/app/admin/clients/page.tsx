@@ -104,7 +104,7 @@ export default function AdminClientsPage() {
                 label: "Брой отписвания",
             },
         ],
-        createUrl: "/admin/clients/new",
+        createUrl: "/admin/clients/create",
         editUrl: (id) => `/admin/clients/${id}`,
         fetchData: fetchClients,
         deleteItem: deleteClient,
