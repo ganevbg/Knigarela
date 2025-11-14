@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Knigarela.Api.Dtos;
 using Knigarela.Api.Dtos.Boxes;
 using Knigarela.Api.Dtos.Cart;
 using Knigarela.Api.Dtos.Orders;
@@ -47,6 +48,10 @@ namespace Knigarela.Api.Mapping
                    .ForMember(dest => dest.BoxId, opt => opt.MapFrom(src => src.BoxId))
                    .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Box.Title))
                    .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src => src.Box.Images.FirstOrDefault(x => x.IsMain).ThumbnailUrl));
+
+            CreateMap<Client, ClientAllDto>()
+                   .ForMember(dest => dest.DefaultAddress, opt => opt.MapFrom(src => src.Addresses.FirstOrDefault(x => x.IsDefault).AddressDetailText));
+
         }
     }
 }

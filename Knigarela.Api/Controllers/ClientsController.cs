@@ -1,4 +1,6 @@
-﻿using Knigarela.Core.Entities;
+﻿using AutoMapper;
+using Knigarela.Api.Dtos;
+using Knigarela.Core.Entities;
 using Knigarela.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -12,17 +14,19 @@ namespace Knigarela.Api.Controllers.Admin;
 public class ClientsController : ControllerBase
 {
     private readonly IClientService _clientService;
+    private readonly IMapper mapper;
 
-    public ClientsController(IClientService clientService)
+    public ClientsController(IClientService clientService, IMapper mapper)
     {
         _clientService = clientService;
+        this.mapper = mapper;
     }
 
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
         var list = await _clientService.GetAllAsync();
-        return Ok(list);
+        return Ok(mapper.Map<List<ClientAllDto>>(list));
     }
 
     [HttpGet("{id:guid}")]

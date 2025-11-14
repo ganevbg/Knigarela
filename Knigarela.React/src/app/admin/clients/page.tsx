@@ -2,14 +2,17 @@
 
 import { DataTable } from "@/components/admin/data-table"
 import type { DataTableConfig } from "@/components/admin/data-table"
+import { getAllClients } from "@/api/clients"
 
 interface Client {
     id: string
-    name: string
+    fullName: string,
+    defaultAddress: string,
     email: string
     phone: string
-    totalOrders: number
-    totalSpent: number
+    isSubscribed: boolean
+    subscriptionDate: string
+    subscriptionCancellationCount: number
     createdAt: string
 }
 
@@ -22,64 +25,15 @@ async function fetchClients(params: {
     page: number
     itemsPerPage: number
 }) {
-    // Simulate API delay
-    await new Promise((resolve) => setTimeout(resolve, 500))
-
-    // Mock data
-    const allClients: Client[] = [
-        {
-            id: "1",
-            name: "Иван Петров",
-            email: "ivan.petrov@example.com",
-            phone: "+359 888 123 456",
-            totalOrders: 12,
-            totalSpent: 599.88,
-            createdAt: "2024-01-15",
-        },
-        {
-            id: "2",
-            name: "Мария Георгиева",
-            email: "maria.g@example.com",
-            phone: "+359 887 654 321",
-            totalOrders: 5,
-            totalSpent: 249.95,
-            createdAt: "2024-02-20",
-        },
-        {
-            id: "3",
-            name: "Георги Димитров",
-            email: "georgi.d@example.com",
-            phone: "+359 899 111 222",
-            totalOrders: 8,
-            totalSpent: 399.92,
-            createdAt: "2024-03-10",
-        },
-        {
-            id: "4",
-            name: "Елена Иванова",
-            email: "elena.ivanova@example.com",
-            phone: "+359 877 333 444",
-            totalOrders: 15,
-            totalSpent: 749.85,
-            createdAt: "2023-12-05",
-        },
-        {
-            id: "5",
-            name: "Петър Стоянов",
-            email: "petar.s@example.com",
-            phone: "+359 888 555 666",
-            totalOrders: 3,
-            totalSpent: 149.97,
-            createdAt: "2024-04-01",
-        },
-    ]
+    const allClients: Client[] = await getAllClients();
 
     // Filter by search query
     let filtered = allClients
     if (params.searchQuery) {
         filtered = filtered.filter(
             (client) =>
-                client.name.toLowerCase().includes(params.searchQuery.toLowerCase()) ||
+                client.fullName.toLowerCase().includes(params.searchQuery.toLowerCase()) ||
+                client.defaultAddress?.toLowerCase().includes(params.searchQuery.toLowerCase()) ||
                 client.email.toLowerCase().includes(params.searchQuery.toLowerCase()) ||
                 client.phone.includes(params.searchQuery)
         )
@@ -119,8 +73,13 @@ export default function AdminClientsPage() {
         description: "Управление на клиентските профили и информация",
         columns: [
             {
-                key: "name",
+                key: "fullName",
                 label: "Име",
+            },
+            {
+                key: "defaultAddress",
+                label: "Адрес по подразбиране",
+                render: (value) => <span className="font-medium">{value ?? ""}</span>,
             },
             {
                 key: "email",
@@ -131,30 +90,29 @@ export default function AdminClientsPage() {
                 label: "Телефон",
             },
             {
-                key: "totalOrders",
-                label: "Поръчки",
-                render: (value) => <span className="font-medium">{value}</span>,
+                key: "isSubscribed",
+                label: "Абонат ли е",
+                render: (value) => <span className="font-medium">{value ? "Да" : "Не"}</span>,
             },
             {
-                key: "totalSpent",
-                label: "Общо похарчени",
-                render: (value) => <span className="font-semibold text-[var(--knigarela-pink)]">{value.toFixed(2)} лв.</span>,
+                key: "subscriptionDate",
+                label: "Дата на абониране",
+                render: (value) => <span className="font-semibold text-[var(--knigarela-pink)]">{value ? new Date(value).toLocaleDateString("bg-BG") : ""}</span>,
             },
             {
-                key: "createdAt",
-                label: "Регистриран на",
-                render: (value) => new Date(value).toLocaleDateString("bg-BG"),
+                key: "subscriptionCancellationCount",
+                label: "Брой отписвания",
             },
         ],
         createUrl: "/admin/clients/new",
         editUrl: (id) => `/admin/clients/${id}`,
         fetchData: fetchClients,
         deleteItem: deleteClient,
-        searchPlaceholder: "Търсене по име, имейл или телефон...",
+        searchPlaceholder: "Търсене по име, адрес по подразбиране, имейл или телефон...",
         deleteConfirmation: {
             title: "Изтриване на клиент",
             description: (client) =>
-                `Сигурни ли сте, че искате да изтриете клиента ${client.name}? Това действие не може да бъде отменено.`,
+                `Сигурни ли сте, че искате да изтриете клиента ${client.fullName}? Това действие не може да бъде отменено.`,
         },
     }
 

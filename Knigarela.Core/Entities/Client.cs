@@ -14,8 +14,6 @@ public class Client : BaseEntity
 
     public int SubscriptionCancellationCount { get; set; }
 
-    public bool IsSubscribed => SubscriptionDate.HasValue;
-
     // Navigation
     public ICollection<ClientAddress> Addresses { get; set; }
     public ICollection<Order> Orders { get; set; }

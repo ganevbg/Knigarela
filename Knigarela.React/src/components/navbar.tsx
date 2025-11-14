@@ -123,7 +123,7 @@ export function Navbar() {
                             Начало
                         </Link>
                         <Link
-                            href="#boxes"
+                            href="/all-boxes"
                             className="block px-3 py-2 text-gray-700 transition-colors duration-200 hover:bg-gray-50 hover:text-[#D176A3]"
                             onClick={() => setMobileMenuOpen(false)}
                         >

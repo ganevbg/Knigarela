@@ -35,6 +35,7 @@ public class ClientService : IClientService
         if (existing != null)
             return existing;
 
+        model.Phone = normPhone;
         return await CreateClientAsync(model);
     }
 
