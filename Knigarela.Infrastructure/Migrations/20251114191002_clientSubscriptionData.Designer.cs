@@ -3,6 +3,7 @@ using System;
 using Knigarela.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Knigarela.Infrastructure.Migrations
 {
     [DbContext(typeof(KnigarelaDbContext))]
-    partial class KnigarelaDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251114191002_clientSubscriptionData")]
+    partial class clientSubscriptionData
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

@@ -9,11 +9,11 @@ namespace Knigarela.Api.Controllers.Admin;
 [Route("api/[controller]")]
 [Authorize(Roles = "Admin")]
 
-public class ClientController : ControllerBase
+public class ClientsController : ControllerBase
 {
     private readonly IClientService _clientService;
 
-    public ClientController(IClientService clientService)
+    public ClientsController(IClientService clientService)
     {
         _clientService = clientService;
     }

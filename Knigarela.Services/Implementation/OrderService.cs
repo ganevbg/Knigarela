@@ -127,7 +127,18 @@ public class OrderService : IOrderService
                 return new CreateOrderResult(null, issues);
 
             // Build client + order
-            var client = await _clientService.FindOrCreateClientAsync(new Client { FullName = fullName, Email = email, Phone = phone, Addresses = new List<ClientAddress> { _mapper.Map<ClientAddress>(address) } });
+            var client = await _clientService.FindOrCreateClientAsync(
+                new Client
+                {
+                    FullName = fullName,
+                    Email = email,
+                    Phone = phone,
+                    Addresses = new List<ClientAddress>
+                    {
+                        _mapper.Map<ClientAddress>(address)
+                    },
+                    SubscriptionDate = items.Any(x => x.type == PurchaseType.Subscription) ? DateTime.Now : null
+                });
             var order = new Order
             {
                 ClientId = client.Id,

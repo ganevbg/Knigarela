@@ -10,6 +10,12 @@ public class Client : BaseEntity
 
     public string? Notes { get; set; }
 
+    public DateTime? SubscriptionDate { get; set; }
+
+    public int SubscriptionCancellationCount { get; set; }
+
+    public bool IsSubscribed => SubscriptionDate.HasValue;
+
     // Navigation
     public ICollection<ClientAddress> Addresses { get; set; }
     public ICollection<Order> Orders { get; set; }
