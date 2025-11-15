@@ -5,7 +5,6 @@ import { getOffices, getSites } from "@/api/speedy";
 import { AddressPickerValue } from "@/types/ui"; 
 import type { SpeedySite, SpeedyOffice } from "@/types/api";
 
-
 type AddressPickerProps = {
     value: AddressPickerValue;
     onChange: (partial: Partial<AddressPickerValue>) => void;

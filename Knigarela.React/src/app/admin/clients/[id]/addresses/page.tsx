@@ -7,29 +7,11 @@ import Link from "next/link"
 import { ArrowLeft } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { getClientAddressesById, deleteClientAddressById } from "@/api/clients"
+import { ClientAddress } from "@/types/api"
+import { PaginationParams } from "@/types/common/PaginationParams"
 
-interface ClientAddress {
-    id: string
-    deliveryType: "personal" | "courier"
-    siteName: string
-    addressText: string
-    officeName: string
-    isDefault: boolean
-    createdAt: string
-}
 
-// Mock API function - replace with real API calls
-async function fetchClientAddresses(
-    clientId: string,
-    params: {
-        searchQuery: string
-        filterValue: string
-        sortColumn: keyof ClientAddress
-        sortDirection: "asc" | "desc"
-        page: number
-        itemsPerPage: number
-    }
-) {
+const fetchClientAddresses = async (clientId: string, params: PaginationParams<keyof ClientAddress>) => {
 
     // Mock data - in real app, filter by clientId
     const allAddresses: ClientAddress[] = await getClientAddressesById(clientId)
@@ -52,12 +34,12 @@ async function fetchClientAddresses(
 
     // sort
     filtered.sort((a, b) => {
-        const aval = a[params.sortColumn]
-        const bval = b[params.sortColumn]
-        if (params.sortDirection === "asc") {
-            return aval > bval ? 1 : -1
-        }
-        return aval < bval ? 1 : -1
+        const aval = a[params.sortColumn];
+        const bval = b[params.sortColumn];
+        const aNorm = aval === null || aval === undefined ? "" : String(aval);
+        const bNorm = bval === null || bval === undefined ? "" : String(bval);
+
+        return params.sortDirection === "asc" ? aNorm.localeCompare(bNorm) : bNorm.localeCompare(aNorm);
     })
 
     // Paginate
@@ -124,11 +106,6 @@ export default function ClientAddressesPage() {
                     ) : (
                         <span className="text-gray-400">Не</span>
                     ),
-            },
-            {
-                key: "createdAt",
-                label: "Създаден на",
-                render: (value) => new Date(value).toLocaleDateString("bg-BG"),
             },
         ],
         createUrl: `/admin/clients/${clientId}/addresses/create`,

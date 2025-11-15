@@ -20,7 +20,7 @@ export default function CheckoutPage() {
         email: "",
         phone: "",
         address: {
-            id: null,
+            id: "",
             deliveryType: "courier",
             siteId: null,
             siteName: "",

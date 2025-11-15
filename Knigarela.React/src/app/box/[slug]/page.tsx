@@ -11,18 +11,7 @@ import { addToCart } from "@/api/cart";
 import { useCart } from "@/context/CartContext";
 import { toast } from "react-toastify";
 import { resolveImageUrl } from "../../../lib/utils";
-
-type Box = {
-    id: string;
-    title: string;
-    slug: string;
-    description: string;
-    singlePrice: number;
-    subscriptionPrice: number;
-    mainImageUrl?: string;
-    imageUrls?: string[];
-    available: boolean;
-};
+import { Box } from "@/types/api";
 
 export default function BoxDetailPage() {
     const { slug } = useParams<{ slug: string }>();
@@ -36,14 +25,14 @@ export default function BoxDetailPage() {
     const [touchEnd, setTouchEnd] = useState<number | null>(null)
 
     const goToNextImage = () => {
-        if (box?.imageUrls && box.imageUrls.length > 1) {
-            setSelectedImage((prev) => (prev < box.imageUrls!.length - 1 ? prev + 1 : 0))
+        if (box?.images && box.images.length > 1) {
+            setSelectedImage((prev) => (prev < box.images!.length - 1 ? prev + 1 : 0))
         }
     }
 
     const goToPrevImage = () => {
-        if (box?.imageUrls && box?.imageUrls.length > 1) {
-            setSelectedImage((prev) => (prev > 0 ? prev - 1 : box.imageUrls!.length - 1))
+        if (box?.images && box?.images.length > 1) {
+            setSelectedImage((prev) => (prev > 0 ? prev - 1 : box.images!.length - 1))
         }
     }
 
@@ -147,7 +136,7 @@ export default function BoxDetailPage() {
                                 onClick={() => setIsFullscreen(true)} 
                                 >
                                 <img
-                                    src={resolveImageUrl(box.imageUrls?.[selectedImage] as string)  || imageUrl || "/placeholder.svg"}
+                                    src={resolveImageUrl(box.images?.[selectedImage].url)  || imageUrl || "/placeholder.svg"}
                                     alt={box.title}
                                     className="h-full w-full object-cover"
                                 />
@@ -159,9 +148,9 @@ export default function BoxDetailPage() {
                             </div>
 
                             {/* Additional Images */}
-                            {box.imageUrls && box.imageUrls.length > 1 && (
+                            {box.images && box.images.length > 1 && (
                                 <div className="grid grid-cols-3 gap-4">
-                                    {box.imageUrls.map((img, index) => (
+                                    {box.images.map((img, index) => (
                                         <div
                                             key={index}
                                             className={`relative aspect-square rounded-lg overflow-hidden shadow-md cursor-pointer transition-all hover:scale-105 ${selectedImage === index ? "ring-4 ring-[#ff6fb7]" : ""
@@ -169,7 +158,7 @@ export default function BoxDetailPage() {
                                             onClick={() => setSelectedImage(index)}
                                         >
                                             <img
-                                                src={resolveImageUrl(img) || "/placeholder.svg"}
+                                                src={resolveImageUrl(img.url) || "/placeholder.svg"}
                                                 alt={`${box.title} ${index + 1}`}
                                                 className="h-full w-full object-cover"
                                             />
@@ -318,7 +307,7 @@ export default function BoxDetailPage() {
                     </button>
 
                     {/* Navigation buttons */}
-                    {box.imageUrls && box.imageUrls.length > 1 && (
+                    {box.images && box.images.length > 1 && (
                         <>
                             <button
                                 onClick={(e) => {
@@ -350,16 +339,16 @@ export default function BoxDetailPage() {
 
                     {/* Main image */}
                     <img
-                        src={resolveImageUrl(box.imageUrls?.[selectedImage] as string) || imageUrl || "/placeholder.svg"}
+                        src={resolveImageUrl(box.images?.[selectedImage].url) || imageUrl || "/placeholder.svg"}
                         alt={box.title}
                         className="max-h-[90vh] max-w-[90vw] object-contain"
                         onClick={(e) => e.stopPropagation()}
                     />
 
                     {/* Image counter */}
-                    {box.imageUrls && box.imageUrls.length > 1 && (
+                    {box.images && box.images.length > 1 && (
                         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full bg-white/10 px-4 py-2 text-sm text-white backdrop-blur-sm">
-                            {selectedImage + 1} / {box.imageUrls.length}
+                            {selectedImage + 1} / {box.images.length}
                         </div>
                     )}
                 </div>

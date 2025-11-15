@@ -1,5 +1,5 @@
 export type ClientAddress = {
-    id: string | null;
+    id: string;
     siteId: string | null;
     siteName: string;
     officeId: string | null;

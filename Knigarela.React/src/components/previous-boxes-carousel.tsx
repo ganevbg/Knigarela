@@ -18,7 +18,6 @@ export function PreviousBoxesCarousel() {
     const carouselRef = useRef<HTMLDivElement>(null)
     const [boxes, setBox] = useState<Box[] | null>(null);
     const [loading, setLoading] = useState(true);
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL;
 
     useEffect(() => {
         async function fetchBoxes() {

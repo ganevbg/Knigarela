@@ -1,6 +1,7 @@
 import { api } from "@/lib/api";
+import type { ClientAllDto } from "@/types/api"
 
-export async function getAllClients() {
+export async function getAllClients(): Promise<ClientAllDto[]> {
     const { data } = await api.get("/api/clients");
     return data;
 }

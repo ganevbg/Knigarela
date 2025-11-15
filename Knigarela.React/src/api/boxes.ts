@@ -1,5 +1,5 @@
 import { api } from "@/lib/api";
-import { Box } from "@/types/api/Box";
+import { Box, BoxImage } from "@/types/api";
 import { BoxFormData } from "@/types/forms/BoxFormData";
 
 export async function getActiveBox() {
@@ -7,9 +7,29 @@ export async function getActiveBox() {
   return data;
 }
 
-export async function getBoxBySlug(slug: string) {
+export async function getBoxBySlug(slug: string) : Promise<Box> {
     const { data } = await api.get(`/api/boxes/${slug}`);
-    return data;
+
+    const images: BoxImage[] = data.imageUrls.map((url: string, index: number) => ({
+        url,
+        sortOrder: index
+    }))
+
+    const box: Box = {
+        id: data.id,
+        title: data.title,
+        description: data.description,
+        singlePrice: data.singlePrice,
+        subscriptionPrice: data.subscriptionPrice,
+        count: data.count,
+        isActive: data.isActive,
+        slug: data.slug,
+        mainImageUrl: data.mainImageUrl,
+        available: data.available,
+        images: images
+    };
+
+    return box;
 }
 
 export async function getNotActiveBoxes() {

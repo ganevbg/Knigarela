@@ -4,50 +4,41 @@ import { DataTable } from "@/components/admin/data-table"
 import type { DataTableConfig } from "@/components/admin/data-table"
 import { getAllClients, deleteClientById } from "@/api/clients"
 import { MapPin } from 'lucide-react'
+import type { ClientAllDto } from "@/types/api"
+import { PaginationParams } from "@/types/common/PaginationParams"
 
-interface Client {
-    id: string
-    fullName: string,
-    defaultAddress: string,
-    email: string
-    phone: string
-    isSubscribed: boolean
-    subscriptionDate: string
-    subscriptionCancellationCount: number
-    createdAt: string
-}
+const fetchClients = async (params: PaginationParams<keyof ClientAllDto>) => {
+    const allClients = await getAllClients();
 
-// Mock API function - replace with real API calls
-async function fetchClients(params: {
-    searchQuery: string
-    filterValue: string
-    sortColumn: keyof Client
-    sortDirection: "asc" | "desc"
-    page: number
-    itemsPerPage: number
-}) {
-    const allClients: Client[] = await getAllClients();
+    const filtered = allClients.filter(
+        (client) =>
+            client.fullName.toLowerCase().includes(params.searchQuery.toLowerCase()) ||
+            client.defaultAddress?.toLowerCase().includes(params.searchQuery.toLowerCase()) ||
+            client.email.toLowerCase().includes(params.searchQuery.toLowerCase()) ||
+            client.phone.includes(params.searchQuery)
+    )
 
-    // Filter by search query
-    let filtered = allClients
-    if (params.searchQuery) {
-        filtered = filtered.filter(
-            (client) =>
-                client.fullName.toLowerCase().includes(params.searchQuery.toLowerCase()) ||
-                client.defaultAddress?.toLowerCase().includes(params.searchQuery.toLowerCase()) ||
-                client.email.toLowerCase().includes(params.searchQuery.toLowerCase()) ||
-                client.phone.includes(params.searchQuery)
-        )
-    }
-
-    // Sort
     filtered.sort((a, b) => {
-        const aVal = a[params.sortColumn]
-        const bVal = b[params.sortColumn]
-        if (params.sortDirection === "asc") {
-            return aVal > bVal ? 1 : -1
+        const aValue = a[params.sortColumn] ?? ""
+        const bValue = b[params.sortColumn] ?? ""
+
+        if (typeof aValue === "boolean") {
+            return params.sortDirection === "asc"
+                ? aValue === bValue
+                    ? 0
+                    : aValue
+                        ? 1
+                        : -1
+                : aValue === bValue
+                    ? 0
+                    : aValue
+                        ? -1
+                        : 1
         }
-        return aVal < bVal ? 1 : -1
+
+        if (aValue < bValue) return params.sortDirection === "asc" ? -1 : 1
+        if (aValue > bValue) return params.sortDirection === "asc" ? 1 : -1
+        return 0
     })
 
     // Paginate
@@ -66,7 +57,7 @@ async function deleteClient(id: string) {
 }
 
 export default function AdminClientsPage() {
-    const config: DataTableConfig<Client> = {
+    const config: DataTableConfig<ClientAllDto> = {
         title: "Клиенти",
         description: "Управление на клиентските профили и информация",
         columns: [

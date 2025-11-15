@@ -5,7 +5,6 @@ import { getOrder } from "@/api/orders"
 import { resolveImageUrl } from "@/lib/utils";
 
 export default async function OrderSuccessPage({ params }: { params: { id: string } }) {
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL;
     const { id } = await params;
     const order = await getOrder(id);
     const date = new Date(order.date);

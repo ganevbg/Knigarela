@@ -9,15 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ArrowLeft, Save } from "lucide-react";
 import { getById, create, update } from "@/api/clients";
-
-
-interface Client {
-    id: string
-    fullName: string,
-    email: string
-    phone: string
-    subscriptionDate: string
-}
+import type { Client } from "@/types/api"
 
 export default function AdminClientFormPage() {
     const router = useRouter();

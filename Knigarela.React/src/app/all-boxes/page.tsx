@@ -4,19 +4,11 @@ import Link from "next/link"
 import { useEffect, useState } from "react";
 import { getAllBoxes } from "@/api/boxes";
 import { resolveImageUrl } from "@/lib/utils";
-
-type Box = {
-    title: string;
-    slug: string;
-    mainImageUrl: string;
-    available: boolean;
-};
-
+import { Box } from "@/types/api";
 export default function AllBoxesPage() {
 
     const [boxes, setBox] = useState<Box[] | null>(null);
     const [loading, setLoading] = useState(true);
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL;
 
     useEffect(() => {
         async function fetchBoxes() {

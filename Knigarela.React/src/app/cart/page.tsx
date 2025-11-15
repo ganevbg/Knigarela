@@ -6,7 +6,6 @@ import { CartItemCard } from "@/components/cart/CartItemCard";
 
 export default function CartPage() {
     const { items, add, remove, clear } = useCart();
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL;
     const subtotal = items.reduce((sum, i) => sum + i.unitPrice * i.quantity, 0);
     const shipping = 5.99;
     const total = subtotal + shipping;
@@ -42,7 +41,6 @@ export default function CartPage() {
                                         quantity={item.quantity}
                                         imageUrl={item.imageUrl}
                                         purchaseType={item.purchaseType}
-                                        baseUrl={baseUrl}
                                         onRemove={remove}
                                         onUpdateQuantity={add}
                                     />

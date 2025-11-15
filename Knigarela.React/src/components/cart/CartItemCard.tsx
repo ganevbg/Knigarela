@@ -10,7 +10,6 @@ interface CartItemCardProps {
     quantity: number;
     imageUrl: string;
     purchaseType: string;
-    baseUrl?: string;
     onRemove: (boxId: string, purchaseType: string) => void;
     onUpdateQuantity: (boxId: string, purchaseType: string, quantity: number) => void;
 }
@@ -22,7 +21,6 @@ export function CartItemCard({
     quantity,
     imageUrl,
     purchaseType,
-    baseUrl = "",
     onRemove,
     onUpdateQuantity,
 }: CartItemCardProps) {

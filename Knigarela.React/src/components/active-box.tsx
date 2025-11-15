@@ -5,18 +5,10 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { getActiveBox } from "@/api/boxes";
 import { resolveImageUrl } from "@/lib/utils";
-
-type Box = {
-  title: string;
-  slug: string;
-  description: string;
-  mainImageUrl: string;
-};
-
+import { Box } from "@/types/api";
 export function ActiveBox() {
   const [box, setBox] = useState<Box | null>(null);
   const [loading, setLoading] = useState(true);
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL;
 
   useEffect(() => {
     async function fetchBox() {
