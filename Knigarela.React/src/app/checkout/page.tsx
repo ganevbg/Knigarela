@@ -4,33 +4,33 @@ import type React from "react"
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
+import AddressPicker from "@/components/address/AddressPicker"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import Link from "next/link"
-import { getOffices, getSites } from "@/api/speedy"
 import { saveOrder } from "@/api/orders"
 import { useCart } from "@/context/CartContext";
 import { useRouter } from "next/navigation";
+import { Checkout } from "@/types/api"
 
 export default function CheckoutPage() {
     const router = useRouter();
 
-    const [formData, setFormData] = useState({
-            name: "",
-            email: "",
-            phone: "",
-            addressType: "courier" as "personal" | "courier",
-            siteId: "",
-            site: "",
-            address: "",
-            officeId: "",
-            office: "",
+    const [formData, setFormData] = useState<Checkout>({
+        name: "",
+        email: "",
+        phone: "",
+        address: {
+            id: null,
+            deliveryType: "courier",
+            siteId: null,
+            siteName: "",
+            addressText: "",
+            officeId: null,
+            officeName: "",
+            isDefault: true,
+        },
     })
-    const [siteQuery, setSiteQuery] = useState("")
-    const [officeQuery, setOfficeQuery] = useState("")
-    const [siteResults, setSiteResults] = useState<Array<{ id: string; name: string }>>([])
-    const [officeResults, setOfficeResults] = useState<Array<{ id: string; name: string }>>([])
-    const [showSiteResults, setShowSiteResults] = useState(false)
-    const [showOfficeResults, setShowOfficeResults] = useState(false)
+
     const cartItems = useCart().items;
     const clear = useCart().clear;
 
@@ -51,42 +51,6 @@ export default function CheckoutPage() {
             ...formData,
             [e.target.name]: e.target.value,
         })
-    }
-
-    const handlesiteSearch = async (query: string) => {
-        setSiteQuery(query)
-        if (query.length < 3) {
-            setSiteResults([])
-            setShowSiteResults(false)
-            return
-        }
-
-        setSiteResults(await getSites(query));
-        setShowSiteResults(true)
-    }
-
-    const handleOfficeSearch = async (query: string) => {
-        setOfficeQuery(query)
-        if (query.length < 3) {
-            setOfficeResults([])
-            setShowOfficeResults(false)
-            return
-        }
-
-        setOfficeResults(await getOffices(query));
-        setShowOfficeResults(true);
-    }
-
-    const selectsite = (site: { id: string; name: string }) => {
-        setFormData({ ...formData, site: site.name, siteId: site.id })
-        setSiteQuery(site.name)
-        setShowSiteResults(false)
-    }
-
-    const selectOffice = (office: { id: string; name: string }) => {
-        setFormData({ ...formData, office: office.name, officeId: office.id })
-        setOfficeQuery(office.name)
-        setShowOfficeResults(false)
     }
 
     return (
@@ -169,133 +133,25 @@ export default function CheckoutPage() {
                                         Адрес за доставка
                                     </h2>
                                     <div className="space-y-4">
-                                        <div>
-                                            <label
-                                                htmlFor="addressType"
-                                                className="mb-2 block text-sm font-medium"
-                                                style={{ color: "#2d2d2d" }}
-                                            >
-                                                Тип адрес *
-                                            </label>
-                                            <select
-                                                id="addressType"
-                                                name="addressType"
-                                                required
-                                                value={formData.addressType}
-                                                onChange={handleChange}
-                                                className="w-full rounded-lg border border-gray-300 px-4 py-3 transition-all focus:ring-2 focus:outline-none"
-                                                style={{ "--tw-ring-color": "#D176A3" } as React.CSSProperties}
-                                            >
-                                                <option value="personal">Личен адрес</option>
-                                                <option value="courier">Офис на куриер</option>
-                                            </select>
-                                        </div>
-
-                                        {formData.addressType === "personal" ? (
-                                            <>
-                                                {/* site Autocomplete */}
-                                                <div className="relative">
-                                                    <label
-                                                        htmlFor="site"
-                                                        className="mb-2 block text-sm font-medium"
-                                                        style={{ color: "#2d2d2d" }}
-                                                    >
-                                                        Населено място *
-                                                    </label>
-                                                    <input
-                                                        type="text"
-                                                        id="site"
-                                                        name="site"
-                                                        required
-                                                        value={siteQuery}
-                                                        onChange={(e) => handlesiteSearch(e.target.value)}
-                                                        onFocus={() => siteQuery.length >= 2 && setShowSiteResults(true)}
-                                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 transition-all"
-                                                        style={{ "--tw-ring-color": "#D176A3" } as React.CSSProperties}
-                                                        placeholder="Започнете да пишете..."
-                                                        autoComplete="off"
-                                                    />
-                                                    {showSiteResults && siteResults.length > 0 && (
-                                                        <div className="absolute z-10 mt-1 max-h-60 w-full overflow-y-auto rounded-lg border border-gray-300 bg-white shadow-lg">
-                                                            {siteResults.map((site) => (
-                                                                <button
-                                                                    key={site.id}
-                                                                    type="button"
-                                                                    onClick={() => selectsite(site)}
-                                                                    className="w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors"
-                                                                    style={{ color: "#2d2d2d" }}
-                                                                >
-                                                                    {site.name}
-                                                                </button>
-                                                            ))}
-                                                        </div>
-                                                    )}
-                                                </div>
-
-                                                {/* Address Text Input */}
-                                                <div>
-                                                    <label
-                                                        htmlFor="address"
-                                                        className="mb-2 block text-sm font-medium"
-                                                        style={{ color: "#2d2d2d" }}
-                                                    >
-                                                        Адрес *
-                                                    </label>
-                                                    <input
-                                                        type="text"
-                                                        id="address"
-                                                        name="address"
-                                                        required
-                                                        value={formData.address}
-                                                        onChange={handleChange}
-                                                        className="w-full rounded-lg border border-gray-300 px-4 py-3 transition-all focus:ring-2 focus:outline-none"
-                                                        style={{ "--tw-ring-color": "#D176A3" } as React.CSSProperties}
-                                                        placeholder="Улица, номер, етаж, апартамент"
-                                                    />
-                                                </div>
-                                            </>
-                                        ) : (
-                                            <>
-                                                {/* Office Autocomplete */}
-                                                <div className="relative">
-                                                    <label
-                                                        htmlFor="office"
-                                                        className="mb-2 block text-sm font-medium"
-                                                        style={{ color: "#2d2d2d" }}
-                                                    >
-                                                        Офис на куриер *
-                                                    </label>
-                                                    <input
-                                                        type="text"
-                                                        id="office"
-                                                        name="office"
-                                                        required
-                                                        value={officeQuery}
-                                                        onChange={(e) => handleOfficeSearch(e.target.value)}
-                                                        onFocus={() => officeQuery.length >= 2 && setShowOfficeResults(true)}
-                                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 transition-all"
-                                                        style={{ "--tw-ring-color": "#D176A3" } as React.CSSProperties}
-                                                        placeholder="Започнете да пишете име на офис..."
-                                                        autoComplete="off"
-                                                    />
-                                                    {showOfficeResults && officeResults.length > 0 && (
-                                                        <div className="absolute z-10 mt-1 max-h-60 w-full overflow-y-auto rounded-lg border border-gray-300 bg-white shadow-lg">
-                                                            {officeResults.map((office) => (
-                                                                <button
-                                                                    key={office.id}
-                                                                    type="button"
-                                                                    onClick={() => selectOffice(office)}
-                                                                    className="w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors"
-                                                                    style={{ color: "#2d2d2d" }}
-                                                                >
-                                                                    {office.name}
-                                                                </button>
-                                                            ))}
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            </>
-                                        )}
+                                        <AddressPicker
+                                            value={{
+                                                siteId: formData.address.siteId || null,
+                                                siteName: formData.address.siteName,
+                                                officeId: formData.address.officeId || null,
+                                                officeName: formData.address.officeName,
+                                                addressText: formData.address.addressText,
+                                                deliveryType: formData.address.deliveryType,
+                                            }}
+                                            onChange={(partial) =>
+                                                setFormData(prev => ({
+                                                    ...prev,
+                                                    address: {
+                                                        ...prev.address,
+                                                        ...partial,
+                                                    },
+                                                }))
+                                            }
+                                        />
                                     </div>
                                 </div>
 

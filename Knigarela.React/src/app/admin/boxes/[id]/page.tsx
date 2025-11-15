@@ -56,7 +56,7 @@ export default function AdminBoxFormPage() {
         description: "",
         singlePrice: "",
         subscriptionPrice: "",
-        isActive: true,
+        isActive: false,
         count: "",
         images: [],
     });

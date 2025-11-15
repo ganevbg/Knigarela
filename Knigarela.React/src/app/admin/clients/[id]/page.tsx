@@ -171,8 +171,6 @@ export default function AdminClientFormPage() {
                                 className="border-gray-300 resize-none"
                             />
                         </div>
-
-
                     </div>
 
                     {/* Buttons */}

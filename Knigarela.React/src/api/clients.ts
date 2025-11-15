@@ -1,8 +1,8 @@
 import { api } from "@/lib/api";
 
 export async function getAllClients() {
-  const { data } = await api.get("/api/clients");
-  return data;
+    const { data } = await api.get("/api/clients");
+    return data;
 }
 
 export async function getById(id: string) {
@@ -39,12 +39,48 @@ export async function deleteClientById(id: string) {
     return data;
 }
 
-export async function getAddressesById(id: string) {
+export async function getClientAddressesById(id: string) {
     const { data } = await api.get(`/api/admin/clients/${id}/addresses`);
     return data;
 }
 
-export async function deleteAddressById(clientId: string, id: string) {
+export async function getClientAddressById(clientId: string, id: string) {
+    const { data } = await api.get(`/api/admin/clients/${clientId}/addresses/${id}`);
+    return data;
+}
+
+export async function createClientAddress(clientId: string, formData: any) {
+    const req = {
+        siteId: formData.siteId || null,
+        siteName: formData.siteName,
+        officeId: formData.officeId || null,
+        officeName: formData.officeName,
+        addressText: formData.addressText,
+        deliveryType: formData.deliveryType,
+        isDefault: formData.isDefault,
+    };
+
+    const { data } = await api.post(`/api/admin/clients/${clientId}/addresses`, req);
+    return data;
+}
+
+export async function updateClientAddress(clientId: string, formData: any) {
+    const req = {
+        siteId: formData.siteId || null,
+        siteName: formData.siteName,
+        officeId: formData.officeId || null,
+        officeName: formData.officeName,
+        addressText: formData.addressText,
+        deliveryType: formData.deliveryType,
+        isDefault: formData.isDefault,
+    };
+
+    const { data } = await api.put(`/api/admin/clients/${clientId}/addresses/${formData.id}`, req);
+    return data;
+}
+
+
+export async function deleteClientAddressById(clientId: string, id: string) {
     const { data } = await api.delete(`/api/admin/clients/${clientId}/addresses/${id}`);
     return data;
 }

@@ -48,7 +48,27 @@ public class ClientAddressService : IClientAddressService
         var existing = await _db.ClientAddresses.FindAsync(id);
         if (existing == null) return null;
 
-        _db.Entry(existing).CurrentValues.SetValues(updated);
+        existing.UpdatedAt = DateTime.UtcNow;
+        existing.SiteName = updated.SiteName;
+        existing.SiteId = updated.SiteId;
+        existing.OfficeName = updated.OfficeName;
+        existing.OfficeId = updated.OfficeId;
+        existing.AddressText = updated.AddressText;
+        existing.DeliveryType = updated.DeliveryType;
+        existing.IsDefault = updated.IsDefault;
+
+        if (updated.IsDefault)
+        {
+            var otherAddresses = await _db.ClientAddresses
+                .Where(a => a.ClientId == existing.ClientId && a.Id != existing.Id)
+                .ToListAsync();
+
+            foreach (var item in otherAddresses)
+            {
+                item.IsDefault = false;
+            }
+        }
+
         await _db.SaveChangesAsync();
         return existing;
     }

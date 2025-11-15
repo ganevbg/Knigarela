@@ -115,12 +115,15 @@ public class ClientService : IClientService
         {
             if (address.DeliveryType == DeliveryType.Courier)
             {
-                if (!string.IsNullOrWhiteSpace(address.OfficeId) &&
-                    !await _speedy.ValidateOfficeAsync(address.OfficeId))
+                var officeString = address.OfficeId.ToString();
+                if (!string.IsNullOrWhiteSpace(officeString) &&
+                    !await _speedy.ValidateOfficeAsync(officeString))
                     throw new InvalidOperationException($"Invalid Speedy office ID: {address.OfficeId}");
             }
 
-            if (!string.IsNullOrWhiteSpace(address.SiteId) && !await _speedy.ValidateSiteAsync(address.SiteId))
+            // todo - remove that ugly fix and store muncipality, region, settlement or whatever they are called in speedy api and use that
+            var siteString = !string.IsNullOrWhiteSpace(address.SiteName) ? address.SiteName?.Split(",")[2].Split('.')[1] : null;
+            if (!string.IsNullOrWhiteSpace(siteString) && !await _speedy.ValidateSiteAsync(siteString))
                 throw new InvalidOperationException($"Invalid Speedy site ID: {address.SiteId}");
         }
     }

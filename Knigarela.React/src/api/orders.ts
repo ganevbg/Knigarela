@@ -1,6 +1,7 @@
 import { api } from "@/lib/api";
+import { Checkout } from "@/types/api"
 
-export async function saveOrder(formData: any) {
+export async function saveOrder(formData: Checkout) {
 
     var req = {
         FullName: formData.name,
@@ -8,16 +9,17 @@ export async function saveOrder(formData: any) {
         Phone: formData.phone,
         Address:
         {
-            deliveryType: formData.addressType,
-            siteId: `${formData.siteId}`,
-            siteName: formData.site,
-            addressText: formData.address,
-            officeId: `${formData.officeId}`,
-            officeName: formData.office,
+            deliveryType: formData.address.deliveryType,
+            siteId: formData.address.siteId || null,
+            siteName: formData.address.siteName,
+            addressText: formData.address.addressText,
+            officeId: formData.address.officeId || null,
+            officeName: formData.address.officeName,
+            isDefault: formData.address.isDefault|| true,
         },
         Notes: ""
     };
-
+    debugger;
     const { data } = await api.post(`/api/order/from-cart`, req);
     return data;
 }

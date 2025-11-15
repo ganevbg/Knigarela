@@ -6,7 +6,7 @@ import { useParams } from 'next/navigation'
 import Link from "next/link"
 import { ArrowLeft } from 'lucide-react'
 import { Button } from "@/components/ui/button"
-import { getAddressesById, deleteAddressById } from "@/api/clients"
+import { getClientAddressesById, deleteClientAddressById } from "@/api/clients"
 
 interface ClientAddress {
     id: string
@@ -32,7 +32,7 @@ async function fetchClientAddresses(
 ) {
 
     // Mock data - in real app, filter by clientId
-    const allAddresses: ClientAddress[] = await getAddressesById(clientId)
+    const allAddresses: ClientAddress[] = await getClientAddressesById(clientId)
 
     // Filter by type
     let filtered = allAddresses
@@ -72,7 +72,7 @@ async function fetchClientAddresses(
 }
 
 async function deleteAddress(clientId: string, id: string) {
-    await deleteAddressById(clientId, id)
+    await deleteClientAddressById(clientId, id)
 }
 
 export default function ClientAddressesPage() {
@@ -99,12 +99,12 @@ export default function ClientAddressesPage() {
             },
             {
                 key: "siteName",
-                label: "Град/Област",
+                label: "Град    ",
                 render: (value) => value || "-",
             },
             {
                 key: "addressText",
-                label: "Адрес",
+                label: "Адрес/Офис",
                 render: (value, row) => {
                     if (row.deliveryType === "personal") {
                         return value || "-"
@@ -153,7 +153,7 @@ export default function ClientAddressesPage() {
             {/* Back button */}
             <div className="border-b border-gray-200 bg-white">
                 <div className="container mx-auto px-4 py-4">
-                    <Link href="/admin/clients">
+                    <Link href="/admin/clients/">
                         <Button variant="ghost" size="sm" className="text-[var(--knigarela-text-light)] hover:text-[var(--knigarela-text)]">
                             <ArrowLeft className="mr-2 h-4 w-4" />
                             Назад към клиентите

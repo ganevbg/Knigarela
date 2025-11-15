@@ -13,6 +13,7 @@ namespace Knigarela.Api.Mapping
         {
             CreateMap<UpsertBoxDto, Box>();
             CreateMap<UpsertClientDto, Client>().ReverseMap();
+            CreateMap<UpsertClientAddressDto, ClientAddress>().ReverseMap();
 
             CreateMap<Box, AdminBoxDto>();
 

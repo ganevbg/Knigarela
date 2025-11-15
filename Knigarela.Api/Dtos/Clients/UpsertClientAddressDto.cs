@@ -1,9 +1,11 @@
 ﻿using Knigarela.Core.Enums;
 
-namespace Knigarela.Core.Entities
+namespace Knigarela.Api.Dtos.Clients
 {
-    public class BaseAddress : BaseEntity
+    public class UpsertClientAddressDto
     {
+        public Guid? Id { get; set; }
+
         public string? AddressText { get; set; }
 
         public int? SiteId { get; set; }
@@ -17,9 +19,5 @@ namespace Knigarela.Core.Entities
         public DeliveryType DeliveryType { get; set; }
 
         public bool IsDefault { get; set; }
-
-        public string DeliveryTypeText => DeliveryType == DeliveryType.Courier ? "Офис на куриер" : "Личен адрес";
-
-        public string AddressDetailText => DeliveryType == DeliveryType.Courier ?  $"{OfficeName}" : $"{SiteName}, {AddressText}";
     }
 }

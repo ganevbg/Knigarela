@@ -116,7 +116,6 @@ export default function AdminClientsPage() {
             {
                 icon: MapPin,
                 href: (client) => `/admin/clients/${client.id}/addresses`,
-                label: "Адреси"
             },
         ],
     }
