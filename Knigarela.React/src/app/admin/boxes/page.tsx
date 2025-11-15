@@ -21,9 +21,6 @@ const fetchBoxes = async (params: {
     page: number
     itemsPerPage: number
 }) => {
-    // Simulate API delay
-    await new Promise((resolve) => setTimeout(resolve, 500))
-
     const boxes = await getAllAdmin() as Box[];
 
     // Apply filtering

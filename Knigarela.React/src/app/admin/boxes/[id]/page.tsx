@@ -21,24 +21,9 @@ import {
 } from "@/api/boxImages";
 
 import { resolveImageUrl } from "@/lib/utils";
-
-interface BoxImage {
-    id: string;
-    url: string;
-    sortOrder: number;
-    isMain: boolean;
-}
-
-interface BoxFormData {
-    id: string;
-    title: string;
-    description: string;
-    singlePrice: string;
-    subscriptionPrice: string;
-    isActive: boolean;
-    count: string;
-    images: BoxImage[];
-}
+import { BoxFormData } from "@/types/forms/BoxFormData";
+import { BoxImage } from "@/types/api/BoxImage";
+import { Box } from "@/types/api/Box";
 
 export default function AdminBoxFormPage() {
     const router = useRouter();
@@ -54,47 +39,79 @@ export default function AdminBoxFormPage() {
         id: "",
         title: "",
         description: "",
-        singlePrice: "",
-        subscriptionPrice: "",
+        singlePrice: 0,
+        subscriptionPrice: 0,
         isActive: false,
-        count: "",
+        count: 0,
         images: [],
+    });
+
+    const mapBoxToFormData = (box: Box, images: BoxImage[]): BoxFormData => ({
+        id: box.id,
+        title: box.title,
+        description: box.description,
+        singlePrice: box.singlePrice,
+        subscriptionPrice: box.subscriptionPrice,
+        isActive: box.isActive,
+        count: box.count,
+        images: images,
     });
 
     // Load box + images when editing
     useEffect(() => {
-        if (isEdit) {
-            const loadBox = async () => {
-                setLoading(true);
-                const data = await getById(boxId);
-                const imgs = await listImages(boxId);
-                setFormData({ ...data, images: imgs });
-                setLoading(false);
-            };
-            loadBox();
-        }
-    }, [isEdit]);
+        if (!isEdit) return;
+
+        let active = true;
+
+        const loadBox = async () => {
+            setLoading(true);
+
+            const box = await getById(boxId);
+            const imgs = await listImages(boxId);
+
+            if (!active) return;
+
+            setFormData(mapBoxToFormData(box, imgs));
+            setLoading(false);
+        };
+
+        loadBox();
+
+        return () => {
+            active = false;
+        };
+    }, [isEdit, boxId]);
 
     const handleInputChange = (field: keyof BoxFormData, value: string | boolean) => {
         setFormData((prev) => ({ ...prev, [field]: value }));
     };
 
+  
     // Ensure box exists before uploading
     const ensureBoxExists = async (): Promise<string> => {
         if (formData.id) return formData.id;
 
-        const created = await create({
+        let newBox = {
             title: formData.title || "Нова кутия",
             description: formData.description || "",
-            singlePrice: formData.singlePrice || "0",
-            subscriptionPrice: formData.subscriptionPrice || "0",
+            singlePrice: formData.singlePrice || 0,
+            subscriptionPrice: formData.subscriptionPrice || 0,
+            count: formData.count || 0,
             isActive: false,
-            count: formData.count || "0",
-        });
+        };
 
-        setFormData((prev) => ({ ...prev, id: created.id }));
+        setFormData(prev => ({
+            ...prev,
+            newBox,
+        }));
 
-        router.replace(`/admin/boxes/${created.id}`); // Move to edit mode
+        const created = await create(formData);
+
+        setFormData(prev => ({
+            ...prev,
+            id: created.id,
+        }));
+
         return created.id;
     };
 
@@ -117,6 +134,8 @@ export default function AdminBoxFormPage() {
             ...prev,
             images: [...(prev.images || []), ...uploadedImages],
         }));
+
+        router.replace(`/admin/boxes/${ensuredId}`);
     };
 
 
@@ -174,7 +193,7 @@ export default function AdminBoxFormPage() {
         setSaving(true);
 
         try {
-            let savedBox: BoxFormData;
+            let savedBox: Box;
             if (isEdit) {
                 savedBox = await update(formData);
             } else {

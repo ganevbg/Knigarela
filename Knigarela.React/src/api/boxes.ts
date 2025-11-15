@@ -1,4 +1,6 @@
 import { api } from "@/lib/api";
+import { Box } from "@/types/api/Box";
+import { BoxFormData } from "@/types/forms/BoxFormData";
 
 export async function getActiveBox() {
   const { data } = await api.get("/api/boxes/active");
@@ -26,12 +28,12 @@ export async function getAllAdmin() {
 }
 
 
-export async function getById(id: string) {
+export async function getById(id: string): Promise<Box> {
     const { data } = await api.get(`/api/boxes/admin/${id}`);
     return data;
 }
 
-export async function create(formData: any) {
+export async function create(formData: BoxFormData): Promise<Box> {
     const req = {
         title: formData.title,
         description: formData.description,
@@ -45,7 +47,7 @@ export async function create(formData: any) {
     return data;
 }
 
-export async function update(formData: any) {
+export async function update(formData: BoxFormData): Promise<Box> {
     const req = {
         title: formData.title,
         description: formData.description,
