@@ -22,7 +22,7 @@ export async function getAllBoxes() {
     return data;
 }
 
-export async function getAllAdmin() {
+export async function getAllAdmin() : Promise<Box[]> {
     const { data } = await api.get("/api/boxes/admin");
     return data;
 }

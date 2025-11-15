@@ -16,7 +16,7 @@
   <!-- Бял фон със зададен розов текст (за яснота, може да се премахне фоновия правоъгълник, ако е нужен само текст) -->
   <rect width="300" height="120" fill="none" />
   <text x="75" y="20" text-anchor="middle" dominant-baseline="middle"
-        font-family="Brusher" font-size="24" fill="#FFFFFF">
+        font-family="Brusher" font-size="24" fill="#525252">
     Книгарела
   </text>
 </svg>

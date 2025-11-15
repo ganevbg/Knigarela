@@ -3,25 +3,11 @@
 import { DataTable, type DataTableConfig } from "@/components/admin/data-table"
 import { Badge } from "@/components/ui/badge"
 import { getAllAdmin, deleteBox } from "@/api/boxes"
+import { Box } from "@/types/api/Box"
+import { PaginationParams } from "@/types/common/PaginationParams"
 
-interface Box {
-    id: string
-    title: string
-    isActive: boolean
-    count: number
-    singlePrice: number
-    subscriptionPrice: number
-}
-
-const fetchBoxes = async (params: {
-    searchQuery: string
-    filterValue: string
-    sortColumn: keyof Box
-    sortDirection: "asc" | "desc"
-    page: number
-    itemsPerPage: number
-}) => {
-    const boxes = await getAllAdmin() as Box[];
+const fetchBoxes = async (params: PaginationParams<keyof Box>) => {
+    const boxes = await getAllAdmin();
 
     // Apply filtering
     const filteredBoxes = boxes.filter((box) => {
