@@ -34,7 +34,17 @@ export async function update(formData: any) {
     return data;
 }
 
-export async function deleteBox(id: string) {
+export async function deleteClientById(id: string) {
     const { data } = await api.delete(`/api/clients/${id}`);
+    return data;
+}
+
+export async function getAddressesById(id: string) {
+    const { data } = await api.get(`/api/admin/clients/${id}/addresses`);
+    return data;
+}
+
+export async function deleteAddressById(clientId: string, id: string) {
+    const { data } = await api.delete(`/api/admin/clients/${clientId}/addresses/${id}`);
     return data;
 }

@@ -39,9 +39,6 @@ public class ClientAddressesController : ControllerBase
     [HttpPut("{id:guid}")]
     public async Task<IActionResult> Update(Guid clientId, Guid id, [FromBody] ClientAddress address)
     {
-        if (id != address.Id)
-            return BadRequest("ID mismatch");
-
         var updated = await _addresses.UpdateAsync(id, address);
         return updated == null ? NotFound() : Ok(updated);
     }

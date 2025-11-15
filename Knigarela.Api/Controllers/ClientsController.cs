@@ -10,7 +10,6 @@ namespace Knigarela.Api.Controllers.Admin;
 [ApiController]
 [Route("api/[controller]")]
 [Authorize(Roles = "Admin")]
-
 public class ClientsController : ControllerBase
 {
     private readonly IClientService _clientService;

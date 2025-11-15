@@ -37,7 +37,6 @@ export function Navbar() {
                                 <Link href="/admin/boxes" className="font-medium text-gray-700 transition-colors duration-200 hover:text-[#D176A3]">Кутии</Link>
                                 <Link href="/admin/orders" className="font-medium text-gray-700 transition-colors duration-200 hover:text-[#D176A3]">Поръчки</Link>
                                 <Link href="/admin/clients" className="font-medium text-gray-700 transition-colors duration-200 hover:text-[#D176A3]">Клиенти</Link>
-                                <Link href="/admin/clientaddresses" className="font-medium text-gray-700 transition-colors duration-200 hover:text-[#D176A3]">Адреси на клиенти</Link>
                             </>
                         )}
 
@@ -156,12 +155,6 @@ export function Navbar() {
                                     className="block px-3 py-2 text-gray-700 transition-colors duration-200 hover:bg-gray-50 hover:text-[#D176A3]"
                                     onClick={() => setMobileMenuOpen(false)}>
                                     Клиенти
-                                </Link>
-                                <Link
-                                    href="/admin/clientaddresses"
-                                    className="block px-3 py-2 text-gray-700 transition-colors duration-200 hover:bg-gray-50 hover:text-[#D176A3]"
-                                    onClick={() => setMobileMenuOpen(false)}>
-                                    Адреси на клиенти
                                 </Link>
                             </>
                         )}

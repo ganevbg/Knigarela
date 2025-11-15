@@ -31,6 +31,14 @@ export interface FilterOption {
     label: string
     value: string
 }
+export interface CustomAction<T> {
+    label?: string
+    icon?: React.ComponentType<{ className?: string }>
+    onClick?: (item: T) => void
+    href?: (item: T) => string
+    className?: string
+    variant?: "default" | "outline" | "ghost"
+}
 
 export interface DataTableConfig<T> {
     title: string
@@ -57,7 +65,8 @@ export interface DataTableConfig<T> {
     deleteConfirmation?: {
         title: string
         description: (item: T) => string
-    }
+    },
+    customActions?: CustomAction<T>[]
 }
 
 export function DataTable<T extends { id: string }>({ config }: { config: DataTableConfig<T> }) {
@@ -135,6 +144,8 @@ export function DataTable<T extends { id: string }>({ config }: { config: DataTa
         if (sortColumn !== column) return null
         return sortDirection === "asc" ? "↑" : "↓"
     }
+
+    const hasActions = enableEdit || enableDelete || (config.customActions && config.customActions.length > 0)
 
     return (
         <div className="min-h-screen bg-[var(--knigarela-bg)]">
@@ -232,7 +243,7 @@ export function DataTable<T extends { id: string }>({ config }: { config: DataTa
                                                 </div>
                                             </TableHead>
                                         ))}
-                                        {(enableEdit || enableDelete) && (
+                                        {hasActions && (
                                             <TableHead className="text-right font-semibold text-[var(--knigarela-text)]">Действия</TableHead>
                                         )}
                                     </TableRow>
@@ -245,9 +256,49 @@ export function DataTable<T extends { id: string }>({ config }: { config: DataTa
                                                     {column.render ? column.render(item[column.key], item) : String(item[column.key])}
                                                 </TableCell>
                                             ))}
-                                            {(enableEdit || enableDelete) && (
+                                            {hasActions && (
                                                 <TableCell className="text-right">
                                                     <div className="flex items-center justify-end gap-2">
+                                                        {config.customActions?.map((action, index) => {
+                                                            const Icon = action.icon
+                                                            const buttonContent = (
+                                                                <>
+                                                                    {Icon && <Icon className="h-4 w-4" />}
+                                                                    {action.label && <span className="ml-1">{action.label}</span>}
+                                                                </>
+                                                            )
+                                                            if (action.href) {
+                                                                return (
+                                                                    <Link key={index} href={action.href(item)}>
+                                                                        <Button
+                                                                            variant={action.variant || "outline"}
+                                                                            size="sm"
+                                                                            className={
+                                                                                action.className ||
+                                                                                "border-[var(--knigarela-pink)] text-[var(--knigarela-pink)] hover:bg-[var(--knigarela-pink-light)]/50 bg-transparent"
+                                                                            }
+                                                                        >
+                                                                            {buttonContent}
+                                                                        </Button>
+                                                                    </Link>
+                                                                )
+                                                            }
+
+                                                            return (
+                                                                <Button
+                                                                    key={index}
+                                                                    variant={action.variant || "outline"}
+                                                                    size="sm"
+                                                                    onClick={() => action.onClick?.(item)}
+                                                                    className={
+                                                                        action.className ||
+                                                                        "border-[var(--knigarela-pink)] text-[var(--knigarela-pink)] hover:bg-[var(--knigarela-pink-light)]/50 bg-transparent"
+                                                                    }
+                                                                >
+                                                                    {buttonContent}
+                                                                </Button>
+                                                            )
+                                                        })}
                                                         {enableEdit && (
                                                             <Link href={config.editUrl(item.id)}>
                                                                 <Button

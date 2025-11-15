@@ -2,7 +2,8 @@
 
 import { DataTable } from "@/components/admin/data-table"
 import type { DataTableConfig } from "@/components/admin/data-table"
-import { getAllClients } from "@/api/clients"
+import { getAllClients, deleteClientById } from "@/api/clients"
+import { MapPin } from 'lucide-react'
 
 interface Client {
     id: string
@@ -61,10 +62,7 @@ async function fetchClients(params: {
 }
 
 async function deleteClient(id: string) {
-    // Simulate API delay
-    await new Promise((resolve) => setTimeout(resolve, 500))
-    console.log("Deleting client:", id)
-    // In real app, make DELETE request to API
+    await deleteClientById(id);
 }
 
 export default function AdminClientsPage() {
@@ -114,6 +112,13 @@ export default function AdminClientsPage() {
             description: (client) =>
                 `Сигурни ли сте, че искате да изтриете клиента ${client.fullName}? Това действие не може да бъде отменено.`,
         },
+        customActions: [
+            {
+                icon: MapPin,
+                href: (client) => `/admin/clients/${client.id}/addresses`,
+                label: "Адреси"
+            },
+        ],
     }
 
     return <DataTable config={config} />

@@ -24,7 +24,6 @@ public class SpeedyService : ISpeedyService
 
     public async Task<bool> ValidateSiteAsync(string siteId)
     {
-        // TODO - fix those!
         if (string.IsNullOrWhiteSpace(siteId))
             return false;
 
