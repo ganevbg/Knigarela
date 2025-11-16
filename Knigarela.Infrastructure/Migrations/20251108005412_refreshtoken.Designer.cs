@@ -13,7 +13,7 @@ namespace Knigarela.Infrastructure.Migrations
 {
     [DbContext(typeof(KnigarelaDbContext))]
     [Migration("20251108005412_refreshtoken")]
-    partial class refreshtoken
+    partial class Refreshtoken
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

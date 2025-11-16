@@ -5,7 +5,7 @@
 namespace Knigarela.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class somechanges : Migration
+    public partial class Somechanges : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

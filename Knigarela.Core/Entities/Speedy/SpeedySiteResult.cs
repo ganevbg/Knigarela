@@ -2,6 +2,6 @@
 {
     public class SpeedySiteResult
     {
-        public List<SpeedySite> Sites { get; set; }
+        public List<SpeedySite>? Sites { get; set; }
     }
 }

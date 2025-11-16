@@ -31,7 +31,7 @@ public class OrderService : IOrderService
         string fullName,
         string email,
         string phone,
-        OrderAddress address,
+        BaseAddress address,
         List<(Guid BoxId, int Quantity, PurchaseType type)> items,
         string? notes = null,
         bool useLock = false)
@@ -73,12 +73,11 @@ public class OrderService : IOrderService
         return true;
     }
 
-
     private async Task<CreateOrderResult> CreateOrderOptimisticAsync(
         string fullName,
         string email,
         string phone,
-        OrderAddress address,
+        BaseAddress address,
         List<(Guid BoxId, int Quantity, PurchaseType type)> items,
         string? notes)
     {
@@ -136,7 +135,8 @@ public class OrderService : IOrderService
                 Address = address,
                 CreatedAt = DateTime.UtcNow,
                 Note = notes,
-                Items = new List<OrderItem>()
+                Items = new List<OrderItem>(),
+                Status = OrderStatus.New,
             };
 
             foreach (var (boxId, quantity, type) in items)
@@ -185,7 +185,7 @@ public class OrderService : IOrderService
         string fullName,
         string email,
         string phone,
-        OrderAddress address,
+        BaseAddress address,
         List<(Guid BoxId, int Quantity, PurchaseType type)> items,
         string? notes)
     {
@@ -240,7 +240,8 @@ public class OrderService : IOrderService
                 Address = address,
                 CreatedAt = DateTime.UtcNow,
                 Note = notes,
-                Items = new List<OrderItem>()
+                Items = new List<OrderItem>(),
+                Status = OrderStatus.New,
             };
 
             foreach (var (boxId, quantity, type) in items)

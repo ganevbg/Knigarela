@@ -4,11 +4,11 @@ public class BoxDto
 {
     public Guid Id { get; set; }
 
-    public string Title { get; set; }
+    public string? Title { get; set; }
 
-    public string Slug { get; set; }
+    public string? Slug { get; set; }
 
-    public string Description { get; set; }
+    public string? Description { get; set; }
 
     public decimal SinglePrice { get; set; }
 
@@ -20,7 +20,7 @@ public class BoxDto
 
     public string? MainImageUrl { get; set; }
 
-    public string[] ImageUrls { get; set; }
+    public string[]? ImageUrls { get; set; }
 
     public bool Available => Count > 0;
 }

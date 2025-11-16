@@ -9,7 +9,7 @@ public interface IOrderService
        string fullName,
        string email,
        string phone,
-       OrderAddress address,
+       BaseAddress address,
        List<(Guid BoxId, int Quantity, PurchaseType type)> items,
        string? notes = null,
        bool useLock = false);

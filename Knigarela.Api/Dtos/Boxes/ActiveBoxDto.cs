@@ -2,5 +2,5 @@
 
 public class ActiveBoxDto : PrevBoxDto
 {
-    public string Description { get; set; }
+    public string? Description { get; set; }
 }

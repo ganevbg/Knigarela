@@ -13,7 +13,7 @@ namespace Knigarela.Infrastructure.Migrations
 {
     [DbContext(typeof(KnigarelaDbContext))]
     [Migration("20251110225001_changestomodels")]
-    partial class changestomodels
+    partial class Changestomodels
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

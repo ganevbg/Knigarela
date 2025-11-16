@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Knigarela.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class dbdates : Migration
+    public partial class Dbdates : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

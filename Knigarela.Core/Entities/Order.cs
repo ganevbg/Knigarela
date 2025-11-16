@@ -1,13 +1,15 @@
-﻿namespace Knigarela.Core.Entities;
+﻿using Knigarela.Core.Enums;
+
+namespace Knigarela.Core.Entities;
 
 public class Order : BaseEntity
 {
     public Guid ClientId { get; set; }
 
-    public Client Client { get; set; }
+    public Client? Client { get; set; }
 
     // Delivery snapshot
-    public OrderAddress Address { get; set; }
+    public BaseAddress? Address { get; set; }
 
     // Total order price (calculated)
     public decimal TotalAmount => Items?.Sum(i => i.TotalPrice) ?? 0m;
@@ -16,5 +18,7 @@ public class Order : BaseEntity
 
     public string? Note { get; set; }
 
-    public ICollection<OrderItem> Items { get; set; }
+    public ICollection<OrderItem>? Items { get; set; }
+
+    public OrderStatus Status { get; set; }
 }

@@ -32,7 +32,7 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
 
 // JWT
 var jwtKey = builder.Configuration["Jwt:Key"];
-var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
+var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey ?? Guid.NewGuid().ToString()));
 
 builder.Services.AddAuthentication(options =>
 {
@@ -103,7 +103,7 @@ builder.Services.AddSwaggerGen(c =>
                     Id = "Bearer"
                 }
             },
-            new string[] {}
+            Array.Empty<string>()
         }
     });
 });
@@ -128,7 +128,7 @@ builder.Services.AddScoped<IClientAddressService, ClientAddressService>();
 
 var allowedOrigins = builder.Configuration
     .GetSection("AllowedFrontendOrigins")
-    .Get<string[]>() ?? Array.Empty<string>();
+    .Get<string[]>() ?? [];
 
 builder.Services.AddCors(options =>
 {
@@ -156,7 +156,7 @@ app.UseSwaggerUI(c =>
 
 app.UseStaticFiles(new StaticFileOptions
 {
-    FileProvider = new PhysicalFileProvider(Path.Combine(builder.Configuration["FileStorage:RootPath"])),
+    FileProvider = new PhysicalFileProvider(Path.Combine(builder.Configuration["FileStorage:RootPath"] ?? "wwwroot\\upload")),
     RequestPath = "/uploads"
 });
 
@@ -184,21 +184,24 @@ using (var scope = app.Services.CreateScope())
     if (!await roleManager.RoleExistsAsync("Admin"))
         await roleManager.CreateAsync(new IdentityRole("Admin"));
 
-    var admin = await userManager.FindByEmailAsync(adminEmail);
-    if (admin == null)
+    if (!string.IsNullOrEmpty(adminUserName) && !string.IsNullOrEmpty(adminEmail) && !string.IsNullOrEmpty(adminName) && !string.IsNullOrEmpty(adminPassword))
     {
-        var newAdmin = new ApplicationUser
+        var admin = await userManager.FindByEmailAsync(adminEmail);
+        if (admin == null)
         {
-            UserName = adminUserName,
-            Email = adminEmail,
-            FullName = adminName
-        };
+            var newAdmin = new ApplicationUser
+            {
+                UserName = adminUserName,
+                Email = adminEmail,
+                FullName = adminName
+            };
 
-        var result = await userManager.CreateAsync(newAdmin, adminPassword);
-        if (result.Succeeded)
-            await userManager.AddToRoleAsync(newAdmin, "Admin");
-        else
-            Console.WriteLine("Failed to create admin: " + string.Join(", ", result.Errors.Select(e => e.Description)));
+            var result = await userManager.CreateAsync(newAdmin, adminPassword);
+            if (result.Succeeded)
+                await userManager.AddToRoleAsync(newAdmin, "Admin");
+            else
+                Console.WriteLine("Failed to create admin: " + string.Join(", ", result.Errors.Select(e => e.Description)));
+        }
     }
 }
 

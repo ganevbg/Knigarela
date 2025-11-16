@@ -4,11 +4,11 @@
     {
         public DateTime Date { get; set; }
 
-        public string WorkingTimeFrom { get; set; }
+        public string? WorkingTimeFrom { get; set; }
 
-        public string WorkingTimeTo { get; set; }
+        public string? WorkingTimeTo { get; set; }
 
-        public string SameDayDepartureCutoff { get; set; }
+        public string? SameDayDepartureCutoff { get; set; }
 
         public bool StandardSchedule { get; set; }
     }

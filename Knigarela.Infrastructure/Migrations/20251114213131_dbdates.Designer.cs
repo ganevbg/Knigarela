@@ -13,7 +13,7 @@ namespace Knigarela.Infrastructure.Migrations
 {
     [DbContext(typeof(KnigarelaDbContext))]
     [Migration("20251114213131_dbdates")]
-    partial class dbdates
+    partial class Dbdates
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

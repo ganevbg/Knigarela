@@ -6,11 +6,11 @@
 
         public DateTime CreatedAt { get; set; }
 
-        public string FullName { get; set; }
+        public string? FullName { get; set; }
 
-        public string Email { get; set; }
+        public string? Email { get; set; }
 
-        public string Phone { get; set; }
+        public string? Phone { get; set; }
 
         public string? Notes { get; set; }
 
@@ -20,6 +20,6 @@
 
         public bool IsSubscribed => SubscriptionDate.HasValue;
 
-        public string DefaultAddress { get; set; }
+        public string? DefaultAddress { get; set; }
     }
 }

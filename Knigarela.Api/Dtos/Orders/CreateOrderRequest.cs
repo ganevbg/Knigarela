@@ -2,6 +2,6 @@
 {
     public class CreateOrderRequest : CreateOrderFromCartRequest
     {
-        public List<OrderItemDto> Items { get; set; }
+        public List<OrderItemDto>? Items { get; set; }
     }
 }

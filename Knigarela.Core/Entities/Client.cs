@@ -2,11 +2,11 @@
 
 public class Client : BaseEntity
 {
-    public string FullName { get; set; }
+    public string? FullName { get; set; }
     
-    public string Email { get; set; }
+    public string? Email { get; set; }
     
-    public string Phone { get; set; }
+    public string? Phone { get; set; }
 
     public string? Notes { get; set; }
 
@@ -15,6 +15,6 @@ public class Client : BaseEntity
     public int SubscriptionCancellationCount { get; set; }
 
     // Navigation
-    public ICollection<ClientAddress> Addresses { get; set; }
-    public ICollection<Order> Orders { get; set; }
+    public ICollection<ClientAddress>? Addresses { get; set; }
+    public ICollection<Order>? Orders { get; set; }
 }
