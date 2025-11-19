@@ -106,8 +106,6 @@ export default function BoxDetailPage() {
         notFound();
     }
 
-    const imageUrl = resolveImageUrl(box.mainImageUrl ?? "");
-
     return (
         <>
             {/* Hero Section */}
@@ -136,7 +134,7 @@ export default function BoxDetailPage() {
                                 onClick={() => setIsFullscreen(true)} 
                                 >
                                 <img
-                                    src={resolveImageUrl(box.images?.[selectedImage].url)  || imageUrl || "/placeholder.svg"}
+                                    src={resolveImageUrl(box.images?.[selectedImage].url)   || "/placeholder.svg"}
                                     alt={box.title}
                                     className="h-full w-full object-cover"
                                 />

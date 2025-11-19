@@ -22,7 +22,6 @@ namespace Knigarela.Api.Mapping
                     opt => opt.MapFrom((src, dest) =>
                         src.Images != null
                             ? src.Images
-                                .Where(x => !x.IsMain)
                                 .OrderBy(x => x.SortOrder)
                                 .Select(i => i.Url)
                             : []))
