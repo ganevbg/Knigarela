@@ -1,18 +1,25 @@
 ﻿"use client";
 import { ActiveBox } from "@/components/active-box";
+import { HeroVideo } from "@/components/hero-video";
 import { PreviousBoxesCarousel } from "@/components/previous-boxes-carousel";
 
 export default function Home() {
     return (
         <>
-            <section className="w-full bg-white px-4 py-16">
-                <div className="mx-auto max-w-5xl">
+            <section className="w-full">
+                <div className="mx-auto max-w-full">
+                    <HeroVideo />
+                </div>
+            </section>
+
+            <section className="w-full bg-white px-4 py-8">
+                <div className="mx-auto max-w-7xl">
                     <ActiveBox />
                 </div>
             </section>
 
-            <section className="w-full px-4 py-16" style={{ backgroundColor: "#fff5fa" }}>
-                <div className="mx-auto max-w-7xl">
+            <section className="w-full px-4 py-8" style={{ backgroundColor: "#fff5fa" }}>
+                <div className="mx-auto max-w-5xl">
                     <h2 className="mb-12 text-center text-3xl font-semibold md:text-4xl" style={{ color: "#2d2d2d" }}>
                         Предишни кутии
                     </h2>
@@ -20,8 +27,8 @@ export default function Home() {
                 </div>
             </section>
 
-            <section className="w-full bg-white px-4 py-16">
-                <div className="mx-auto max-w-7xl">
+            <section className="w-full bg-white px-4 py-8">
+                <div className="mx-auto max-w-5xl">
                     <h2 className="mb-12 text-center text-3xl font-semibold md:text-4xl" style={{ color: "#2d2d2d" }}>
                         Защо Книгарела?
                     </h2>
