@@ -10,7 +10,7 @@
 
         public string? Phone { get; set; }
 
-        public BaseAddress? Address { get; set; }
+        public OrderAddress? Address { get; set; }
 
         public string? Notes { get; set; }
     }

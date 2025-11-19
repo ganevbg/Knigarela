@@ -9,7 +9,7 @@ public class Order : BaseEntity
     public Client? Client { get; set; }
 
     // Delivery snapshot
-    public BaseAddress? Address { get; set; }
+    public OrderAddress? Address { get; set; }
 
     // Total order price (calculated)
     public decimal TotalAmount => Items?.Sum(i => i.TotalPrice) ?? 0m;
