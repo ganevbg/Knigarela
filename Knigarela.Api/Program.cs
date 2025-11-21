@@ -55,7 +55,7 @@ builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
 {
     options.Cookie.Name = ".Knigarela.Session";
-    options.IdleTimeout = TimeSpan.FromDays(7); // cart persists for a week
+    options.IdleTimeout = TimeSpan.FromHours(2); // cart persists for a week
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });

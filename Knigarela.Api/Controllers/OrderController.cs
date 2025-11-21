@@ -56,7 +56,7 @@ public class OrderController : ControllerBase
     public async Task<IActionResult> GetAll()
     {
         var list = await _orderService.GetAllAsync();
-        return Ok(list);
+        return Ok(this.mapper.Map<List<OrderListDto>>(list));
     }
 
     [HttpDelete("{id:guid}")]

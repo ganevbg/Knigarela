@@ -1,5 +1,5 @@
 import { api } from "@/lib/api";
-import { Checkout } from "@/types/api"
+import { Checkout, Order } from "@/types/api"
 
 export async function saveOrder(formData: Checkout) {
 
@@ -19,12 +19,17 @@ export async function saveOrder(formData: Checkout) {
         },
         Notes: ""
     };
-    debugger;
+
     const { data } = await api.post(`/api/order/from-cart`, req);
     return data;
 }
 
 export async function getOrder(id: string) {
     const { data } = await api.get(`/api/order/${id}`);
+    return data;
+}
+
+export async function getOrders(): Promise<Order[]> {
+    const { data } = await api.get(`/api/order`);
     return data;
 }

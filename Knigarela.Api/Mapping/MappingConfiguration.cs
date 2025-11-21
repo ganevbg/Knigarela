@@ -14,8 +14,8 @@ namespace Knigarela.Api.Mapping
             CreateMap<UpsertBoxDto, Box>();
             CreateMap<UpsertClientDto, Client>().ReverseMap();
             CreateMap<UpsertClientAddressDto, ClientAddress>().ReverseMap();
-
             CreateMap<Box, AdminBoxDto>();
+            CreateMap<OrderAddress, ClientAddress>();
 
             CreateMap<Box, BoxDto>()
                 .ForMember(dest => dest.ImageUrls,
@@ -92,6 +92,16 @@ namespace Knigarela.Api.Mapping
                        src.Addresses?
                           .FirstOrDefault(x => x.IsDefault)?
                           .AddressDetailText));
+
+            CreateMap<Order, OrderListDto>()
+               .ForMember(dest => dest.Number,
+                   opt => opt.MapFrom(src => src.Id))
+               .ForMember(dest => dest.ClientName,
+                   opt => opt.MapFrom((src, dest) => src.Client?.FullName))
+               .ForMember(dest => dest.Date,
+                   opt => opt.MapFrom(src => src.CreatedAt))
+               .ForMember(dest => dest.TotalAmount,
+                   opt => opt.MapFrom(src => (src.TotalAmount + src.DeliveryAmount)));
         }
     }
 }
