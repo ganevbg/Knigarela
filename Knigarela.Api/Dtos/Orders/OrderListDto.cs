@@ -15,5 +15,7 @@ namespace Knigarela.Api.Dtos.Orders
         public DateTime Date { get; set; }
 
         public string? ClientName { get; set; }
+
+        public string? Address { get; set; }
     }
 }

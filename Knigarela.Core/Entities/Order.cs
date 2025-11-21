@@ -21,4 +21,6 @@ public class Order : BaseEntity
     public ICollection<OrderItem>? Items { get; set; }
 
     public OrderStatus Status { get; set; }
+
+    public long OrderNumber { get; set; }
 }

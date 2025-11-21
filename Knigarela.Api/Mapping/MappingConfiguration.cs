@@ -63,8 +63,6 @@ namespace Knigarela.Api.Mapping
                    opt => opt.MapFrom((src, dest) => src.Client?.Email))
                .ForMember(dest => dest.Client,
                    opt => opt.MapFrom((src, dest) => src.Client?.FullName))
-               .ForMember(dest => dest.OrderNumber,
-                   opt => opt.MapFrom(src => src.Id))
                .ForMember(dest => dest.Date,
                    opt => opt.MapFrom(src => src.CreatedAt))
                .ForMember(dest => dest.AddressType,
@@ -95,9 +93,11 @@ namespace Knigarela.Api.Mapping
 
             CreateMap<Order, OrderListDto>()
                .ForMember(dest => dest.Number,
-                   opt => opt.MapFrom(src => src.Id))
+                   opt => opt.MapFrom(src => src.OrderNumber))
                .ForMember(dest => dest.ClientName,
                    opt => opt.MapFrom((src, dest) => src.Client?.FullName))
+               .ForMember(dest => dest.Address,
+                   opt => opt.MapFrom((src, dest) => src.Address?.AddressDetailText))
                .ForMember(dest => dest.Date,
                    opt => opt.MapFrom(src => src.CreatedAt))
                .ForMember(dest => dest.TotalAmount,

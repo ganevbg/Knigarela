@@ -13,8 +13,6 @@ const fetchOrders = async (params: {
     page: number
     itemsPerPage: number
 }) => {
-    await new Promise((resolve) => setTimeout(resolve, 500))
-
     let orders = await getOrders();
 
     const filteredOrders = orders.filter((order) => {
@@ -71,6 +69,10 @@ export default function AdminOrdersPage() {
                 label: "Клиент",
             },
             {
+                key: "address",
+                label: "адрес",
+            },
+            {
                 key: "status",
                 label: "Статус",
                 render: (value: keyof typeof statusLabels) => (
@@ -94,10 +96,11 @@ export default function AdminOrdersPage() {
         searchPlaceholder: "Търсене по номер или клиент...",
         filterOptions: [
             { label: "Всички", value: "all" },
+            { label: "Нов", value: "new" },
             { label: "Обработват се", value: "processing" },
-            { label: "Изпратени", value: "shipped" },
-            { label: "Доставени", value: "delivered" },
-            { label: "Отменени", value: "cancelled" },
+            { label: "Изпратен", value: "shipped" },
+            { label: "Доставен", value: "delivered" },
+            { label: "Отменен", value: "cancelled" },
         ],
         enableDelete: false,
     }

@@ -105,5 +105,13 @@ public class KnigarelaDbContext : IdentityDbContext<ApplicationUser>
         builder.Entity<Box>()
             .Property<uint>("xmin")
             .IsRowVersion();
+
+        builder.HasSequence<long>("order_number_seq")
+       .StartsAt(1)
+       .IncrementsBy(1);
+
+        builder.Entity<Order>()
+            .Property(o => o.OrderNumber)
+            .HasDefaultValueSql("nextval('order_number_seq')");
     }
 }
