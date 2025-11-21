@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label"
 import { addToCart } from "@/api/cart";
 import { useCart } from "@/context/CartContext";
 import { toast } from "react-toastify";
-import { resolveImageUrl } from "../../../lib/utils";
+import { resolveImageUrl, formatPrice } from "@/lib/utils";
 import { Box } from "@/types/api";
 
 export default function BoxDetailPage() {
@@ -202,7 +202,7 @@ export default function BoxDetailPage() {
                                                             </p>
                                                         </div>
                                                         <p className="pl-2 text-xl font-bold" style={{ color: "#D176A3" }}>
-                                                            {box.singlePrice} лв.
+                                                            {formatPrice(box.singlePrice, true)}
                                                         </p>
                                                     </div>
                                                 </Label>
@@ -223,11 +223,11 @@ export default function BoxDetailPage() {
                                                                 Месечен абонамент
                                                             </p>
                                                             <p className="text-sm" style={{ color: "#6b6b6b" }}>
-                                                                Спести {box.singlePrice - box.subscriptionPrice} лв. на месец
+                                                                Спести {formatPrice(box.singlePrice - box.subscriptionPrice, true)} на месец
                                                             </p>
                                                         </div>
                                                         <p className="pl-2 text-xl font-bold" style={{ color: "#D176A3" }}>
-                                                            {box.subscriptionPrice} лв./месец
+                                                            {formatPrice(box.subscriptionPrice, true)}/месец
                                                         </p>
                                                     </div>
                                                 </Label>

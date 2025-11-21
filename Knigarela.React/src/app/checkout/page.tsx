@@ -11,6 +11,7 @@ import { saveOrder } from "@/api/orders"
 import { useCart } from "@/context/CartContext";
 import { useRouter } from "next/navigation";
 import { Checkout } from "@/types/api"
+import { formatPrice } from "@/lib/utils"
 
 export default function CheckoutPage() {
     const router = useRouter();
@@ -231,7 +232,7 @@ export default function CheckoutPage() {
                                                 </p>
                                             </div>
                                             <p className="font-semibold" style={{ color: "#D176A3" }}>
-                                                {item.unitPrice.toFixed(2)} лв
+                                                {formatPrice(item.unitPrice, true)}
                                             </p>
                                         </div>
                                     ))}
@@ -241,18 +242,18 @@ export default function CheckoutPage() {
                                 <div className="space-y-3 border-t border-gray-300 pt-4">
                                     <div className="flex justify-between text-gray-700">
                                         <span>Междинна сума:</span>
-                                        <span>{subtotal.toFixed(2)} лв</span>
+                                        <span>{formatPrice(subtotal, true)}</span>
                                     </div>
                                     <div className="flex justify-between text-gray-700">
                                         <span>Доставка:</span>
-                                        <span>{shipping.toFixed(2)} лв</span>
+                                        <span>{formatPrice(shipping, true)}</span>
                                     </div>
                                     <div
                                         className="flex justify-between border-t border-gray-300 pt-3 text-xl font-semibold"
                                         style={{ color: "#2d2d2d" }}
                                     >
                                         <span>Общо:</span>
-                                        <span style={{ color: "#D176A3" }}>{total.toFixed(2)} лв</span>
+                                        <span style={{ color: "#D176A3" }}>{formatPrice(total, true)}</span>
                                     </div>
                                 </div>
 

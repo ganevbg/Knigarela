@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/context/CartContext";
 import { CartItemCard } from "@/components/cart/CartItemCard";
+import { formatPrice } from "@/lib/utils"
 
 export default function CartPage() {
     const { items, add, remove, clear } = useCart();
@@ -56,15 +57,15 @@ export default function CartPage() {
                                     <div className="mb-6 space-y-3">
                                         <div className="flex justify-between text-gray-700">
                                             <span>Междинна сума:</span>
-                                            <span>{subtotal.toFixed(2)} лв</span>
+                                                <span>{formatPrice(subtotal, true)}</span>
                                         </div>
                                         <div className="flex justify-between text-gray-700">
                                             <span>Доставка:</span>
-                                            <span>{shipping.toFixed(2)} лв</span>
+                                                <span>{formatPrice(shipping, true)}</span>
                                         </div>
                                         <div className="flex justify-between border-t pt-3 text-xl font-semibold">
                                             <span>Общо:</span>
-                                            <span style={{ color: "#D176A3" }}>{total.toFixed(2)} лв</span>
+                                                <span style={{ color: "#D176A3" }}>{formatPrice(total, true)} </span>
                                         </div>
                                     </div>
 

@@ -13,3 +13,29 @@ export function resolveImageUrl(url: string) {
     // Otherwise it's local relative URL → DEV mode
     return `${process.env.NEXT_PUBLIC_API_URL}${url}`;
 }
+
+
+export function formatPrice(
+    value: number,
+    showBothCurrencies: boolean = false
+): string {
+    if (isNaN(value)) return "";
+
+    const formatterBGN = new Intl.NumberFormat("bg-BG", {
+        style: "currency",
+        currency: "BGN",
+        minimumFractionDigits: 2,
+    });
+
+    const formatterEUR = new Intl.NumberFormat("bg-BG", {
+        style: "currency",
+        currency: "EUR",
+        minimumFractionDigits: 2,
+    });
+
+    if (showBothCurrencies) {
+        return `${formatterBGN.format(value)} (${formatterEUR.format(value / 1.95583)})`;
+    }
+
+    return formatterEUR.format(value / 1.95583);
+}

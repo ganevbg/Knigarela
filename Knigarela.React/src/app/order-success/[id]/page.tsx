@@ -3,6 +3,7 @@ import { CheckCircle2, Package, Mail, MapPin } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { getOrder } from "@/api/orders"
 import { resolveImageUrl } from "@/lib/utils";
+import { formatPrice } from "@/lib/utils"
 
 export default async function OrderSuccessPage({ params }: { params: { id: string } }) {
     const { id } = await params;
@@ -132,7 +133,7 @@ export default async function OrderSuccessPage({ params }: { params: { id: strin
                                             <p className="text-sm text-[var(--knigarela-text-light)]">{`${item.purchaseTypeText} - ${item.quantity} бр.`}</p>
                                         </div>
                                         <div className="text-right">
-                                            <p className="font-semibold text-[var(--knigarela-text)]">{item.unitPrice.toFixed(2)} лв.</p>
+                                            <p className="font-semibold text-[var(--knigarela-text)]">{formatPrice(item.unitPrice, true)}</p>
                                         </div>
                                     </div>
                                 ))}
@@ -148,17 +149,17 @@ export default async function OrderSuccessPage({ params }: { params: { id: strin
                             <div className="mb-4 space-y-4 border-b border-white/30 pb-4">
                                 <div className="flex justify-between text-white/90">
                                     <span>Междинна сума</span>
-                                    <span>{order.subTotal.toFixed(2)} лв.</span>
+                                    <span>{formatPrice(order.subTotal, true)}</span>
                                 </div>
                                 <div className="flex justify-between text-white/90">
                                     <span>Доставка</span>
-                                    <span>{order.deliveryAmount.toFixed(2)} лв.</span>
+                                    <span>{formatPrice(order.deliveryAmount, true)}</span>
                                 </div>
                             </div>
 
                             <div className="mb-6 flex justify-between text-xl font-bold">
                                 <span>Обща сума</span>
-                                <span>{order.totalAmount.toFixed(2)} лв.</span>
+                                <span>{formatPrice(order.totalAmount, true)}</span>
                             </div>
 
                             <div className="space-y-3">

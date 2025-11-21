@@ -1,7 +1,7 @@
 ﻿"use client";
 
 import Image from "next/image";
-import { resolveImageUrl } from "@/lib/utils";
+import { resolveImageUrl, formatPrice } from "@/lib/utils";
 
 interface CartItemCardProps {
     boxId: string;
@@ -41,7 +41,7 @@ export function CartItemCard({
                 <div>
                     <h3 className="mb-1 text-lg font-semibold text-[#2d2d2d]">{title}</h3>
                     <p className="text-sm text-gray-500">{purchaseType === "subscription" ? "Абонамент" : "Единична покупка"}</p>
-                    <p className="text-xl font-semibold text-[#D176A3]">{unitPrice.toFixed(2)} лв</p>
+                    <p className="text-xl font-semibold text-[#D176A3]">{formatPrice(unitPrice, true)}</p>
                 </div>
 
                 <div className="flex items-center gap-4">

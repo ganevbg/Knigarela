@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge"
 import { getAllAdmin, deleteBox } from "@/api/boxes"
 import { Box } from "@/types/api/Box"
 import { PaginationParams } from "@/types/common/PaginationParams"
+import { formatPrice } from "@/lib/utils";
 
 const fetchBoxes = async (params: PaginationParams<keyof Box>) => {
     const boxes = await getAllAdmin();
@@ -84,12 +85,12 @@ export default function AdminBoxesPage() {
             {
                 key: "singlePrice",
                 label: "Единична Цена",
-                render: (value) => `${value.toFixed(2)} лв.`,
+                render: (value) => formatPrice(value, true),
             },
             {
                 key: "subscriptionPrice",
                 label: "Абонаментна Цена",
-                render: (value) => `${value.toFixed(2)} лв.`,
+                render: (value) => formatPrice(value, true),
             },
         ],
         createUrl: "/admin/boxes/create",

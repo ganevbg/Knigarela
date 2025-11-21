@@ -4,6 +4,7 @@ import { DataTable, type DataTableConfig } from "@/components/admin/data-table"
 import { Badge } from "@/components/ui/badge"
 import { Order } from "@/types/api"
 import { getOrders } from "@/api/orders"
+import { formatPrice } from "@/lib/utils"
 
 const fetchOrders = async (params: {
     searchQuery: string
@@ -82,7 +83,7 @@ export default function AdminOrdersPage() {
             {
                 key: "totalAmount",
                 label: "Общо",
-                render: (value) => `${value.toFixed(2)} лв.`,
+                render: (value) => formatPrice(value),
             },
             {
                 key: "date",
