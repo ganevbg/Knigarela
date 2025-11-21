@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
 using Knigarela.Api.Dtos.Boxes;
 using Knigarela.Core.Entities;
+using Knigarela.Core.Pagination;
 using Knigarela.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Knigarela.Api.Controllers;
 
@@ -84,12 +86,16 @@ public class BoxesController : ControllerBase
         return Ok(_mapper.Map<BoxDto>(box));
     }
 
-    [HttpGet("admin")]
+    [HttpPost("admin/query")]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> GetAllAdmin()
+    public async Task<IActionResult> GetAllAdmin([FromBody] PaginationQuery<string> query)
     {
-        var boxes = await _boxService.GetAllAsync();
-        var result = _mapper.Map<IEnumerable<AdminBoxDto>>(boxes);
-        return Ok(result);
+        var result = await _boxService.QueryAsync(query);
+
+        return Ok(new PagedResult<AdminBoxDto>
+        {
+            Total = result.Total,
+            Data = _mapper.Map<IEnumerable<AdminBoxDto>>(result.Data)
+        });
     }
 }

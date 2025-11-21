@@ -1,11 +1,14 @@
 ﻿using Knigarela.Core.Entities;
+using Knigarela.Core.Pagination;
 
 namespace Knigarela.Services.Interfaces;
 
 public interface IBoxService
 {
     Task<IEnumerable<Box>> GetAllAsync();
-    
+
+    Task<PagedResult<Box>> QueryAsync(PaginationQuery<string> query);
+
     Task<Box?> GetByIdAsync(Guid id);
     
     Task<Box> CreateAsync(Box box);

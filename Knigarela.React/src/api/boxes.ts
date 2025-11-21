@@ -42,8 +42,8 @@ export async function getAllBoxes() {
     return data;
 }
 
-export async function getAllAdmin() : Promise<Box[]> {
-    const { data } = await api.get("/api/boxes/admin");
+export async function getAllAdmin(params: any) {
+    const { data } = await api.post("/api/boxes/admin/query", params);
     return data;
 }
 

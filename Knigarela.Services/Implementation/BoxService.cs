@@ -1,9 +1,11 @@
 ﻿using Knigarela.Core.Entities;
 using Knigarela.Core.Helpers;
+using Knigarela.Core.Pagination;
 using Knigarela.Infrastructure.Data;
 using Knigarela.Infrastructure.Files;
 using Knigarela.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace Knigarela.Services.Implementations;
 
@@ -95,5 +97,24 @@ public class BoxService : IBoxService
         return await _db.Boxes
             .Include(b => b.Images)
             .Where(x => x.IsActive == false).ToListAsync();
+    }
+
+    public async Task<PagedResult<Box>> QueryAsync(PaginationQuery<string> query)
+    {
+        return await DynamicQuery.ApplyAsync(
+         _db.Boxes,
+         query,
+         filterExpression: query.FilterValue switch
+         {
+             "active" => b => b.IsActive,
+             "inactive" => b => !b.IsActive,
+             _ => null
+         },
+         selectExpression: b => b,
+         searchableFields:
+         [
+            b => b.Title
+         ]
+     );
     }
 }

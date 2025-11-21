@@ -8,47 +8,19 @@ import { PaginationParams } from "@/types/common/PaginationParams"
 import { formatPrice } from "@/lib/utils";
 
 const fetchBoxes = async (params: PaginationParams<keyof Box>) => {
-    const boxes = await getAllAdmin();
+    const result = await getAllAdmin({
+        page: params.page,
+        itemsPerPage: params.itemsPerPage,
+        searchQuery: params.searchQuery,
+        filterValue: params.filterValue,
+        sortColumn: params.sortColumn,
+        sortDirection: params.sortDirection,
+    });
 
-    // Apply filtering
-    const filteredBoxes = boxes.filter((box) => {
-        const matchesSearch = box.title.toLowerCase().includes(params.searchQuery.toLowerCase())
-        const matchesStatus =
-            params.filterValue === "all" ||
-            (params.filterValue === "active" && box.isActive) ||
-            (params.filterValue === "inactive" && !box.isActive)
-        return matchesSearch && matchesStatus
-    })
-
-    // Apply sorting
-    filteredBoxes.sort((a, b) => {
-        const aValue = a[params.sortColumn]
-        const bValue = b[params.sortColumn]
-
-        if (typeof aValue === "boolean") {
-            return params.sortDirection === "asc"
-                ? aValue === bValue
-                    ? 0
-                    : aValue
-                        ? 1
-                        : -1
-                : aValue === bValue
-                    ? 0
-                    : aValue
-                        ? -1
-                        : 1
-        }
-
-        if (aValue < bValue) return params.sortDirection === "asc" ? -1 : 1
-        if (aValue > bValue) return params.sortDirection === "asc" ? 1 : -1
-        return 0
-    })
-
-    const total = filteredBoxes.length
-    const startIndex = (params.page - 1) * params.itemsPerPage
-    const paginatedBoxes = filteredBoxes.slice(startIndex, startIndex + params.itemsPerPage)
-
-    return { data: paginatedBoxes, total }
+    return {
+        data: result.data,
+        total: result.total,
+    };
 }
 
 export default function AdminBoxesPage() {
