@@ -115,6 +115,6 @@ public class BoxService : IBoxService
          [
             b => b.Title
          ]
-     );
+        );
     }
 }

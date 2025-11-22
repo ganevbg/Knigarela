@@ -1,6 +1,8 @@
 ﻿using Knigarela.Core.Entities;
 using Knigarela.Core.Enums;
+using Knigarela.Core.Pagination;
 using Knigarela.Infrastructure.Data;
+using Knigarela.Services;
 using Knigarela.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System.Text.RegularExpressions;
@@ -39,14 +41,25 @@ public class ClientService : IClientService
         return await CreateClientAsync(model);
     }
 
-    public async Task<List<Client>> GetAllAsync()
+    public async Task<PagedResult<Client>> GetAllAsync(PaginationQuery<string> query)
     {
-        return await _db.Clients
-            .Include(c => c.Addresses)
-            .Include(c => c.Orders)
-            .ThenInclude(o => o.Items)
-            .OrderByDescending(c => c.CreatedAt)
-            .ToListAsync();
+        return await DynamicQuery.ApplyAsync(
+         _db.Clients.Include(c => c.Addresses),
+         query,
+         filterExpression: query.FilterValue switch
+         {
+             "new" => c => c.IsNewSubscriber,
+             "old" => c => !c.IsNewSubscriber,
+             _ => null
+         },
+         selectExpression: c => c,
+         searchableFields:
+         [
+            c => c.FullName!,
+            c => c.Email!,
+            c => c.Phone!
+         ]
+        );
     }
 
     public async Task<Client?> GetByIdAsync(Guid id)

@@ -9,5 +9,6 @@
 export interface ClientAllDto extends Client {
     subscriptionCancellationCount: number;
     isSubscribed: boolean;
+    isNewSubscriber: boolean; 
     defaultAddress: string | null;
 }

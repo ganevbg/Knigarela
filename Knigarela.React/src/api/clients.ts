@@ -1,8 +1,8 @@
 import { api } from "@/lib/api";
 import type { ClientAllDto } from "@/types/api"
 
-export async function getAllClients(): Promise<ClientAllDto[]> {
-    const { data } = await api.get("/api/clients");
+export async function getAllClients(params:any) {
+    const { data } = await api.post("/api/clients/admin/query", params);
     return data;
 }
 

@@ -8,14 +8,7 @@ import { PaginationParams } from "@/types/common/PaginationParams"
 import { formatPrice } from "@/lib/utils";
 
 const fetchBoxes = async (params: PaginationParams<keyof Box>) => {
-    const result = await getAllAdmin({
-        page: params.page,
-        itemsPerPage: params.itemsPerPage,
-        searchQuery: params.searchQuery,
-        filterValue: params.filterValue,
-        sortColumn: params.sortColumn,
-        sortDirection: params.sortDirection,
-    });
+    const result = await getAllAdmin(params);
 
     return {
         data: result.data,

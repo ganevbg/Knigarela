@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Knigarela.Api.Dtos.Clients;
 using Knigarela.Core.Entities;
+using Knigarela.Core.Pagination;
 using Knigarela.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -21,11 +22,16 @@ public class ClientsController : ControllerBase
         this.mapper = mapper;
     }
 
-    [HttpGet]
-    public async Task<IActionResult> GetAll()
+    [HttpPost("admin/query")]
+    public async Task<IActionResult> GetAll([FromBody] PaginationQuery<string> query)
     {
-        var list = await _clientService.GetAllAsync();
-        return Ok(mapper.Map<List<ClientAllDto>>(list));
+        var list = await _clientService.GetAllAsync(query);
+
+        return Ok(new PagedResult<ClientAllDto>
+        {
+            Total = list.Total,
+            Data = mapper.Map<IEnumerable<ClientAllDto>>(list.Data)
+        });
     }
 
     [HttpGet("{id:guid}")]

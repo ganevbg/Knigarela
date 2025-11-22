@@ -1,4 +1,5 @@
 ﻿using Knigarela.Core.Entities;
+using Knigarela.Core.Pagination;
 
 namespace Knigarela.Services.Interfaces
 {
@@ -6,7 +7,7 @@ namespace Knigarela.Services.Interfaces
     {
         Task<Client> FindOrCreateClientAsync(Client model);
 
-        Task<List<Client>> GetAllAsync();
+        Task<PagedResult<Client>> GetAllAsync(PaginationQuery<string> query);
 
         Task<Client?> GetByIdAsync(Guid id);
 

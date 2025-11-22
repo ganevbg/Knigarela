@@ -16,9 +16,9 @@
 
         public DateOnly? SubscriptionDate { get; set; }
 
-        public int SubscriptionCancellationCount { get; set; }
-
         public bool IsSubscribed => SubscriptionDate.HasValue;
+
+        public bool IsNewSubscriber { get; set; }
 
         public string? DefaultAddress { get; set; }
     }
