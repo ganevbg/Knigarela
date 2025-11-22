@@ -67,7 +67,7 @@ export default function AdminOrdersPage() {
             {
                 key: "totalAmount",
                 label: "Общо",
-                render: (value) => formatPrice(value),
+                render: (value) => formatPrice(value, true),
             },
             {
                 key: "date",
