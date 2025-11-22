@@ -8,7 +8,6 @@ import type { ClientAllDto } from "@/types/api"
 import { PaginationParams } from "@/types/common/PaginationParams"
 
 const fetchClients = async (params: PaginationParams<keyof ClientAllDto>) => {
-
     const result = await getAllClients(params);
 
     return {

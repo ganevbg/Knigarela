@@ -92,8 +92,6 @@ namespace Knigarela.Api.Mapping
                           .AddressDetailText));
 
             CreateMap<Order, OrderListDto>()
-               .ForMember(dest => dest.Number,
-                   opt => opt.MapFrom(src => src.OrderNumber))
                .ForMember(dest => dest.ClientName,
                    opt => opt.MapFrom((src, dest) => src.Client?.FullName))
                .ForMember(dest => dest.Address,

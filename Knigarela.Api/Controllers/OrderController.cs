@@ -1,10 +1,14 @@
 ﻿using AutoMapper;
+using Knigarela.Api.Dtos.Boxes;
 using Knigarela.Api.Dtos.Cart;
 using Knigarela.Api.Dtos.Orders;
+using Knigarela.Core.Pagination;
+using Knigarela.Services.Implementations;
 using Knigarela.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Knigarela.Api.Controllers.Admin;
 
@@ -51,12 +55,17 @@ public class OrderController : ControllerBase
         return Ok(mapper.Map<OrderByIdDto>(order));
     }
 
-    [HttpGet]
+    [HttpPost("admin/query")]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> GetAll([FromBody] PaginationQuery<string> query)
     {
-        var list = await _orderService.GetAllAsync();
-        return Ok(this.mapper.Map<List<OrderListDto>>(list));
+        var result = await _orderService.GetAllAsync(query);
+
+        return Ok(new PagedResult<OrderListDto>
+        {
+            Total = result.Total,
+            Data = mapper.Map<IEnumerable<OrderListDto>>(result.Data)
+        });
     }
 
     [HttpDelete("{id:guid}")]

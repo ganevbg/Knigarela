@@ -1,11 +1,12 @@
-﻿using System.Data;
-using AutoMapper;
+﻿using AutoMapper;
 using Knigarela.Core.Entities;
 using Knigarela.Core.Enums;
+using Knigarela.Core.Pagination;
 using Knigarela.Infrastructure.Data;
 using Knigarela.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using System.Data;
 
 namespace Knigarela.Services;
 
@@ -54,13 +55,27 @@ public class OrderService : IOrderService
             .FirstOrDefaultAsync(o => o.Id == id);
     }
 
-    public async Task<List<Order>> GetAllAsync()
+    public async Task<PagedResult<Order>> GetAllAsync(PaginationQuery<string> query)
     {
-        return await _db.Orders
-            .Include(o => o.Client)
-            .Include(o => o.Items).ThenInclude(i => i.Box)
-            .OrderByDescending(o => o.CreatedAt)
-            .ToListAsync();
+        return await DynamicQuery.ApplyAsync<Order, Order>(
+        _db.Orders.Include(x => x.Client).Include(o => o.Items).ThenInclude(i => i.Box),
+        query,
+        filterExpression: query.FilterValue switch
+        {
+            "new" => o => o.Status.ToString().ToLower() == "new",
+            "processing" => o => o.Status.ToString().ToLower() == "processing",
+            "shipped" => o => o.Status.ToString().ToLower() == "shipped",
+            "delivered" => o => o.Status.ToString().ToLower() == "delivered",
+            "cancelled" => o => o.Status.ToString().ToLower() == "cancelled",
+            _ => null
+        },
+        selectExpression: o => o,
+        searchableFields:
+        [
+           o => o.OrderNumber.ToString(),
+           o => o.Client!.FullName,
+        ]
+       );
     }
 
     public async Task<bool> DeleteAsync(Guid id)

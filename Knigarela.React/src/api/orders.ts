@@ -29,7 +29,7 @@ export async function getOrder(id: string) {
     return data;
 }
 
-export async function getOrders(): Promise<Order[]> {
-    const { data } = await api.get(`/api/order`);
+export async function getOrders(params: any)  {
+    const { data } = await api.post(`/api/order/admin/query`, params);
     return data;
 }

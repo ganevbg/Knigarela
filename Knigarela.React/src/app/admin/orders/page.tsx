@@ -14,29 +14,13 @@ const fetchOrders = async (params: {
     page: number
     itemsPerPage: number
 }) => {
-    let orders = await getOrders();
 
-    const filteredOrders = orders.filter((order) => {
-        const matchesSearch =
-            order.number.toLowerCase().includes(params.searchQuery.toLowerCase()) ||
-            order.clientName.toLowerCase().includes(params.searchQuery.toLowerCase())
-        const matchesStatus = params.filterValue === "all" || order.status === params.filterValue
-        return matchesSearch && matchesStatus
-    })
+    const result = await getOrders(params);
 
-    filteredOrders.sort((a, b) => {
-        const aValue = a[params.sortColumn]
-        const bValue = b[params.sortColumn]
-        if (aValue < bValue) return params.sortDirection === "asc" ? -1 : 1
-        if (aValue > bValue) return params.sortDirection === "asc" ? 1 : -1
-        return 0
-    })
-
-    const total = filteredOrders.length
-    const startIndex = (params.page - 1) * params.itemsPerPage
-    const paginatedOrders = filteredOrders.slice(startIndex, startIndex + params.itemsPerPage)
-
-    return { data: paginatedOrders, total }
+    return {
+        data: result.data,
+        total: result.total,
+    };
 }
 
 export default function AdminOrdersPage() {
@@ -61,7 +45,7 @@ export default function AdminOrdersPage() {
         description: "Преглед и управление на всички поръчки",
         columns: [
             {
-                key: "number",
+                key: "orderNumber",
                 label: "Номер",
                 render: (value) => <span className="font-medium text-[var(--knigarela-text)]">{value}</span>,
             },

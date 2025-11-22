@@ -1,5 +1,6 @@
 ﻿using Knigarela.Core.Entities;
 using Knigarela.Core.Enums;
+using Knigarela.Core.Pagination;
 
 namespace Knigarela.Services.Interfaces;
 
@@ -16,7 +17,7 @@ public interface IOrderService
 
     Task<Order?> GetByIdAsync(Guid id);
 
-    Task<List<Order>> GetAllAsync();
+    Task<PagedResult<Order>> GetAllAsync(PaginationQuery<string> query);
 
     Task<bool> DeleteAsync(Guid id);
 

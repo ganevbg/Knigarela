@@ -1,6 +1,6 @@
 export interface Order {
     id: string;
-    number: string;
+    orderNumber: string;
     clientName: string;
     address: string;
     status: "new" | "processing" | "shipped" | "delivered" | "cancelled";

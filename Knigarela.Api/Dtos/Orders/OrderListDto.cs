@@ -6,7 +6,7 @@ namespace Knigarela.Api.Dtos.Orders
     {
         public Guid Id { get; set; }
 
-        public string? Number { get; set; }
+        public string? OrderNumber { get; set; }
 
         public OrderStatus? Status { get; set; }
 
