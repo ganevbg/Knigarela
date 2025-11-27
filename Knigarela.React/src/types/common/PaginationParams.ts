@@ -1,6 +1,5 @@
 export interface PaginationParams<TSort> {
-    searchQuery: string;
-    filterValue: string;
+    filters: Record<string, string>
     sortColumn: TSort;
     sortDirection: "asc" | "desc";
     page: number;

@@ -27,9 +27,13 @@ export interface Column<T> {
     render?: (value: any, row: T) => React.ReactNode
 }
 
-export interface FilterOption {
+export interface FilterConfig {
+    key: string
     label: string
-    value: string
+    type: "text" | "number" | "select" | "date"
+    placeholder?: string
+    options?: { label: string; value: string }[]
+    defaultValue?: string
 }
 
 export interface CustomAction<T> {
@@ -48,17 +52,14 @@ export interface DataTableConfig<T> {
     createUrl: string
     editUrl: (id: string) => string
     fetchData: (params: {
-        searchQuery: string
-        filterValue: string
+        filters: Record<string, string>
         sortColumn: keyof T
         sortDirection: "asc" | "desc"
         page: number
         itemsPerPage: number
     }) => Promise<{ data: T[]; total: number }>
     deleteItem?: (id: string) => Promise<void>
-    searchPlaceholder?: string
-    filterOptions?: FilterOption[]
-    filterLabel?: string
+    filters?: FilterConfig[]
     itemsPerPage?: number
     enableCreate?: boolean
     enableEdit?: boolean
@@ -74,8 +75,15 @@ export interface DataTableConfig<T> {
 export function DataTable<T extends { id: string }>({ config }: { config: DataTableConfig<T> }) {
     const [items, setItems] = useState<T[]>([])
     const [loading, setLoading] = useState(true)
-    const [searchQuery, setSearchQuery] = useState("")
-    const [filterValue, setFilterValue] = useState(config.filterOptions?.[0]?.value || "all")
+
+    const [filters, setFilters] = useState<Record<string, string>>(() => {
+        const initialFilters: Record<string, string> = {}
+        config.filters?.forEach((filter) => {
+            initialFilters[filter.key] = filter.defaultValue || ""
+        })
+        return initialFilters
+    })
+
     const [sortColumn, setSortColumn] = useState<keyof T>(config.columns[0].key)
     const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc")
     const [currentPage, setCurrentPage] = useState(1)
@@ -93,8 +101,7 @@ export function DataTable<T extends { id: string }>({ config }: { config: DataTa
             setLoading(true)
             try {
                 const result = await config.fetchData({
-                    searchQuery,
-                    filterValue,
+                    filters,
                     sortColumn,
                     sortDirection,
                     page: currentPage,
@@ -110,7 +117,7 @@ export function DataTable<T extends { id: string }>({ config }: { config: DataTa
         }
 
         fetchItems()
-    }, [searchQuery, filterValue, sortColumn, sortDirection, currentPage])
+    }, [filters, sortColumn, sortDirection, currentPage])
 
     const handleSort = (column: keyof T) => {
         const columnConfig = config.columns.find((col) => col.key === column)
@@ -122,6 +129,11 @@ export function DataTable<T extends { id: string }>({ config }: { config: DataTa
             setSortColumn(column)
             setSortDirection("asc")
         }
+    }
+
+    const handleFilterChange = (key: string, value: string) => {
+        setFilters((prev) => ({ ...prev, [key]: value }))
+        setCurrentPage(1)
     }
 
     const handleDelete = (item: T) => {
@@ -148,6 +160,77 @@ export function DataTable<T extends { id: string }>({ config }: { config: DataTa
     }
 
     const hasActions = enableEdit || enableDelete || (config.customActions && config.customActions.length > 0)
+
+    const renderFilter = (filter: FilterConfig) => {
+        const value = filters[filter.key] || ""
+
+        switch (filter.type) {
+            case "text":
+                return (
+                    <div key={filter.key} className="min-w-[200px] flex-1">
+                        <label className="mb-2 block text-sm font-medium text-[var(--knigarela-text)]">{filter.label}</label>
+                        <div className="relative">
+                            <Search className="absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 text-gray-400" />
+                            <Input
+                                type="text"
+                                placeholder={filter.placeholder || filter.label}
+                                value={value}
+                                onChange={(e) => handleFilterChange(filter.key, e.target.value)}
+                                className="pl-10"
+                            />
+                        </div>
+                    </div>
+                )
+
+            case "number":
+                return (
+                    <div key={filter.key} className="min-w-[200px] flex-1">
+                        <label className="mb-2 block text-sm font-medium text-[var(--knigarela-text)]">{filter.label}</label>
+                        <Input
+                            type="number"
+                            placeholder={filter.placeholder || filter.label}
+                            value={value}
+                            onChange={(e) => handleFilterChange(filter.key, e.target.value)}
+                        />
+                    </div>
+                )
+
+            case "select":
+                return (
+                    <div key={filter.key} className="min-w-[200px] flex-1">
+                        <label className="mb-2 block text-sm font-medium text-[var(--knigarela-text)]">{filter.label}</label>
+                        <Select value={value} onValueChange={(val) => handleFilterChange(filter.key, val)}>
+                            <SelectTrigger>
+                                <SelectValue placeholder={filter.placeholder || filter.label} />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {filter.options?.map((option) => (
+                                    <SelectItem key={option.value} value={option.value}>
+                                        {option.label}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                )
+
+            case "date":
+                return (
+                    <div key={filter.key} className="min-w-[200px] flex-1">
+                        <label className="mb-2 block text-sm font-medium text-[var(--knigarela-text)]">{filter.label}</label>
+                        <Input
+                            type="date"
+                            placeholder={filter.placeholder || filter.label}
+                            value={value}
+                            onChange={(e) => handleFilterChange(filter.key, e.target.value)}
+                        />
+                    </div>
+                )
+
+            default:
+                return null
+        }
+    }
 
     return (
         <div className="min-h-screen bg-[var(--knigarela-bg)]">
@@ -211,54 +294,18 @@ export function DataTable<T extends { id: string }>({ config }: { config: DataTa
                 </div>
             </div>
 
-            {/* Filters and Search */}
-            <div className="container mx-auto px-4 py-6">
-                <div className="mb-6 rounded-lg bg-white p-6 shadow-sm">
-                    <div className="flex flex-col gap-4 md:flex-row">
-                        {/* Search */}
-                        <div className="flex-1">
-                            <div className="relative">
-                                <Search className="absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 text-gray-400" />
-                                <Input
-                                    type="text"
-                                    placeholder={config.searchPlaceholder || "Търсене..."}
-                                    value={searchQuery}
-                                    onChange={(e) => {
-                                        setSearchQuery(e.target.value)
-                                        setCurrentPage(1)
-                                    }}
-                                    className="pl-10"
-                                />
-                            </div>
+            {config.filters && config.filters.length > 0 && (
+                <div className="container mx-auto px-4 py-6">
+                    <div className="mb-6 rounded-lg bg-white p-6 shadow-sm">
+                        <div className="flex flex-col flex-wrap gap-4 md:flex-row">
+                            {config.filters.map((filter) => renderFilter(filter))}
                         </div>
-
-                        {/* Filter */}
-                        {config.filterOptions && (
-                            <div className="w-full md:w-48">
-                                <Select
-                                    value={filterValue}
-                                    onValueChange={(value) => {
-                                        setFilterValue(value)
-                                        setCurrentPage(1)
-                                    }}
-                                >
-                                    <SelectTrigger>
-                                        <SelectValue placeholder={config.filterLabel || "Филтър"} />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {config.filterOptions.map((option) => (
-                                            <SelectItem key={option.value} value={option.value}>
-                                                {option.label}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                        )}
                     </div>
                 </div>
+            )}
 
-                {/* Table */}
+            {/* Table */}
+            <div className="container mx-auto px-4 pb-6">
                 <div className="overflow-hidden rounded-lg bg-white shadow-sm">
                     {loading ? (
                         <div className="flex items-center justify-center py-12">

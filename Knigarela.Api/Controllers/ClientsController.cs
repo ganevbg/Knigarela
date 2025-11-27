@@ -23,7 +23,7 @@ public class ClientsController : ControllerBase
     }
 
     [HttpPost("admin/query")]
-    public async Task<IActionResult> GetAll([FromBody] PaginationQuery<string> query)
+    public async Task<IActionResult> GetAll([FromBody] DataQuery<string> query)
     {
         var list = await _clientService.GetAllAsync(query);
 

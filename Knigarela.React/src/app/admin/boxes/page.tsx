@@ -62,11 +62,30 @@ export default function AdminBoxesPage() {
         editUrl: (id) => `/admin/boxes/${id}`,
         fetchData: fetchBoxes,
         deleteItem: deleteBox,
-        searchPlaceholder: "Търсене по име...",
-        filterOptions: [
-            { label: "Всички", value: "all" },
-            { label: "Активни", value: "active" },
-            { label: "Неактивни", value: "inactive" },
+        filters: [
+            {
+                key: "title",
+                label: "Заглавие",
+                type: "text",
+                placeholder: "Търсене по заглавие...",
+            },
+            {
+                key: "minCount",
+                label: "Минимална наличност",
+                type: "number",
+                placeholder: "Търсене по минимална наличност...",
+            },
+            {
+                key: "status",
+                label: "Статус",
+                type: "select",
+                defaultValue: "all",
+                options: [
+                    { label: "Всички", value: "all" },
+                    { label: "Активна", value: "active" },
+                    { label: "Неактивна", value: "inactive" },
+                ],
+            },
         ],
         deleteConfirmation: {
             title: "Изтриване на кутия",

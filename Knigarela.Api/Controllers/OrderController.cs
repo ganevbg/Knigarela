@@ -57,7 +57,7 @@ public class OrderController : ControllerBase
 
     [HttpPost("admin/query")]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> GetAll([FromBody] PaginationQuery<string> query)
+    public async Task<IActionResult> GetAll([FromBody] DataQuery<string> query)
     {
         var result = await _orderService.GetAllAsync(query);
 

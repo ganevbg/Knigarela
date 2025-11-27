@@ -20,8 +20,6 @@ async function deleteClient(id: string) {
     await deleteClientById(id);
 }
 
-
-
 async function markNewAsOld() {
     alert("Маркиране на всички нови клиенти като стари...");
 }
@@ -68,11 +66,47 @@ export default function AdminClientsPage() {
         editUrl: (id) => `/admin/clients/${id}`,
         fetchData: fetchClients,
         deleteItem: deleteClient,
-        searchPlaceholder: "Търсене по име, адрес по подразбиране, имейл или телефон...",
-        filterOptions: [
-            { label: "Всички", value: "all" },
-            { label: "Нови", value: "new" },
-            { label: "Стари", value: "old" },
+        filters: [
+            {
+                key: "name",
+                label: "Име",
+                type: "text",
+                placeholder: "Търсене по име...",
+            },
+            {
+                key: "email",
+                label: "Имейл",
+                type: "text",
+                placeholder: "Търсене по имейл...",
+            },
+            {
+                key: "phone",
+                label: "Телефон",
+                type: "text",
+                placeholder: "Търсене по телефон...",
+            },
+            {
+                key: "isSubscriber",
+                label: "Абонат",
+                type: "select",
+                defaultValue: "all",
+                options: [
+                    { label: "Всички", value: "all" },
+                    { label: "Да", value: "true" },
+                    { label: "Не", value: "false" },
+                ],
+            },
+            {
+                key: "isNewSubscriber",
+                label: "Нов абонат",
+                type: "select",
+                defaultValue: "all",
+                options: [
+                    { label: "Всички", value: "all" },
+                    { label: "Да", value: "true" },
+                    { label: "Не", value: "false" },
+                ],
+            },
         ],
         deleteConfirmation: {
             title: "Изтриване на клиент",

@@ -5,15 +5,9 @@ import { Badge } from "@/components/ui/badge"
 import { Order } from "@/types/api"
 import { getOrders } from "@/api/orders"
 import { formatPrice } from "@/lib/utils"
+import { PaginationParams } from "@/types/common/PaginationParams"
 
-const fetchOrders = async (params: {
-    searchQuery: string
-    filterValue: string
-    sortColumn: keyof Order
-    sortDirection: "asc" | "desc"
-    page: number
-    itemsPerPage: number
-}) => {
+const fetchOrders = async (params: PaginationParams<keyof Order>) => {
 
     const result = await getOrders(params);
 
@@ -78,14 +72,33 @@ export default function AdminOrdersPage() {
         createUrl: "/admin/order/create",
         editUrl: (id) => `/admin/order/${id}`,
         fetchData: fetchOrders,
-        searchPlaceholder: "Търсене по номер или клиент...",
-        filterOptions: [
-            { label: "Всички", value: "all" },
-            { label: "Нов", value: "new" },
-            { label: "Обработват се", value: "processing" },
-            { label: "Изпратен", value: "shipped" },
-            { label: "Доставен", value: "delivered" },
-            { label: "Отменен", value: "cancelled" },
+        filters: [
+            {
+                key: "number",
+                label: "Номер",
+                type: "text",
+                placeholder: "Търсене по номер...",
+            },
+            {
+                key: "clientName",
+                label: "Клиент",
+                type: "text",
+                placeholder: "Търсене по клиент...",
+            },
+            {
+                key: "status",
+                label: "Статус",
+                type: "select",
+                defaultValue: "all",
+                options: [
+                    { label: "Всички", value: "all" },
+                    { label: "Нов", value: "new" },
+                    { label: "Обработват се", value: "processing" },
+                    { label: "Изпратен", value: "shipped" },
+                    { label: "Доставен", value: "delivered" },
+                    { label: "Отменен", value: "cancelled" },
+                ],
+            },
         ],
         enableDelete: false,
     }

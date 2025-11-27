@@ -12,44 +12,11 @@ import { PaginationParams } from "@/types/common/PaginationParams"
 
 
 const fetchClientAddresses = async (clientId: string, params: PaginationParams<keyof ClientAddress>) => {
-
-    // Mock data - in real app, filter by clientId
-    const allAddresses: ClientAddress[] = await getClientAddressesById(clientId)
-
-    // Filter by type
-    let filtered = allAddresses
-    if (params.filterValue !== "all") {
-        filtered = filtered.filter((addr) => addr.deliveryType === params.filterValue)
-    }
-
-    // Filter by search query
-    if (params.searchQuery) {
-        filtered = filtered.filter(
-            (addr) =>
-                addr.siteName.toLowerCase().includes(params.searchQuery.toLowerCase()) ||
-                addr.addressText.toLowerCase().includes(params.searchQuery.toLowerCase()) ||
-                addr.officeName.toLowerCase().includes(params.searchQuery.toLowerCase())
-        )
-    }
-
-    // sort
-    filtered.sort((a, b) => {
-        const aval = a[params.sortColumn];
-        const bval = b[params.sortColumn];
-        const aNorm = aval === null || aval === undefined ? "" : String(aval);
-        const bNorm = bval === null || bval === undefined ? "" : String(bval);
-
-        return params.sortDirection === "asc" ? aNorm.localeCompare(bNorm) : bNorm.localeCompare(aNorm);
-    })
-
-    // Paginate
-    const start = (params.page - 1) * params.itemsPerPage
-    const end = start + params.itemsPerPage
-    const paginated = filtered.slice(start, end)
+    const result = await getClientAddressesById(clientId, params)
 
     return {
-        data: paginated,
-        total: filtered.length,
+        data: result.data,
+        total: result.total,
     }
 }
 
@@ -81,7 +48,7 @@ export default function ClientAddressesPage() {
             },
             {
                 key: "siteName",
-                label: "Град    ",
+                label: "Град",
                 render: (value) => value || "-",
             },
             {
@@ -111,14 +78,26 @@ export default function ClientAddressesPage() {
         createUrl: `/admin/clients/${clientId}/addresses/create`,
         editUrl: (id) => `/admin/clients/${clientId}/addresses/${id}`,
         fetchData: (params) => fetchClientAddresses(clientId, params),
-        deleteItem: (id) => deleteAddress(clientId, id),
-        searchPlaceholder: "Търсене по град или адрес...",
-        filterOptions: [
-            { label: "Всички адреси", value: "all" },
-            { label: "Лични адреси", value: "personal" },
-            { label: "Куриер", value: "courier" },
+        filters: [
+            {
+                key: "addressText",
+                label: "Адрес/Офис",
+                type: "text",
+                placeholder: "Търсене по Адрес/Офис...",
+            },
+            {
+                key: "deliveryType",
+                label: "Тип",
+                type: "select",
+                defaultValue: "all",
+                options: [
+                    { label: "Всички", value: "all" },
+                    { label: "Личнен", value: "personal" },
+                    { label: "Куриер", value: "courier" },
+                ],
+            },
         ],
-        filterLabel: "Тип адрес",
+        deleteItem: (id) => deleteAddress(clientId, id),
         deleteConfirmation: {
             title: "Изтриване на адрес",
             description: () => "Сигурни ли сте, че искате да изтриете този адрес? Това действие не може да бъде отменено.",

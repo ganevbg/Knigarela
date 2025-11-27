@@ -7,7 +7,7 @@ public interface IBoxService
 {
     Task<IEnumerable<Box>> GetAllAsync();
 
-    Task<PagedResult<Box>> QueryAsync(PaginationQuery<string> query);
+    Task<PagedResult<Box>> QueryAsync(DataQuery<string> query);
 
     Task<Box?> GetByIdAsync(Guid id);
     

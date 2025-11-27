@@ -88,7 +88,7 @@ public class BoxesController : ControllerBase
 
     [HttpPost("admin/query")]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> GetAllAdmin([FromBody] PaginationQuery<string> query)
+    public async Task<IActionResult> GetAllAdmin([FromBody] DataQuery<string> query)
     {
         var result = await _boxService.QueryAsync(query);
 

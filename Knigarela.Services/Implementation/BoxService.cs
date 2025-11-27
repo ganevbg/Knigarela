@@ -5,7 +5,6 @@ using Knigarela.Infrastructure.Data;
 using Knigarela.Infrastructure.Files;
 using Knigarela.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using System.Linq.Expressions;
 
 namespace Knigarela.Services.Implementations;
 
@@ -13,6 +12,33 @@ public class BoxService : IBoxService
 {
     private readonly KnigarelaDbContext _db;
     private readonly IFileStorage _storage;
+
+    private readonly Dictionary<string, Func<IQueryable<Box>, string, IQueryable<Box>>> _filterMap =
+    new()
+    {
+        ["title"] = (q, v) =>
+            string.IsNullOrWhiteSpace(v)
+                ? q
+                : q.Where(b => b.Title.ToLower().Contains(v.ToLower())),
+        ["status"] = (q, v) =>
+            v == "all"
+                ? q
+                : v == "active"
+                    ? q.Where(b => b.IsActive)
+                    : q.Where(b => !b.IsActive),
+        ["count"] = (q, v) =>
+            int.TryParse(v, out var num)
+                ? q.Where(b => b.Count == num)
+                : q,
+        ["minCount"] = (q, v) =>
+            int.TryParse(v, out var num)
+                ? q.Where(b => b.Count >= num)
+                : q,
+        ["maxCount"] = (q, v) =>
+            int.TryParse(v, out var num)
+                ? q.Where(b => b.Count <= num)
+                : q,
+    };
 
     public BoxService(KnigarelaDbContext db, IFileStorage storage)
     {
@@ -75,7 +101,7 @@ public class BoxService : IBoxService
         if (box == null) return false;
 
         var folder = Path.Combine("boxes", box.Id.ToString());
-        await _storage.DeleteFolderAsync(folder); // add this helper if needed
+        await _storage.DeleteFolderAsync(folder);
 
         _db.Boxes.Remove(box);
         await _db.SaveChangesAsync();
@@ -99,22 +125,8 @@ public class BoxService : IBoxService
             .Where(x => x.IsActive == false).ToListAsync();
     }
 
-    public async Task<PagedResult<Box>> QueryAsync(PaginationQuery<string> query)
+    public async Task<PagedResult<Box>> QueryAsync(DataQuery<string> query)
     {
-        return await DynamicQuery.ApplyAsync(
-         _db.Boxes,
-         query,
-         filterExpression: query.FilterValue switch
-         {
-             "active" => b => b.IsActive,
-             "inactive" => b => !b.IsActive,
-             _ => null
-         },
-         selectExpression: b => b,
-         searchableFields:
-         [
-            b => b.Title
-         ]
-        );
+        return await DynamicQuery.ApplyAsync(_db.Boxes.AsQueryable(), query, b => b, _filterMap);
     }
 }

@@ -17,7 +17,7 @@ public interface IOrderService
 
     Task<Order?> GetByIdAsync(Guid id);
 
-    Task<PagedResult<Order>> GetAllAsync(PaginationQuery<string> query);
+    Task<PagedResult<Order>> GetAllAsync(DataQuery<string> query);
 
     Task<bool> DeleteAsync(Guid id);
 

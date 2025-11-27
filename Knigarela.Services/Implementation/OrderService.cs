@@ -19,6 +19,39 @@ public class OrderService : IOrderService
     private readonly int MaxConcurrencyRetries;
     private readonly int RetryDelayMs;
 
+    private readonly Dictionary<string, Func<IQueryable<Order>, string, IQueryable<Order>>> _filterMap =
+    new()
+    {
+        ["number"] = (q, v) =>
+            string.IsNullOrWhiteSpace(v)
+                ? q
+                : q.Where(o => o.OrderNumber.ToString().ToLower().Contains(v.ToLower())),
+        ["clientName"] = (q, v) =>
+            string.IsNullOrWhiteSpace(v)
+                ? q
+                : q.Where(o => o.Client!.FullName!.ToLower().Contains(v.ToLower())),
+        ["status"] = (q, v) =>
+        {
+            Enum.TryParse<OrderStatus>(v, ignoreCase: true, out var orderStatus);
+            return v == "all"
+                 ? q
+                 : q.Where(o => o.Status == orderStatus);
+        },
+        ["date"] = (q, v) =>
+            DateOnly.TryParse(v, out var d)
+                ? q.Where(o => DateOnly.FromDateTime(o.CreatedAt) == d)
+                : q,
+        ["dateFrom"] = (q, v) =>
+            DateOnly.TryParse(v, out var d)
+                ? q.Where(o => DateOnly.FromDateTime(o.CreatedAt) >= d)
+                : q,
+        ["dateTo"] = (q, v) =>
+            DateOnly.TryParse(v, out var d)
+                ? q.Where(o => DateOnly.FromDateTime(o.CreatedAt) <= d)
+                : q,
+    };
+
+
     public OrderService(KnigarelaDbContext db, IClientService clientService, IConfiguration configuration, IMapper mapper)
     {
         _db = db;
@@ -55,27 +88,9 @@ public class OrderService : IOrderService
             .FirstOrDefaultAsync(o => o.Id == id);
     }
 
-    public async Task<PagedResult<Order>> GetAllAsync(PaginationQuery<string> query)
+    public async Task<PagedResult<Order>> GetAllAsync(DataQuery<string> query)
     {
-        return await DynamicQuery.ApplyAsync<Order, Order>(
-        _db.Orders.Include(x => x.Client).Include(o => o.Items).ThenInclude(i => i.Box),
-        query,
-        filterExpression: query.FilterValue switch
-        {
-            "new" => o => o.Status.ToString().ToLower() == "new",
-            "processing" => o => o.Status.ToString().ToLower() == "processing",
-            "shipped" => o => o.Status.ToString().ToLower() == "shipped",
-            "delivered" => o => o.Status.ToString().ToLower() == "delivered",
-            "cancelled" => o => o.Status.ToString().ToLower() == "cancelled",
-            _ => null
-        },
-        selectExpression: o => o,
-        searchableFields:
-        [
-           o => o.OrderNumber.ToString(),
-           o => o.Client!.FullName,
-        ]
-       );
+        return await DynamicQuery.ApplyAsync(_db.Orders.Include(x => x.Client!).Include(o => o.Items!).ThenInclude(i => i.Box).AsQueryable(), query, o => o, _filterMap);
     }
 
     public async Task<bool> DeleteAsync(Guid id)

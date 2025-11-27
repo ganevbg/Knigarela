@@ -40,8 +40,8 @@ export async function deleteClientById(id: string) {
     return data;
 }
 
-export async function getClientAddressesById(id: string) {
-    const { data } = await api.get(`/api/admin/clients/${id}/addresses`);
+export async function getClientAddressesById(id: string, params: any) {
+    const { data } = await api.post(`/api/admin/clients/${id}/addresses/query`, params);
     return data;
 }
 

@@ -14,6 +14,28 @@ public class ClientService : IClientService
     private static readonly Regex PhoneRegex =
         new(@"^(0\d{9}|\+359\d{9}|00359\d{9})$", RegexOptions.Compiled);
 
+    private readonly Dictionary<string, Func<IQueryable<Client>, string, IQueryable<Client>>> _filterMap =
+    new()
+    {
+        ["name"] = (q, v) =>
+            string.IsNullOrWhiteSpace(v) ? q :
+            q.Where(c => c.FullName!.ToLower().Contains(v.ToLower())),
+        ["email"] = (q, v) =>
+            string.IsNullOrWhiteSpace(v) ? q :
+            q.Where(c => c.Email!.ToLower().Contains(v.ToLower())),
+        ["phone"] = (q, v) =>
+            string.IsNullOrWhiteSpace(v) ? q :
+            q.Where(c => c.Phone!.Contains(v)),
+        ["isSubscriber"] = (q, v) =>
+            v == "all" ? q :
+            v == "true" ? q.Where(c => c.SubscriptionDate != null) :
+            q.Where(c => c.SubscriptionDate == null),
+        ["isNewSubscriber"] = (q, v) =>
+            v == "all" ? q :
+            v == "true" ? q.Where(c => c.IsNewSubscriber) :
+            q.Where(c => !c.IsNewSubscriber),
+    };
+
     public ClientService(KnigarelaDbContext db, ISpeedyService speedy)
     {
         _db = db;
@@ -41,33 +63,17 @@ public class ClientService : IClientService
         return await CreateClientAsync(model);
     }
 
-    public async Task<PagedResult<Client>> GetAllAsync(PaginationQuery<string> query)
+    public async Task<PagedResult<Client>> GetAllAsync(DataQuery<string> query)
     {
-        return await DynamicQuery.ApplyAsync(
-         _db.Clients.Include(c => c.Addresses),
-         query,
-         filterExpression: query.FilterValue switch
-         {
-             "new" => c => c.IsNewSubscriber,
-             "old" => c => !c.IsNewSubscriber,
-             _ => null
-         },
-         selectExpression: c => c,
-         searchableFields:
-         [
-            c => c.FullName!,
-            c => c.Email!,
-            c => c.Phone!
-         ]
-        );
+        return await DynamicQuery.ApplyAsync(_db.Clients.Include(c => c.Addresses).AsQueryable(), query, c => c, _filterMap);
     }
 
     public async Task<Client?> GetByIdAsync(Guid id)
     {
         return await _db.Clients
-            .Include(c => c.Addresses)
-            .Include(c => c.Orders)
-            .ThenInclude(o => o.Items)
+            .Include(c => c.Addresses!)
+            .Include(c => c.Orders!)
+            .ThenInclude(o => o.Items!)
             .ThenInclude(i => i.Box)
             .FirstOrDefaultAsync(c => c.Id == id);
     }
@@ -87,7 +93,7 @@ public class ClientService : IClientService
 
         existing.FullName = updated.FullName;
         existing.Email = updated.Email;
-        existing.Phone= updated.Phone;
+        existing.Phone = updated.Phone;
         existing.SubscriptionDate = updated.SubscriptionDate.HasValue ? updated.SubscriptionDate.Value : existing.SubscriptionDate;
         existing.UpdatedAt = DateTime.UtcNow;
 

@@ -7,7 +7,7 @@ namespace Knigarela.Services.Interfaces
     {
         Task<Client> FindOrCreateClientAsync(Client model);
 
-        Task<PagedResult<Client>> GetAllAsync(PaginationQuery<string> query);
+        Task<PagedResult<Client>> GetAllAsync(DataQuery<string> query);
 
         Task<Client?> GetByIdAsync(Guid id);
 

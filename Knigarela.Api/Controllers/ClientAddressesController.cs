@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
 using Knigarela.Api.Dtos.Clients;
 using Knigarela.Core.Entities;
+using Knigarela.Core.Pagination;
 using Knigarela.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
 
 namespace Knigarela.Api.Controllers.Admin;
 
@@ -21,9 +23,17 @@ public class ClientAddressesController : ControllerBase
         this.mapper = mapper;
     }
 
-    [HttpGet]
-    public async Task<IActionResult> GetAll(Guid clientId)
-        => Ok(await _addresses.GetByClientAsync(clientId));
+    [HttpPost("query")]
+    public async Task<IActionResult> GetAll(Guid clientId, [FromBody] DataQuery<string> query)
+    {
+        var list  = await _addresses.GetByClientAsync(clientId, query);
+
+        return Ok(new PagedResult<ClientAddress>
+        {
+            Total = list.Total,
+            Data = list.Data
+        });
+    }
 
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetById(Guid clientId, Guid id)

@@ -1,4 +1,6 @@
 ﻿using Knigarela.Core.Entities;
+using Knigarela.Core.Enums;
+using Knigarela.Core.Pagination;
 using Knigarela.Infrastructure.Data;
 using Knigarela.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -9,18 +11,31 @@ public class ClientAddressService : IClientAddressService
 {
     private readonly KnigarelaDbContext _db;
 
+    private readonly Dictionary<string, Func<IQueryable<ClientAddress>, string, IQueryable<ClientAddress>>> _filterMap =
+    new()
+    {
+        ["addressText"] = (q, v) =>
+            string.IsNullOrWhiteSpace(v) ? q :
+            q.Where(c => c.AddressText!.ToLower().Contains(v.ToLower()) || c.OfficeName!.ToLower().Contains(v.ToLower())),
+        ["deliveryType"] = (q, v) =>
+        {
+            Enum.TryParse<DeliveryType>(v, ignoreCase: true, out var deliveryType);
+            return v == "all"
+                 ? q
+                 : q.Where(o => o.DeliveryType == deliveryType);
+        },
+    };
+
     public ClientAddressService(KnigarelaDbContext db)
     {
         _db = db;
     }
 
-    public async Task<List<ClientAddress>> GetByClientAsync(Guid clientId)
+    public async Task<PagedResult<ClientAddress>> GetByClientAsync(Guid clientId, DataQuery<string> query)
     {
-        return await _db.ClientAddresses
-            .Where(a => a.ClientId == clientId)
-            .OrderByDescending(a => a.IsDefault)
-            .ThenBy(a => a.SiteName)
-            .ToListAsync();
+        var data = _db.ClientAddresses.Where(a => a.ClientId == clientId).AsQueryable();
+
+        return await DynamicQuery.ApplyAsync(data, query, a => a, _filterMap);
     }
 
     public async Task<ClientAddress?> GetByIdAsync(Guid id)
