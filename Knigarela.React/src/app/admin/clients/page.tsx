@@ -3,7 +3,7 @@
 import { DataTable } from "@/components/admin/data-table"
 import type { DataTableConfig } from "@/components/admin/data-table"
 import { getAllClients, deleteClientById } from "@/api/clients"
-import { MapPin } from 'lucide-react'
+import { MapPin, Merge } from 'lucide-react'
 import type { ClientAllDto } from "@/types/api"
 import { PaginationParams } from "@/types/common/PaginationParams"
 
@@ -18,6 +18,12 @@ const fetchClients = async (params: PaginationParams<keyof ClientAllDto>) => {
 
 async function deleteClient(id: string) {
     await deleteClientById(id);
+}
+
+
+
+async function markNewAsOld() {
+    alert("Маркиране на всички нови клиенти като стари...");
 }
 
 export default function AdminClientsPage() {
@@ -76,9 +82,16 @@ export default function AdminClientsPage() {
         customActions: [
             {
                 icon: MapPin,
-                href: (client) => `/admin/clients/${client.id}/addresses`,
+                href: (client) => `/admin/clients/${client?.id}/addresses`,
             },
         ],
+        massCustomActions: [
+            {
+                icon: Merge,
+                label: "Маркирай всички нови като стари",
+                onClick: () => markNewAsOld(),
+            },
+        ]
     }
 
     return <DataTable config={config} />

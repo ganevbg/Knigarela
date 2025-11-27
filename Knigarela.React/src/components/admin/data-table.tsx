@@ -31,11 +31,12 @@ export interface FilterOption {
     label: string
     value: string
 }
+
 export interface CustomAction<T> {
     label?: string
     icon?: React.ComponentType<{ className?: string }>
-    onClick?: (item: T) => void
-    href?: (item: T) => string
+    onClick?: (item: T | null) => void
+    href?: (item: T | null) => string
     className?: string
     variant?: "default" | "outline" | "ghost"
 }
@@ -65,8 +66,9 @@ export interface DataTableConfig<T> {
     deleteConfirmation?: {
         title: string
         description: (item: T) => string
-    },
+    }
     customActions?: CustomAction<T>[]
+    massCustomActions?: CustomAction<T>[]
 }
 
 export function DataTable<T extends { id: string }>({ config }: { config: DataTableConfig<T> }) {
@@ -157,14 +159,54 @@ export function DataTable<T extends { id: string }>({ config }: { config: DataTa
                             <h1 className="text-3xl font-bold text-[var(--knigarela-text)]">{config.title}</h1>
                             <p className="mt-1 text-[var(--knigarela-text-light)]">{config.description}</p>
                         </div>
-                        {enableCreate && (
-                            <Link href={config.createUrl}>
-                                <Button className="bg-[var(--knigarela-pink)] text-white hover:bg-[var(--knigarela-pink)]/90">
-                                    <Plus className="mr-2 h-5 w-5" />
-                                    Създай Нов
-                                </Button>
-                            </Link>
-                        )}
+                        <div className="flex items-center gap-3">
+                            {config.massCustomActions?.map((action, index) => {
+                                const Icon = action.icon
+                                const buttonContent = (
+                                    <>
+                                        {Icon && <Icon className="mr-2 h-5 w-5" />}
+                                        {action.label}
+                                    </>
+                                )
+
+                                if (action.href) {
+                                    return (
+                                        <Link key={index} href={action.href(null)}>
+                                            <Button
+                                                variant={action.variant || "default"}
+                                                className={
+                                                    action.className ||
+                                                    "bg-[var(--knigarela-pink)] text-white hover:bg-[var(--knigarela-pink)]/90"
+                                                }
+                                            >
+                                                {buttonContent}
+                                            </Button>
+                                        </Link>
+                                    )
+                                }
+
+                                return (
+                                    <Button
+                                        key={index}
+                                        variant={action.variant || "default"}
+                                        onClick={() => action.onClick?.(null)}
+                                        className={
+                                            action.className || "bg-[var(--knigarela-pink)] text-white hover:bg-[var(--knigarela-pink)]/90"
+                                        }
+                                    >
+                                        {buttonContent}
+                                    </Button>
+                                )
+                            })}
+                            {enableCreate && (
+                                <Link href={config.createUrl}>
+                                    <Button className="bg-[var(--knigarela-pink)] text-white hover:bg-[var(--knigarela-pink)]/90">
+                                        <Plus className="mr-2 h-5 w-5" />
+                                        Създай Нов
+                                    </Button>
+                                </Link>
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -267,6 +309,7 @@ export function DataTable<T extends { id: string }>({ config }: { config: DataTa
                                                                     {action.label && <span className="ml-1">{action.label}</span>}
                                                                 </>
                                                             )
+
                                                             if (action.href) {
                                                                 return (
                                                                     <Link key={index} href={action.href(item)}>
