@@ -98,6 +98,9 @@ public class OrderService : IOrderService
         var order = await _db.Orders.FindAsync(id);
         if (order == null) return false;
 
+        if(order.Status != OrderStatus.New)
+            throw new InvalidOperationException("Only orders with 'New' status can be deleted.");
+
         _db.Orders.Remove(order);
         await _db.SaveChangesAsync();
         return true;

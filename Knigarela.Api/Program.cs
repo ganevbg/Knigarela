@@ -1,5 +1,6 @@
 ﻿using Knigarela.Api.Configuration;
 using Knigarela.Api.Mapping;
+using Knigarela.Api.Midleware;
 using Knigarela.Core.Interfaces;
 using Knigarela.Infrastructure.Data;
 using Knigarela.Infrastructure.Files;
@@ -14,11 +15,21 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Serilog;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
+
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Information()
+    .WriteTo.File("logs/app-.log", rollingInterval: RollingInterval.Day)
+    .WriteTo.Console()
+    .Enrich.FromLogContext()
+    .CreateLogger();
+
+builder.Host.UseSerilog();
 
 // DbContext
 builder.Services.AddDbContext<KnigarelaDbContext>(opt =>
@@ -71,7 +82,10 @@ builder.Services.AddHttpClient<ISpeedyService, SpeedyService>();
 // DI
 builder.Services.AddScoped<IAuthService, AuthService>();
 
-builder.Services.AddControllers()
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add<ApiExceptionFilter>();
+})
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
@@ -161,6 +175,9 @@ app.UseStaticFiles(new StaticFileOptions
 
 app.UseSession();
 app.UseCors("FrontendPolicy");
+
+app.UseSerilogRequestLogging();
+app.UseMiddleware<ErrorHandlingMiddleware>();
 
 app.UseAuthentication();
 app.UseAuthorization();

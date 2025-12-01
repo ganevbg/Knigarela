@@ -3,7 +3,7 @@
 import { DataTable, type DataTableConfig } from "@/components/admin/data-table"
 import { Badge } from "@/components/ui/badge"
 import { Order } from "@/types/api"
-import { getOrders } from "@/api/orders"
+import { getOrders, deleteOrder } from "@/api/orders"
 import { formatPrice } from "@/lib/utils"
 import { PaginationParams } from "@/types/common/PaginationParams"
 
@@ -100,7 +100,12 @@ export default function AdminOrdersPage() {
                 ],
             },
         ],
-        enableDelete: true,
+        deleteItem: deleteOrder,
+        deleteConfirmation: {
+            title: "Изтриване на поръчка",
+            description: (order) =>
+                `Сигурни ли сте, че искате да изтриете поръчка с номер "${order.orderNumber}"? Това действие не може да бъде отменено.`,
+        },
     }
 
     return <DataTable config={config} />

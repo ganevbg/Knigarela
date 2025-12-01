@@ -74,7 +74,7 @@ public class OrderController : ControllerBase
         });
     }
 
-    [HttpDelete("{id:guid}")]
+    [HttpDelete("admin/{id:guid}")]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Delete(Guid id)
     {

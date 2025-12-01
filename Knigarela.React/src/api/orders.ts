@@ -62,3 +62,9 @@ export async function update(formData: any) {
     const { data } = await api.put(`/api/order/${formData.id}`, req);
     return data;
 }
+
+
+export async function deleteOrder(id: string) {
+    const { data } = await api.delete(`/api/order/admin/${id}`);
+    return data;
+}
