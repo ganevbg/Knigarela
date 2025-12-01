@@ -72,6 +72,22 @@ namespace Knigarela.Api.Mapping
                .ForMember(dest => dest.SubTotal,
                    opt => opt.MapFrom(src => src.TotalAmount));
 
+            CreateMap<Order, AdminOrderDto>()
+            .ForMember(dest => dest.Email,
+                opt => opt.MapFrom((src, dest) => src.Client?.Email))
+            .ForMember(dest => dest.FullName,
+                opt => opt.MapFrom((src, dest) => src.Client?.FullName))
+            .ForMember(dest => dest.Phone,
+                opt => opt.MapFrom((src, dest) => src.Client?.Phone));
+
+            CreateMap<OrderItem, OrderItemDto>()
+                .ForMember(dest => dest.BoxId,
+                   opt => opt.MapFrom((src, dest) => src.Box?.Id))
+                 .ForMember(dest => dest.Price,
+                   opt => opt.MapFrom((src, dest) => src.UnitPrice))
+               .ForMember(dest => dest.BoxTitle,
+                   opt => opt.MapFrom((src, dest) => src.Box?.Title));
+
             CreateMap<OrderItem, CartItemDto>()
                .ForMember(dest => dest.BoxId,
                    opt => opt.MapFrom(src => src.BoxId))
@@ -88,8 +104,7 @@ namespace Knigarela.Api.Mapping
                .ForMember(dest => dest.DefaultAddress,
                    opt => opt.MapFrom((src, dest) =>
                        src.Addresses?
-                          .FirstOrDefault(x => x.IsDefault)?
-                          .AddressDetailText));
+                          .FirstOrDefault(x => x.IsDefault)));
 
             CreateMap<Order, OrderListDto>()
                .ForMember(dest => dest.ClientName,

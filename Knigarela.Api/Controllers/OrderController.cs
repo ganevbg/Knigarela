@@ -1,14 +1,11 @@
 ﻿using AutoMapper;
-using Knigarela.Api.Dtos.Boxes;
 using Knigarela.Api.Dtos.Cart;
 using Knigarela.Api.Dtos.Orders;
 using Knigarela.Core.Pagination;
-using Knigarela.Services.Implementations;
 using Knigarela.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Knigarela.Api.Controllers.Admin;
 
@@ -53,6 +50,15 @@ public class OrderController : ControllerBase
         if (order == null)
             return NotFound();
         return Ok(mapper.Map<OrderByIdDto>(order));
+    }
+
+    [HttpGet("admin/{id:guid}")]
+    public async Task<IActionResult> GetByOrderById(Guid id)
+    {
+        var order = await _orderService.GetByIdAsync(id);
+        if (order == null)
+            return NotFound();
+        return Ok(mapper.Map<AdminOrderDto>(order));
     }
 
     [HttpPost("admin/query")]

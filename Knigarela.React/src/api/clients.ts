@@ -1,5 +1,4 @@
 import { api } from "@/lib/api";
-import type { ClientAllDto } from "@/types/api"
 
 export async function getAllClients(params:any) {
     const { data } = await api.post("/api/clients/admin/query", params);
@@ -79,7 +78,6 @@ export async function updateClientAddress(clientId: string, formData: any) {
     const { data } = await api.put(`/api/admin/clients/${clientId}/addresses/${formData.id}`, req);
     return data;
 }
-
 
 export async function deleteClientAddressById(clientId: string, id: string) {
     const { data } = await api.delete(`/api/admin/clients/${clientId}/addresses/${id}`);

@@ -156,7 +156,8 @@ public class OrderService : IOrderService
                     {
                         _mapper.Map<ClientAddress>(address)
                     },
-                    SubscriptionDate = items.Any(x => x.type == PurchaseType.Subscription) ? DateOnly.FromDateTime(DateTime.UtcNow) : null
+                    SubscriptionDate = items.Any(x => x.type == PurchaseType.Subscription) ? DateOnly.FromDateTime(DateTime.UtcNow) : null,
+                    IsNewSubscriber = items.Any(x => x.type == PurchaseType.Subscription)
                 });
             var order = new Order
             {
@@ -227,7 +228,7 @@ public class OrderService : IOrderService
             await using var tx = await _db.Database.BeginTransactionAsync(IsolationLevel.Serializable);
 
             var boxes = await _db.Boxes
-                .FromSqlRaw(@"SELECT * FROM ""Boxes"" WHERE ""Id"" = ANY ({0}) FOR UPDATE", boxIds)
+                .FromSqlRaw(@"SELECT *, xmin FROM ""Boxes"" WHERE ""Id"" = ANY ({0}) FOR UPDATE", boxIds)
                 .ToDictionaryAsync(b => b.Id);
 
             var issues = new List<StockIssue>();
@@ -261,7 +262,18 @@ public class OrderService : IOrderService
             foreach (var (boxId, quantity, _) in items)
                 boxes[boxId].Count -= quantity;
 
-            var client = await _clientService.FindOrCreateClientAsync(new Client { FullName = fullName, Email = email, Phone = phone, Addresses = new List<ClientAddress> { _mapper.Map<ClientAddress>(address) } });
+            var client = await _clientService.FindOrCreateClientAsync(
+                new Client 
+                { 
+                    FullName = fullName,
+                    Email = email,
+                    Phone = phone,
+                    Addresses = new List<ClientAddress>
+                    { 
+                        _mapper.Map<ClientAddress>(address)
+                    },
+                    IsNewSubscriber = items.Any(x => x.type == PurchaseType.Subscription)
+                });
 
             var order = new Order
             {

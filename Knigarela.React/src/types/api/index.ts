@@ -5,3 +5,5 @@ export * from "./ClientAddress";
 export * from "./Clients";
 export * from "./Speedy";
 export * from "./Order";
+export * from "./AdminOrder";
+export * from "./OrderAddress";

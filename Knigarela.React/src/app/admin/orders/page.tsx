@@ -69,8 +69,8 @@ export default function AdminOrdersPage() {
                 render: (value) => <span className="font-semibold text-[var(--knigarela-pink)]">{value ? new Date(value).toLocaleDateString("bg-BG") : ""}</span>,
             },
         ],
-        createUrl: "/admin/order/create",
-        editUrl: (id) => `/admin/order/${id}`,
+        createUrl: "/admin/orders/create",
+        editUrl: (id) => `/admin/orders/${id}`,
         fetchData: fetchOrders,
         filters: [
             {
@@ -100,7 +100,7 @@ export default function AdminOrdersPage() {
                 ],
             },
         ],
-        enableDelete: false,
+        enableDelete: true,
     }
 
     return <DataTable config={config} />

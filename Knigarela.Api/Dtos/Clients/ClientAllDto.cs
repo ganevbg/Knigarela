@@ -1,4 +1,6 @@
-﻿namespace Knigarela.Api.Dtos.Clients
+﻿using Knigarela.Core.Entities;
+
+namespace Knigarela.Api.Dtos.Clients
 {
     public class ClientAllDto
     {
@@ -20,6 +22,8 @@
 
         public bool IsNewSubscriber { get; set; }
 
-        public string? DefaultAddress { get; set; }
+        public string? DefaultAddressText => DefaultAddress?.AddressDetailText;
+
+        public ClientAddress? DefaultAddress { get; set; }
     }
 }

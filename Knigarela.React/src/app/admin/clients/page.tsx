@@ -1,10 +1,10 @@
 ﻿"use client"
 
 import { DataTable } from "@/components/admin/data-table"
-import type { DataTableConfig } from "@/components/admin/data-table"
+import { DataTableConfig } from "@/components/admin/data-table"
 import { getAllClients, deleteClientById } from "@/api/clients"
 import { MapPin, Merge } from 'lucide-react'
-import type { ClientAllDto } from "@/types/api"
+import { ClientAllDto } from "@/types/api"
 import { PaginationParams } from "@/types/common/PaginationParams"
 
 const fetchClients = async (params: PaginationParams<keyof ClientAllDto>) => {
@@ -34,7 +34,7 @@ export default function AdminClientsPage() {
                 label: "Име",
             },
             {
-                key: "defaultAddress",
+                key: "defaultAddressText",
                 label: "Адрес по подразбиране",
                 render: (value) => <span className="font-medium">{value ?? ""}</span>,
             },

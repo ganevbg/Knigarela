@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { getOffices, getSites } from "@/api/speedy";
-import { AddressPickerValue } from "@/types/ui"; 
+import { AddressPickerValue } from "@/types/ui";
 import type { SpeedySite, SpeedyOffice } from "@/types/api";
 
 type AddressPickerProps = {
@@ -109,7 +109,7 @@ export default function AddressPicker({ value, onChange }: AddressPickerProps) {
             {/* Address type */}
             <div>
                 <label className="mb-2 block text-sm font-medium" style={{ color: "#2d2d2d" }}>
-                    Тип адрес *
+                    Тип адрес <span className="text-red-500">*</span>
                 </label>
 
                 <select
@@ -129,7 +129,7 @@ export default function AddressPicker({ value, onChange }: AddressPickerProps) {
                     {/* Site */}
                     <div className="relative">
                         <label className="mb-2 block text-sm font-medium" style={{ color: "#2d2d2d" }}>
-                            Населено място *
+                            Населено място <span className="text-red-500">*</span>
                         </label>
 
                         <input
@@ -163,7 +163,7 @@ export default function AddressPicker({ value, onChange }: AddressPickerProps) {
                     {/* Address Text */}
                     <div>
                         <label className="mb-2 block text-sm font-medium" style={{ color: "#2d2d2d" }}>
-                            Адрес *
+                            Адрес <span className="text-red-500">*</span>
                         </label>
                         <input
                             type="text"
@@ -181,7 +181,7 @@ export default function AddressPicker({ value, onChange }: AddressPickerProps) {
                     {/* Office */}
                     <div className="relative">
                         <label className="mb-2 block text-sm font-medium" style={{ color: "#2d2d2d" }}>
-                            Офис на куриер *
+                            Офис на куриер <span className="text-red-500">*</span>
                         </label>
 
                         <input

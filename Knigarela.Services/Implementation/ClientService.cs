@@ -80,6 +80,7 @@ public class ClientService : IClientService
 
     public async Task<Client> CreateAsync(Client client)
     {
+        client.IsNewSubscriber = client.SubscriptionDate.HasValue;
         return await CreateClientAsync(client);
     }
 

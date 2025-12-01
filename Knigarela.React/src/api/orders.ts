@@ -1,5 +1,5 @@
 import { api } from "@/lib/api";
-import { Checkout, Order } from "@/types/api"
+import { Checkout } from "@/types/api"
 
 export async function saveOrder(formData: Checkout) {
 
@@ -28,8 +28,37 @@ export async function getOrder(id: string) {
     const { data } = await api.get(`/api/order/${id}`);
     return data;
 }
+export async function getAdminOrder(id: string) {
+    const { data } = await api.get(`/api/order/admin/${id}`);
+    return data;
+}
 
 export async function getOrders(params: any)  {
     const { data } = await api.post(`/api/order/admin/query`, params);
+    return data;
+}
+
+export async function create(formData: any) {
+    const req = {
+        fullName: formData.fullName,
+        email: formData.email,
+        phone: formData.phone,
+        address: formData.address,
+        items: formData.items,
+        };
+    const { data } = await api.post("/api/order", req);
+    return data;
+}
+
+export async function update(formData: any) {
+    const req = {
+        id: formData.id,
+        fullName: formData.fullName,
+        email: formData.email,
+        phone: formData.phone,
+        address: formData.address,
+        items: formData.items,
+    };
+    const { data } = await api.put(`/api/order/${formData.id}`, req);
     return data;
 }

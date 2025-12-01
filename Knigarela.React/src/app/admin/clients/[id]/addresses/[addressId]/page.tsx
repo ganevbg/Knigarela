@@ -108,7 +108,6 @@ export default function AdminClientAddressFormPage() {
                             Основна Информация
                         </h2>
 
-                        {/* FullName */}
                         <div className="space-y-4">
                             <AddressPicker
                                 value={{

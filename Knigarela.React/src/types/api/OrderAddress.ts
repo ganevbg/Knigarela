@@ -1,5 +1,4 @@
-export type ClientAddress = {
-    id: string | null;
+export type OrderAddress = {
     siteId: string | null;
     siteName: string;
     officeId: string | null;
