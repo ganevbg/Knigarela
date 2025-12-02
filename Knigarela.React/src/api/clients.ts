@@ -35,8 +35,7 @@ export async function update(formData: any) {
 }
 
 export async function deleteClientById(id: string) {
-    const { data } = await api.delete(`/api/clients/${id}`);
-    return data;
+     await api.delete(`/api/clients/${id}`);
 }
 
 export async function getClientAddressesById(id: string, params: any) {
@@ -82,4 +81,8 @@ export async function updateClientAddress(clientId: string, formData: any) {
 export async function deleteClientAddressById(clientId: string, id: string) {
     const { data } = await api.delete(`/api/admin/clients/${clientId}/addresses/${id}`);
     return data;
+}
+
+export async function markNewAsOld() {
+    await api.post(`/api/clients/markNewAsOld`);
 }

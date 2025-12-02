@@ -2,29 +2,36 @@
 
 import { DataTable } from "@/components/admin/data-table"
 import { DataTableConfig } from "@/components/admin/data-table"
-import { getAllClients, deleteClientById } from "@/api/clients"
+import { getAllClients, deleteClientById, markNewAsOld } from "@/api/clients"
 import { MapPin, Merge } from 'lucide-react'
 import { ClientAllDto } from "@/types/api"
 import { PaginationParams } from "@/types/common/PaginationParams"
-
-const fetchClients = async (params: PaginationParams<keyof ClientAllDto>) => {
-    const result = await getAllClients(params);
-
-    return {
-        data: result.data,
-        total: result.total,
-    };
-}
-
-async function deleteClient(id: string) {
-    await deleteClientById(id);
-}
-
-async function markNewAsOld() {
-    alert("Маркиране на всички нови клиенти като стари...");
-}
+import { toast } from "react-toastify";
+import { useState } from "react"
 
 export default function AdminClientsPage() {
+    const [reloadKey, setReloadKey] = useState(0);
+
+    const fetchClients = async (params: PaginationParams<keyof ClientAllDto>) => {
+        const result = await getAllClients(params);
+
+        return {
+            data: result.data,
+            total: result.total,
+        };
+    }
+
+    async function deleteClient(id: string) {
+        await deleteClientById(id);
+    }
+
+    async function markNewOnesAsOld() {
+        await markNewAsOld();
+        toast.success("Новите абонати са успешно маркирани като стари!");
+
+        setReloadKey(v => v + 1);
+    }
+
     const config: DataTableConfig<ClientAllDto> = {
         title: "Клиенти",
         description: "Управление на клиентските профили и информация",
@@ -123,10 +130,10 @@ export default function AdminClientsPage() {
             {
                 icon: Merge,
                 label: "Маркирай всички нови като стари",
-                onClick: () => markNewAsOld(),
+                onClick: () => markNewOnesAsOld(),
             },
         ]
     }
 
-    return <DataTable config={config} />
+    return <DataTable config={config} reloadKey={reloadKey} />
 }

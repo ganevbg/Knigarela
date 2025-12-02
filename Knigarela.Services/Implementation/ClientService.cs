@@ -163,4 +163,15 @@ public class ClientService : IClientService
 
         return phone;
     }
+
+    public async Task<bool> MarkNewAsOldAsync()
+    {
+        var newSubscribers = _db.Clients.Where(c => c.IsNewSubscriber);
+        foreach (var client in newSubscribers)
+        {
+            client.IsNewSubscriber = false;
+        }
+
+        return await _db.SaveChangesAsync().ContinueWith(t => t.Result > 0);
+    }
 }

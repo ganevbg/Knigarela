@@ -67,6 +67,17 @@ public class ClientsController : ControllerBase
         return Ok(updated);
     }
 
+
+    [HttpPost("markNewAsOld")]
+    public async Task<IActionResult> MarkNewAsOld()
+    {
+        var ok = await _clientService.MarkNewAsOldAsync();
+        if (!ok)
+            return NotFound();
+
+        return NoContent();
+    }
+
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(Guid id)
     {

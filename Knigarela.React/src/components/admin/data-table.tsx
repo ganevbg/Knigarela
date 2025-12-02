@@ -72,7 +72,7 @@ export interface DataTableConfig<T> {
   massCustomActions?: CustomAction<T>[]
 }
 
-export function DataTable<T extends { id: string }>({ config }: { config: DataTableConfig<T> }) {
+export function DataTable<T extends { id: string }>({ config, reloadKey }: { config: DataTableConfig<T>, reloadKey: number }) {
   const [items, setItems] = useState<T[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -117,7 +117,7 @@ export function DataTable<T extends { id: string }>({ config }: { config: DataTa
     }
 
     fetchItems()
-  }, [filters, sortColumn, sortDirection, currentPage])
+  }, [filters, sortColumn, sortDirection, currentPage, reloadKey])
 
   const handleSort = (column: keyof T) => {
     const columnConfig = config.columns.find((col) => col.key === column)

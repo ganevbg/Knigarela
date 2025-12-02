@@ -16,5 +16,7 @@ namespace Knigarela.Services.Interfaces
         Task<Client?> UpdateAsync(Guid id, Client updated);
 
         Task<bool> DeleteAsync(Guid id);
+
+        Task<bool> MarkNewAsOldAsync();
     }
 }
