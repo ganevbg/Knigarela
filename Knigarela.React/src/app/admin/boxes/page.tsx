@@ -94,5 +94,5 @@ export default function AdminBoxesPage() {
         },
     }
 
-    return <DataTable config={config} />
+    return <DataTable config={config} reloadKey={1} />
 }

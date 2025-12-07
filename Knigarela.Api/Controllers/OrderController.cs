@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
+using Hangfire;
 using Knigarela.Api.Dtos.Cart;
 using Knigarela.Api.Dtos.Orders;
+using Knigarela.Api.HangFire.Jobs.Shipment;
 using Knigarela.Core.Pagination;
 using Knigarela.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -16,11 +18,13 @@ public class OrderController : ControllerBase
     private readonly IOrderService _orderService;
     private readonly IMapper mapper;
     private const string SessionKey = "CartItems";
+    private readonly IBackgroundJobClient _jobs;
 
-    public OrderController(IOrderService orderService, IMapper mapper)
+    public OrderController(IOrderService orderService, IMapper mapper, IBackgroundJobClient jobs)
     {
         _orderService = orderService;
         this.mapper = mapper;
+        _jobs = jobs;
     }
 
     [HttpPost]
@@ -104,6 +108,24 @@ public class OrderController : ControllerBase
             return Conflict(new { error = "InsufficientStock", items = result.Issues });
 
         return Ok(new { orderId = result.Order!.Id });
+    }
+
+    [HttpPost("generate-requests")]
+    public IActionResult GenerateRequests()
+    {
+        var jobId = _jobs.Enqueue<IShipmentJob>(x => x.GenerateAsync());
+
+        return Ok(new { jobId });
+    }
+
+    [HttpGet("job-status/{id}")]
+    public IActionResult JobStatus(string id)
+    {
+        var api = JobStorage.Current.GetMonitoringApi();
+        var details = api.JobDetails(id);
+        var state = details?.History?.FirstOrDefault()?.StateName ?? "unknown";
+
+        return Ok(new { status = state });
     }
 
     private List<CartItemDto> GetCart()

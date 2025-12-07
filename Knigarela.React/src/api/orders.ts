@@ -28,6 +28,7 @@ export async function getOrder(id: string) {
     const { data } = await api.get(`/api/order/${id}`);
     return data;
 }
+
 export async function getAdminOrder(id: string) {
     const { data } = await api.get(`/api/order/admin/${id}`);
     return data;
@@ -66,5 +67,15 @@ export async function update(formData: any) {
 
 export async function deleteOrder(id: string) {
     const { data } = await api.delete(`/api/order/admin/${id}`);
+    return data;
+}
+
+export async function createRequestsForNewOrders() : Promise<string> {
+    const { data } = await api.post(`/api/order/generate-requests`);
+    return data.jobId;
+}
+
+export async function getJobStatus(id: string) {
+    const { data } = await api.post(`/api/order/job-status/${id}`);
     return data;
 }

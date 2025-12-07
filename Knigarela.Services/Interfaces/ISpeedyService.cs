@@ -1,4 +1,5 @@
-﻿using Knigarela.Core.Entities.Speedy;
+﻿using Knigarela.Core.Entities;
+using Knigarela.Core.Entities.Speedy;
 
 namespace Knigarela.Services.Interfaces;
 
@@ -8,7 +9,9 @@ public interface ISpeedyService
 
     Task<bool> ValidateOfficeAsync(string officeId);
 
-    Task<List<SpeedyOffice>> SearchOffice(string q);
+    Task<List<SpeedyOffice>> SearchOfficeAsync(string q);
 
-    Task<List<SpeedySite>> SearchSite(string name);
+    Task<List<SpeedySite>> SearchSiteAsync(string name);
+
+    Task<object> CreateShipmentAsync(Order order);
 }

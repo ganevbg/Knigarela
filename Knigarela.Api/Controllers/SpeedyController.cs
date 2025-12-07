@@ -17,7 +17,7 @@ public class SpeedyController : ControllerBase
         if (string.IsNullOrEmpty(name))
             return Ok(Array.Empty<object>());
 
-        var cities = await speedyService.SearchSite(name);
+        var cities = await speedyService.SearchSiteAsync(name);
 
         if (cities != null && cities.Any())
             return Ok(cities.Select(x => new { id = x.Id, name = $"{x.Region}, {x.Municipality}, {x.Type} {x.Name}, ПК: {x.PostCode}" })); // placeholder
@@ -31,7 +31,7 @@ public class SpeedyController : ControllerBase
         if (string.IsNullOrEmpty(name))
             return Ok(Array.Empty<object>());
 
-        var offices = await speedyService.SearchOffice(name);
+        var offices = await speedyService.SearchOfficeAsync(name);
 
         if(offices != null && offices.Any())
             return Ok(offices.Select(x => new { id = x.Id, name = x.Name })); // placeholder

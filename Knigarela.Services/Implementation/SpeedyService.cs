@@ -1,4 +1,5 @@
-﻿using Knigarela.Core.Entities.Speedy;
+﻿using Knigarela.Core.Entities;
+using Knigarela.Core.Entities.Speedy;
 using Knigarela.Infrastructure.Settings;
 using Knigarela.Services.Interfaces;
 using Microsoft.Extensions.Logging;
@@ -29,7 +30,7 @@ public class SpeedyService : ISpeedyService
 
         try
         {
-            var response = await SearchSite(siteId);
+            var response = await SearchSiteAsync(siteId);
             return response.Any();
         }
         catch (Exception ex)
@@ -46,7 +47,7 @@ public class SpeedyService : ISpeedyService
 
         try
         {
-            var response = await SearchOffice(officeId);
+            var response = await SearchOfficeAsync(officeId);
             return response.Any();
         }
         catch (Exception ex)
@@ -56,7 +57,7 @@ public class SpeedyService : ISpeedyService
         }
     }
 
-    public async Task<List<SpeedyOffice>> SearchOffice(string name)
+    public async Task<List<SpeedyOffice>> SearchOfficeAsync(string name)
     {
         if (string.IsNullOrWhiteSpace(name))
             return new List<SpeedyOffice>();
@@ -97,7 +98,7 @@ public class SpeedyService : ISpeedyService
         }
     }
 
-    public async Task<List<SpeedySite>> SearchSite(string name)
+    public async Task<List<SpeedySite>> SearchSiteAsync(string name)
     {
         if (string.IsNullOrWhiteSpace(name))
             return new List<SpeedySite>();
@@ -137,5 +138,11 @@ public class SpeedyService : ISpeedyService
             _logger.LogWarning(ex, "Failed to search Speedy site with query {q}", name);
             return new List<SpeedySite>();
         }
+    }
+
+    public async Task<object> CreateShipmentAsync(Order order)
+    {
+        // TODO - call api here
+        return await Task.FromResult(() => new { sucess = "hoorah!" });
     }
 }

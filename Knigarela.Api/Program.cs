@@ -1,4 +1,8 @@
-﻿using Knigarela.Api.Configuration;
+﻿using Hangfire;
+using Hangfire.PostgreSql;
+using Knigarela.Api.Configuration;
+using Knigarela.Api.HangFire;
+using Knigarela.Api.HangFire.Jobs.Shipment;
 using Knigarela.Api.Mapping;
 using Knigarela.Api.Midleware;
 using Knigarela.Core.Interfaces;
@@ -34,6 +38,19 @@ builder.Host.UseSerilog();
 // DbContext
 builder.Services.AddDbContext<KnigarelaDbContext>(opt =>
     opt.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
+
+builder.Services.AddHangfire(config =>
+{
+    config.UsePostgreSqlStorage(o => o.UseNpgsqlConnection(builder.Configuration.GetConnectionString("Default")));
+});
+
+builder.Services.AddHangfireServer();
+
+GlobalJobFilters.Filters.Add(new AutomaticRetryAttribute
+{
+    Attempts = 0,
+    LogEvents = false
+});
 
 // Identity
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
@@ -138,6 +155,8 @@ builder.Services.AddScoped<IClientService, ClientService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IClientAddressService, ClientAddressService>();
 
+builder.Services.AddScoped<IShipmentJob, ShipmentJob>();
+builder.Services.AddHttpClient<ISpeedyService, SpeedyService>();
 
 var allowedOrigins = builder.Configuration
     .GetSection("AllowedFrontendOrigins")
@@ -155,6 +174,8 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
+
+app.UseHangfireDashboard("/hangfire");
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
