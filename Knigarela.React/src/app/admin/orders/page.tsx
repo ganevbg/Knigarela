@@ -55,6 +55,11 @@ export default function AdminOrdersPage() {
                 label: "Номер",
                 render: (value) => <span className="font-medium text-[var(--knigarela-text)]">{value}</span>,
             },
+             {
+                key: "speedyId",
+                label: "Номер на товарителница",
+                render: (value) => <span className="font-medium text-[var(--knigarela-text)]">{value}</span>,
+            },
             {
                 key: "clientName",
                 label: "Клиент",

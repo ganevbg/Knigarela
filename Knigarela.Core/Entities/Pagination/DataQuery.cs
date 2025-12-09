@@ -8,7 +8,7 @@
 
         public Dictionary<string, string> Filters { get; set; } = new();
 
-        public TSort SortColumn { get; set; }
+        public TSort? SortColumn { get; set; }
 
         public string SortDirection { get; set; } = "asc"; // asc/desc
     }

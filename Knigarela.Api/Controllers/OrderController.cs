@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
 using Hangfire;
 using Knigarela.Api.Dtos.Cart;
+using Knigarela.Api.Dtos.Clients;
 using Knigarela.Api.Dtos.Orders;
 using Knigarela.Api.HangFire.Jobs.Shipment;
+using Knigarela.Core.Entities;
 using Knigarela.Core.Pagination;
 using Knigarela.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;

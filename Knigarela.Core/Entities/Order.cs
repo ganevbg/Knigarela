@@ -14,7 +14,9 @@ public class Order : BaseEntity
     // Total order price (calculated)
     public decimal TotalAmount => Items?.Sum(i => i.TotalPrice) ?? 0m;
 
-    public decimal DeliveryAmount { get; set; }
+    public decimal? DeliveryAmount { get; set; }
+
+    public string? SpeedyId { get; set; }
 
     public string? Note { get; set; }
 

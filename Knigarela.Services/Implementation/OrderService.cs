@@ -98,10 +98,20 @@ public class OrderService : IOrderService
         var order = await _db.Orders.FindAsync(id);
         if (order == null) return false;
 
-        if(order.Status != OrderStatus.New)
+        if (order.Status != OrderStatus.New)
             throw new InvalidOperationException("Only orders with 'New' status can be deleted.");
 
         _db.Orders.Remove(order);
+
+        if (order.Items != null && order.Items.Count > 0)
+        {
+            foreach (var item in order.Items)
+            {
+                var box = _db.Boxes.Single(x => x.Id == item.BoxId);
+                box.Count += item.Quantity;
+            }
+        }
+
         await _db.SaveChangesAsync();
         return true;
     }
@@ -266,13 +276,13 @@ public class OrderService : IOrderService
                 boxes[boxId].Count -= quantity;
 
             var client = await _clientService.FindOrCreateClientAsync(
-                new Client 
-                { 
+                new Client
+                {
                     FullName = fullName,
                     Email = email,
                     Phone = phone,
                     Addresses = new List<ClientAddress>
-                    { 
+                    {
                         _mapper.Map<ClientAddress>(address)
                     },
                     IsNewSubscriber = items.Any(x => x.type == PurchaseType.Subscription)

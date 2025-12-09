@@ -1,19 +1,26 @@
-﻿using Knigarela.Core.Entities;
+﻿using AutoMapper;
+using Knigarela.Core.Entities;
 using Knigarela.Core.Entities.Speedy;
+using Knigarela.Core.Entities.Speedy.Shipment;
+using Knigarela.Core.Helpers;
 using Knigarela.Infrastructure.Settings;
 using Knigarela.Services.Interfaces;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Speedy.Models;
+using System.ComponentModel;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 public class SpeedyService : ISpeedyService
 {
     private readonly HttpClient _http;
     private readonly ILogger<SpeedyService> _logger;
     private readonly SpeedySettings _settings;
+    private readonly IMapper mapper;
 
-    public SpeedyService(HttpClient http, ILogger<SpeedyService> logger, IOptions<SpeedySettings> settings)
+    public SpeedyService(HttpClient http, ILogger<SpeedyService> logger, IOptions<SpeedySettings> settings, IMapper mapper)
     {
         _http = http;
         _logger = logger;
@@ -21,6 +28,7 @@ public class SpeedyService : ISpeedyService
 
         _http.BaseAddress = new Uri(_settings.BaseUrl);
         _http.Timeout = TimeSpan.FromSeconds(_settings.TimeoutSeconds);
+        this.mapper = mapper;
     }
 
     public async Task<bool> ValidateSiteAsync(string siteId)
@@ -140,9 +148,78 @@ public class SpeedyService : ISpeedyService
         }
     }
 
-    public async Task<object> CreateShipmentAsync(Order order)
+    public async Task<CreateShipmentResponse> CreateShipmentAsync(Order order)
     {
-        // TODO - call api here
-        return await Task.FromResult(() => new { sucess = "hoorah!" });
+        var request = mapper.Map<CreateShipmentRequest>(order);
+
+        request.UserName = _settings.Username;
+        request.Password = _settings.Password;
+
+        request.Service = new ShipmentService
+        {
+            ServiceId = _settings.ServiceId,
+            PickupDate = DateTime.Now,
+            AutoAdjustPickupDate = true,
+            AdditionalServices = new ShipmentAdditionalServices
+            {
+                Cod = new ShipmentCODAdditionalService
+                {
+                    Amount = order.TotalAmount,
+                    CurrencyCode = _settings.Currency,
+                    ProcessingType = CODProcessingType.CASH,
+                    IncludeShippingPrice = false,
+                    CardPaymentForbidden = false
+                }
+            }
+        };
+
+        request.Sender = new ShipmentSender
+        {
+            ClientId = _settings.SenderClientId
+        };
+
+        // Validate — НЕ пращай address + pickupOfficeId
+        ValidateRecipient(request.Recipient);
+
+        var jsonOptions = new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+            PropertyNameCaseInsensitive = true,
+        };
+
+        jsonOptions.Converters.Add(new SpeedyDateTimeConverter());
+
+        var json = JsonSerializer.Serialize(request, jsonOptions);
+
+        var resp = await _http.PostAsync("shipment", new StringContent(json, Encoding.UTF8, "application/json"));
+        var body = await resp.Content.ReadAsStringAsync();
+
+        resp.EnsureSuccessStatusCode();
+
+        var result = JsonSerializer.Deserialize<CreateShipmentResponse>(body, jsonOptions)!;
+        if (resp.IsSuccessStatusCode)
+        {
+            return result;
+        }
+        else if (result.Error != null)
+        {
+            throw new Exception($"Speedy API Error: {result.Error.Message}. Code={result.Error.Code}, Id={result.Error.Id}, Context={result.Error.Context}, Component={result.Error.Component}");
+        }
+
+        throw new Exception($"Speedy API not successfull response and no error. Response content:{resp.Content.ToString()}\n");
+    }
+
+    private void ValidateRecipient(ShipmentRecipient r)
+    {
+        bool hasOffice = r.PickupOfficeId.HasValue;
+        bool hasAddress = r.Address != null && r.Address.SiteId.HasValue && !string.IsNullOrEmpty(r.Address.AddressLine1);
+
+        if (hasOffice && hasAddress)
+            throw new Exception("Speedy: Cannot send both address and pickupOfficeId.");
+
+        if (!hasOffice && !hasAddress)
+            throw new Exception("Speedy: Either address or pickupOfficeId is required.");
     }
 }

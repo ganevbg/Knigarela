@@ -4,6 +4,10 @@ using Knigarela.Api.Dtos.Cart;
 using Knigarela.Api.Dtos.Clients;
 using Knigarela.Api.Dtos.Orders;
 using Knigarela.Core.Entities;
+using Knigarela.Core.Entities.Speedy.Shipment;
+using Knigarela.Core.Enums;
+using Speedy.Models;
+using static Dapper.SqlMapper;
 
 namespace Knigarela.Api.Mapping
 {
@@ -114,7 +118,35 @@ namespace Knigarela.Api.Mapping
                .ForMember(dest => dest.Date,
                    opt => opt.MapFrom(src => src.CreatedAt))
                .ForMember(dest => dest.TotalAmount,
-                   opt => opt.MapFrom(src => (src.TotalAmount + src.DeliveryAmount)));
+                   opt => opt.MapFrom(src => (src.DeliveryAmount.HasValue ? src.DeliveryAmount.Value + src.TotalAmount : src.TotalAmount)));
+
+            CreateMap<Order, CreateShipmentRequest>()
+            .ForMember(d => d.Id, opt => opt.Ignore())
+            .ForMember(d => d.Service, opt => opt.Ignore())
+            .ForMember(d => d.Sender, opt => opt.Ignore())
+            .ForMember(d => d.Recipient, opt => opt.MapFrom(src => src))
+            .ForMember(d => d.Content, opt => opt.MapFrom(src => src))
+            .ForMember(d => d.Payment, opt => opt.MapFrom(src => src));
+
+            CreateMap<Order, ShipmentRecipient>()
+                .ForMember(d => d.ClientId, opt => opt.Ignore())
+                .ForMember(d => d.ClientName, opt => opt.MapFrom(src => src.Client!.FullName))
+                .ForMember(d => d.Phone1, opt => opt.MapFrom(src => new ShipmentPhoneNumber { Number = src.Client!.Phone }))
+                .ForMember(d => d.Address, opt => opt.MapFrom(src => src.Address))
+                .ForMember(d => d.PickupOfficeId, opt => opt.MapFrom(src => src.Address!.DeliveryType == DeliveryType.Courier ? src.Address.OfficeId : null));
+
+            CreateMap<OrderAddress, ShipmentAddress>()
+                .ForMember(d => d.SiteId, opt => opt.MapFrom(src => src.SiteId))
+                .ForMember(d => d.AddressLine1, opt => opt.MapFrom(src => src.AddressText));
+
+            CreateMap<Order, ShipmentContent>()
+                .ForMember(d => d.ParcelsCount, opt => opt.MapFrom(src => src.Items!.Sum(i => i.Quantity)))
+                .ForMember(d => d.TotalWeight, opt => opt.MapFrom(src => src.Items!.Sum(i => i.Quantity * 1m)))
+                .ForMember(d => d.Package, opt => opt.MapFrom(src => $"Кутии в плик"))
+                .ForMember(d => d.Contents, opt => opt.MapFrom(src => $"Кутии / Поръчка #{src.OrderNumber}"));
+
+            CreateMap<Order, ShipmentPayment>()
+                .ForMember(d => d.CourierServicePayer, opt => opt.MapFrom(src => ShipmentRole.RECIPIENT));
         }
     }
 }

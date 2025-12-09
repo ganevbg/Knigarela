@@ -187,7 +187,7 @@ export default async function OrderSuccessPage({ params }: { params: { id: strin
                     <p className="text-[var(--knigarela-text-light)]">
                         Имате въпроси относно вашата поръчка?{" "}
                         <a
-                            href="mailto:support@knigarela.com"
+                            href="mailto:knigarela@gmail.com"
                             className="font-semibold text-[var(--knigarela-pink)] underline hover:text-[#b85e8a]"
                         >
                             Свържете се с нас

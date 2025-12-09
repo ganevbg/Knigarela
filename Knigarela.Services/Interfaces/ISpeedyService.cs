@@ -1,5 +1,6 @@
 ﻿using Knigarela.Core.Entities;
 using Knigarela.Core.Entities.Speedy;
+using Speedy.Models;
 
 namespace Knigarela.Services.Interfaces;
 
@@ -13,5 +14,5 @@ public interface ISpeedyService
 
     Task<List<SpeedySite>> SearchSiteAsync(string name);
 
-    Task<object> CreateShipmentAsync(Order order);
+    Task<CreateShipmentResponse> CreateShipmentAsync(Order order);
 }

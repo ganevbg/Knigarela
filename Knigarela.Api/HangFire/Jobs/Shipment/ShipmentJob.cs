@@ -31,19 +31,18 @@ namespace Knigarela.Api.HangFire.Jobs.Shipment
 
             foreach (var order in orders)
             {
-                //if (order.WaybillNumber != null)
-                //    continue; // skip already processed
+                if (order.SpeedyId != null)
+                    continue; // skip already processed
 
                 try
                 {
                     var shipment = await _speedy.CreateShipmentAsync(order);
 
-                    ////order.WaybillNumber = shipment.WaybillNumber;
-                    ////order.WaybillPdfUrl = shipment.PdfUrl;
-                    ////order.WaybillCreatedOn = DateTime.UtcNow;
-                    ////order.Status = OrderStatus.Processing;
+                    order.SpeedyId = shipment.Id;
+                    order.DeliveryAmount = shipment.Price?.Total;
+                    order.Status = OrderStatus.Processing;
 
-                    ////await _db.SaveChangesAsync();
+                    await _db.SaveChangesAsync();
                 }
                 catch (Exception ex)
                 {
