@@ -15,6 +15,7 @@ public class OrderService : IOrderService
     private readonly KnigarelaDbContext _db;
     private readonly IClientService _clientService;
     private readonly IMapper _mapper;
+    private readonly ISpeedyService speedyService;
 
     private readonly int MaxConcurrencyRetries;
     private readonly int RetryDelayMs;
@@ -52,13 +53,14 @@ public class OrderService : IOrderService
     };
 
 
-    public OrderService(KnigarelaDbContext db, IClientService clientService, IConfiguration configuration, IMapper mapper)
+    public OrderService(KnigarelaDbContext db, IClientService clientService, IConfiguration configuration, IMapper mapper, ISpeedyService speedyService)
     {
         _db = db;
         _clientService = clientService;
         MaxConcurrencyRetries = int.TryParse(configuration["Concurrency:MaxRetries"], out int mr) ? mr : 5;
         RetryDelayMs = int.TryParse(configuration["Concurrency:RetryDelayMs"], out int rd) ? rd : 250;
         _mapper = mapper;
+        this.speedyService = speedyService;
     }
 
     public async Task<CreateOrderResult> CreateOrderWithStockCheckAsync(
@@ -197,6 +199,8 @@ public class OrderService : IOrderService
                 });
             }
 
+            await CalculateOrderDeliveryAmount(order);
+
             _db.Orders.Add(order);
 
             try
@@ -311,12 +315,25 @@ public class OrderService : IOrderService
                 });
             }
 
+            await CalculateOrderDeliveryAmount(order);
+
             _db.Orders.Add(order);
             await _db.SaveChangesAsync();
             await tx.CommitAsync();
 
             return new CreateOrderResult(order, issues);
         });
+    }
+    private async Task CalculateOrderDeliveryAmount(Order order)
+    {
+        if(order == null || order.Items == null || order.Items.Count < 1)
+        {
+            return;
+        }
+
+        var parcels = order.Items.Sum(x => x.Quantity);
+        var deliveryFee = await speedyService.CalculateAsync(parcels, parcels * 1, order.Items.Sum(x => x.Quantity * x.UnitPrice), order.Address);
+        order.DeliveryAmount = deliveryFee?.Calculations?.FirstOrDefault()?.Price?.Total;
     }
 }
 

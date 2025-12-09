@@ -1,5 +1,5 @@
 import { api } from "@/lib/api";
-import { Checkout } from "@/types/api"
+import { Checkout, Calculate } from "@/types/api"
 
 export async function saveOrder(formData: Checkout) {
 
@@ -78,4 +78,9 @@ export async function createRequestsForNewOrders() : Promise<string> {
 export async function getJobStatus(id: string) {
     const { data } = await api.post(`/api/order/job-status/${id}`);
     return data;
+}
+
+export async function CalculateDeliveryFee(req: Calculate) : Promise<number> {
+    const { data } = await api.post(`/api/cart/calculate`, req);
+    return data.deliveryPrice;
 }

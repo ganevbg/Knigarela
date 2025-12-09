@@ -12,11 +12,13 @@ namespace Knigarela.Api.Controllers;
 public class CartController : ControllerBase
 {
     private readonly IBoxService boxService;
+    private readonly ISpeedyService speedyService;
     private const string SessionKey = "CartItems";
 
-    public CartController(KnigarelaDbContext db, IBoxService boxService)
+    public CartController(KnigarelaDbContext db, IBoxService boxService, ISpeedyService speedyService)
     {
         this.boxService = boxService;
+        this.speedyService = speedyService;
     }
 
     [HttpGet]
@@ -91,6 +93,27 @@ public class CartController : ControllerBase
     {
         HttpContext.Session.Remove(SessionKey);
         return Ok();
+    }
+
+
+    [HttpPost("calculate")]
+    public async Task<IActionResult> CalculateDelivery([FromBody] CheckoutDeliveryDto dto)
+    {
+        var items = GetCart();
+        var address = new OrderAddress
+        {
+            DeliveryType = dto.DeliveryType,
+            OfficeId = dto.OfficeId,
+            SiteId = dto.SiteId,
+            AddressText = dto.AddressText
+        };
+
+        var calc = await speedyService.CalculateAsync(items.Count, items.Sum(x => x.Quantity * 1), items.Sum(x => x.Quantity * x.UnitPrice), address);
+
+        return Ok(new
+        {
+            deliveryPrice = calc.Calculations?.FirstOrDefault()?.Price?.Total ?? 0m,
+        });
     }
 
     private List<CartItemDto> GetCart()

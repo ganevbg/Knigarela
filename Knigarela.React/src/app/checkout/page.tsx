@@ -1,16 +1,16 @@
 ﻿"use client"
 
 import type React from "react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import AddressPicker from "@/components/address/AddressPicker"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import Link from "next/link"
-import { saveOrder } from "@/api/orders"
+import { saveOrder, CalculateDeliveryFee } from "@/api/orders"
 import { useCart } from "@/context/CartContext";
 import { useRouter } from "next/navigation";
-import { Checkout } from "@/types/api"
+import { Checkout, Calculate } from "@/types/api"
 import { formatPrice } from "@/lib/utils"
 
 export default function CheckoutPage() {
@@ -32,11 +32,13 @@ export default function CheckoutPage() {
         },
     })
 
+    const [shipping, setShipping] = useState(0);
+
+
     const cartItems = useCart().items;
     const clear = useCart().clear;
 
     const subtotal = cartItems.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0)
-    const shipping = 5.99
     const total = subtotal + shipping
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -53,6 +55,40 @@ export default function CheckoutPage() {
             [e.target.name]: e.target.value,
         })
     }
+
+    const CheckDeliveryFee = async () => {
+        if (!formData.address.deliveryType) return;
+
+        const result = await CalculateDeliveryFee({
+            addressText: formData.address.addressText,
+            deliveryType: formData.address.deliveryType,
+            officeId: formData.address.officeId,
+            siteId: formData.address.siteId
+        });
+
+        setShipping(result);
+    };
+
+    useEffect(() => {
+        debugger;
+        // ако адресът не е попълнен достатъчно → skip
+        if (!formData.address.deliveryType) return;
+
+        // Example: за доставка до офис изискваме officeId
+        if (formData.address.deliveryType === "courier" && !formData.address.officeId) return;
+
+        // Example: за адресна — siteId + addressText
+        if (formData.address.deliveryType === "personal") {
+            if (!formData.address.siteId || !formData.address.addressText) return;
+        }
+
+        CheckDeliveryFee();
+    }, [
+        formData.address.siteId,
+        formData.address.officeId,
+        formData.address.addressText,
+        formData.address.deliveryType
+    ]);
 
     return (
         <>

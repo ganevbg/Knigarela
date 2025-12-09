@@ -8,8 +8,7 @@ import { formatPrice } from "@/lib/utils"
 export default function CartPage() {
     const { items, add, remove, clear } = useCart();
     const subtotal = items.reduce((sum, i) => sum + i.unitPrice * i.quantity, 0);
-    const shipping = 5.99;
-    const total = subtotal + shipping;
+    const total = subtotal;
 
     return (
         <>
@@ -51,18 +50,7 @@ export default function CartPage() {
                             {/* Summary */}
                             <div className="lg:col-span-1">
                                 <div className="sticky top-24 p-6 shadow-md" style={{ backgroundColor: "#fff5fa" }}>
-                                    <h2 className="mb-6 text-2xl font-semibold text-[#2d2d2d]">
-                                        Обобщение
-                                    </h2>
                                     <div className="mb-6 space-y-3">
-                                        <div className="flex justify-between text-gray-700">
-                                            <span>Междинна сума:</span>
-                                                <span>{formatPrice(subtotal, true)}</span>
-                                        </div>
-                                        <div className="flex justify-between text-gray-700">
-                                            <span>Доставка:</span>
-                                                <span>{formatPrice(shipping, true)}</span>
-                                        </div>
                                         <div className="flex justify-between border-t pt-3 text-xl font-semibold">
                                             <span>Общо:</span>
                                                 <span style={{ color: "#D176A3" }}>{formatPrice(total, true)} </span>

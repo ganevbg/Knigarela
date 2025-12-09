@@ -2,13 +2,13 @@
 using Knigarela.Core.Entities;
 using Knigarela.Core.Entities.Speedy;
 using Knigarela.Core.Entities.Speedy.Shipment;
+using Knigarela.Core.Enums;
 using Knigarela.Core.Helpers;
 using Knigarela.Infrastructure.Settings;
 using Knigarela.Services.Interfaces;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Speedy.Models;
-using System.ComponentModel;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -28,7 +28,7 @@ public class SpeedyService : ISpeedyService
 
         _http.BaseAddress = new Uri(_settings.BaseUrl);
         _http.Timeout = TimeSpan.FromSeconds(_settings.TimeoutSeconds);
-        this.mapper = mapper;
+        this.mapper = mapper;  
     }
 
     public async Task<bool> ValidateSiteAsync(string siteId)
@@ -181,6 +181,7 @@ public class SpeedyService : ISpeedyService
         // Validate — НЕ пращай address + pickupOfficeId
         ValidateRecipient(request.Recipient);
 
+
         var jsonOptions = new JsonSerializerOptions
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -192,34 +193,125 @@ public class SpeedyService : ISpeedyService
         jsonOptions.Converters.Add(new SpeedyDateTimeConverter());
 
         var json = JsonSerializer.Serialize(request, jsonOptions);
-
         var resp = await _http.PostAsync("shipment", new StringContent(json, Encoding.UTF8, "application/json"));
-        var body = await resp.Content.ReadAsStringAsync();
 
         resp.EnsureSuccessStatusCode();
 
-        var result = JsonSerializer.Deserialize<CreateShipmentResponse>(body, jsonOptions)!;
-        if (resp.IsSuccessStatusCode)
+        var body = await resp.Content.ReadAsStringAsync();
+        
+        var result = JsonSerializer.Deserialize<CreateShipmentResponse>(body, new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+            PropertyNameCaseInsensitive = true,
+            Converters = { new SpeedyDateTimeConverter(), new JsonStringEnumConverter(JsonNamingPolicy.CamelCase, allowIntegerValues: true) }
+        })!;
+
+        if (resp.IsSuccessStatusCode && result.Error == null)
         {
             return result;
         }
-        else if (result.Error != null)
+
+        throw new Exception($"Speedy API Error: {result.Error.Message}. Code={result.Error.Code}, Id={result.Error.Id}, Context={result.Error.Context}, Component={result.Error.Component}");
+
+    }
+
+    public async Task<ShipmentCalculationResponse> CalculateAsync(int parcelsCount, double totalWeightKg, decimal totalAmout, OrderAddress address)
+    {
+        var request = new CalculationRequest
         {
-            throw new Exception($"Speedy API Error: {result.Error.Message}. Code={result.Error.Code}, Id={result.Error.Id}, Context={result.Error.Context}, Component={result.Error.Component}");
+            UserName = _settings.Username,
+            Password = _settings.Password,
+            Language = "BG",
+            Service = new CalculationService
+            {
+                ServiceIds = new List<int> { _settings.ServiceId },
+                AdditionalServices = new ShipmentAdditionalServices
+                {
+                    Cod = new ShipmentCODAdditionalService
+                    {
+                        Amount = totalAmout,
+                        CurrencyCode = _settings.Currency,
+                        ProcessingType = CODProcessingType.CASH,
+                        IncludeShippingPrice = false,
+                        CardPaymentForbidden = false
+                    }
+                }
+            },
+            Content = new CalculationContent
+            {
+                ParcelsCount = parcelsCount,
+                TotalWeight = totalWeightKg
+            },
+            Payment = new ShipmentPayment
+            {
+                CourierServicePayer = ShipmentRole.RECIPIENT
+            },
+            Recipient = BuildCalculationRecipientFromOrderAddress(address)
+        };
+
+        var json = JsonSerializer.Serialize(request, new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+            PropertyNameCaseInsensitive = true
+        });
+
+        var resp = await _http.PostAsync("calculate", new StringContent(json, Encoding.UTF8, "application/json"));
+        var body = await resp.Content.ReadAsStringAsync();
+
+        var result = JsonSerializer.Deserialize<ShipmentCalculationResponse>(body, new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+            PropertyNameCaseInsensitive = true,
+            Converters =  { new SpeedyDateTimeConverter(), new JsonStringEnumConverter(JsonNamingPolicy.CamelCase, allowIntegerValues: true) }
+        })!;
+        if (resp.IsSuccessStatusCode && result.Error == null)
+        {
+            return result;
         }
 
-        throw new Exception($"Speedy API not successfull response and no error. Response content:{resp.Content.ToString()}\n");
+        throw new Exception($"Speedy API Error: {result.Error.Message}. Code={result.Error.Code}, Id={result.Error.Id}, Context={result.Error.Context}, Component={result.Error.Component}");
     }
 
     private void ValidateRecipient(ShipmentRecipient r)
     {
         bool hasOffice = r.PickupOfficeId.HasValue;
-        bool hasAddress = r.Address != null && r.Address.SiteId.HasValue && !string.IsNullOrEmpty(r.Address.AddressLine1);
+        bool hasAddress = r.Address != null && r.Address.SiteId.HasValue;
 
         if (hasOffice && hasAddress)
             throw new Exception("Speedy: Cannot send both address and pickupOfficeId.");
 
         if (!hasOffice && !hasAddress)
             throw new Exception("Speedy: Either address or pickupOfficeId is required.");
+    }
+
+    private CalculationPerson BuildCalculationRecipientFromOrderAddress(OrderAddress address)
+    {
+        // DeliveryType == Courier => офис, иначе адрес – според твоя модел
+        if (address.DeliveryType == DeliveryType.Courier && address.OfficeId.HasValue)
+        {
+            return new CalculationPerson
+            {
+                PickupOfficeId = address.OfficeId.Value,
+                PrivatePerson = true
+            };
+        }
+
+        // адресна доставка
+        return new CalculationPerson
+        {
+            PrivatePerson = true,
+            AddressLocation = new AddressLocation
+            {
+                CountryId = _settings.CountryId, // BG
+                SiteId = address.SiteId,
+                SiteName = address.SiteName
+            }
+        };
     }
 }

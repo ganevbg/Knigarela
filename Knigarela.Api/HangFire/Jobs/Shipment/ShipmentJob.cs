@@ -42,6 +42,8 @@ namespace Knigarela.Api.HangFire.Jobs.Shipment
                     order.DeliveryAmount = shipment.Price?.Total;
                     order.Status = OrderStatus.Processing;
 
+                    // TODO - maybe set pickup data, delivery deadline date etc
+
                     await _db.SaveChangesAsync();
                 }
                 catch (Exception ex)
