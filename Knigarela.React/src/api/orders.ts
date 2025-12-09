@@ -1,5 +1,6 @@
 import { api } from "@/lib/api";
 import { Checkout, Calculate } from "@/types/api"
+import { Order } from "@/types/api"
 
 export async function saveOrder(formData: Checkout) {
 
@@ -75,10 +76,36 @@ export async function createRequestsForNewOrders() : Promise<string> {
     return data.jobId;
 }
 
-export async function getJobStatus(id: string) {
-    const { data } = await api.post(`/api/order/job-status/${id}`);
-    return data;
+export async function printLabels(item: Order, paperSize: string) {
+    const response = await api.post(`api/order/admin/print-labels/${item.id}?size=${paperSize}`, null);
+
+    const base64 = response.data.file;
+    const link = document.createElement("a");
+    link.href = `data:application/pdf;base64,${base64}`;
+    link.download = `labels-${item.orderNumber}.pdf`;
+    link.click();
 }
+
+export async function printAllLabels(paperSize: string) {
+    const response = await api.post(
+        `/api/order/admin/print-all-labels?size=${paperSize}`,
+        null,
+        { responseType: "arraybuffer" }
+    );
+
+    const blob = new Blob([response.data], { type: "application/pdf" });
+    const url = window.URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `labels-${paperSize}.pdf`;
+    a.click();
+
+    window.URL.revokeObjectURL(url);
+}
+
+
+
 
 export async function CalculateDeliveryFee(req: Calculate) : Promise<number> {
     const { data } = await api.post(`/api/cart/calculate`, req);

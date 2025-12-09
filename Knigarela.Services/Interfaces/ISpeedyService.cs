@@ -17,4 +17,6 @@ public interface ISpeedyService
     Task<CreateShipmentResponse> CreateShipmentAsync(Order order);
 
     Task<ShipmentCalculationResponse> CalculateAsync(int parcelsCount, double totalWeightKg, decimal totalAmout, OrderAddress address);
+
+    Task<string> PrintLabelsAsync(PaperSize size, string[] parcelIds);
 }

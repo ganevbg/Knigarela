@@ -9,6 +9,7 @@ using Knigarela.Services.Interfaces;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Speedy.Models;
+using System.Net;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -28,7 +29,7 @@ public class SpeedyService : ISpeedyService
 
         _http.BaseAddress = new Uri(_settings.BaseUrl);
         _http.Timeout = TimeSpan.FromSeconds(_settings.TimeoutSeconds);
-        this.mapper = mapper;  
+        this.mapper = mapper;
     }
 
     public async Task<bool> ValidateSiteAsync(string siteId)
@@ -198,7 +199,7 @@ public class SpeedyService : ISpeedyService
         resp.EnsureSuccessStatusCode();
 
         var body = await resp.Content.ReadAsStringAsync();
-        
+
         var result = JsonSerializer.Deserialize<CreateShipmentResponse>(body, new JsonSerializerOptions
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -223,7 +224,6 @@ public class SpeedyService : ISpeedyService
         {
             UserName = _settings.Username,
             Password = _settings.Password,
-            Language = "BG",
             Service = new CalculationService
             {
                 ServiceIds = new List<int> { _settings.ServiceId },
@@ -268,11 +268,54 @@ public class SpeedyService : ISpeedyService
             DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
             DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
             PropertyNameCaseInsensitive = true,
-            Converters =  { new SpeedyDateTimeConverter(), new JsonStringEnumConverter(JsonNamingPolicy.CamelCase, allowIntegerValues: true) }
+            Converters = { new SpeedyDateTimeConverter(), new JsonStringEnumConverter(JsonNamingPolicy.CamelCase, allowIntegerValues: true) }
         })!;
         if (resp.IsSuccessStatusCode && result.Error == null)
         {
             return result;
+        }
+
+        throw new Exception($"Speedy API Error: {result.Error.Message}. Code={result.Error.Code}, Id={result.Error.Id}, Context={result.Error.Context}, Component={result.Error.Component}");
+    }
+
+    public async Task<string> PrintLabelsAsync(PaperSize size, string[] parcelIds)
+    {
+        if (parcelIds == null || parcelIds.Length == 0)
+        {
+            throw new ArgumentNullException(nameof(parcelIds));
+        }
+
+        var request = new PrintRequest
+        {
+            UserName = _settings.Username,
+            Password = _settings.Password,
+            paperSize = size,
+            Parcels = parcelIds.Select(x => new ParcelsArray { Parcel = new CreatedShipmentParcel { Id = x } }).ToArray()
+        };
+
+        var json = JsonSerializer.Serialize(request, new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+            PropertyNameCaseInsensitive = true,
+            Converters = { new SpeedyDateTimeConverter(), new JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseUpper, allowIntegerValues: true) }
+        });
+
+        var resp = await _http.PostAsync("print/extended", new StringContent(json, Encoding.UTF8, "application/json"));
+        var body = await resp.Content.ReadAsStringAsync();
+
+        var result = JsonSerializer.Deserialize<ExtendedPrintResponse>(body, new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+            PropertyNameCaseInsensitive = true
+        })!;
+        
+        if (resp.IsSuccessStatusCode && result.Error == null)
+        {
+            return result.Data;
         }
 
         throw new Exception($"Speedy API Error: {result.Error.Message}. Code={result.Error.Code}, Id={result.Error.Id}, Context={result.Error.Context}, Component={result.Error.Component}");

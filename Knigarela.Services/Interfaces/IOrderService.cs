@@ -1,6 +1,7 @@
 ﻿using Knigarela.Core.Entities;
 using Knigarela.Core.Enums;
 using Knigarela.Core.Pagination;
+using Speedy.Models;
 
 namespace Knigarela.Services.Interfaces;
 
@@ -21,4 +22,7 @@ public interface IOrderService
 
     Task<bool> DeleteAsync(Guid id);
 
+    Task<string> PrintLabelsAsync(Guid id, Speedy.Models.PaperSize size);
+
+    Task<string> PrintAllLabelsAsync(PaperSize size);
 }

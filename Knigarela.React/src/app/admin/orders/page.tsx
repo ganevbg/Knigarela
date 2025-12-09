@@ -3,12 +3,12 @@
 import { DataTable, type DataTableConfig } from "@/components/admin/data-table"
 import { Badge } from "@/components/ui/badge"
 import { Order } from "@/types/api"
-import { getOrders, deleteOrder, createRequestsForNewOrders, getJobStatus } from "@/api/orders"
+import { getOrders, deleteOrder, createRequestsForNewOrders, printLabels, printAllLabels } from "@/api/orders"
 import { formatPrice } from "@/lib/utils"
 import { PaginationParams } from "@/types/common/PaginationParams"
 import { useState } from "react"
 import { JobStatus } from "@/components/job-status";
-import { Bus } from 'lucide-react'
+import { Bus, Printer } from 'lucide-react'
 
 const fetchOrders = async (params: PaginationParams<keyof Order>) => {
 
@@ -128,8 +128,34 @@ export default function AdminOrdersPage() {
                 icon: Bus,
                 onClick: () => createRequests(),
                 label: "Направи товарителници"
+            },
+            {
+                label: "Печатай A4",
+                icon: Printer,
+                onClick: async () => await printAllLabels("A4"),
+                className: "bg-[var(--knigarela-pink)] text-white hover:bg-[var(--knigarela-pink)]/90"
+            },
+            {
+                label: "Печатай A6",
+                icon: Printer,
+                onClick: async () => await printAllLabels("A6"),
+                className: "bg-[var(--knigarela-pink)] text-white hover:bg-[var(--knigarela-pink)]/90"
             }
-        ]
+        ],
+        customActions: [
+            {
+                icon: Printer,
+                label: "А4",
+                onClick: async (item: any) => await printLabels(item, "A4"),
+                variant: "outline"
+            },
+            {
+                icon: Printer,
+                label: "А6",
+                onClick: async (item: any) => await printLabels(item, "A6"),
+                variant: "outline"
+            },
+        ],
     }
 
     return <>

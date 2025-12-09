@@ -39,6 +39,7 @@ namespace Knigarela.Api.HangFire.Jobs.Shipment
                     var shipment = await _speedy.CreateShipmentAsync(order);
 
                     order.SpeedyId = shipment.Id;
+                    order.ParcelIds = shipment.Parcels?.Select(x => x.Id).ToArray();
                     order.DeliveryAmount = shipment.Price?.Total;
                     order.Status = OrderStatus.Processing;
 

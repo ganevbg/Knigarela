@@ -6,6 +6,7 @@ using Knigarela.Infrastructure.Data;
 using Knigarela.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Speedy.Models;
 using System.Data;
 
 namespace Knigarela.Services;
@@ -334,6 +335,28 @@ public class OrderService : IOrderService
         var parcels = order.Items.Sum(x => x.Quantity);
         var deliveryFee = await speedyService.CalculateAsync(parcels, parcels * 1, order.Items.Sum(x => x.Quantity * x.UnitPrice), order.Address);
         order.DeliveryAmount = deliveryFee?.Calculations?.FirstOrDefault()?.Price?.Total;
+    }
+
+    public async Task<string> PrintLabelsAsync(Guid id, Speedy.Models.PaperSize size)
+    {
+        var order = await _db.Orders.FindAsync(id);
+        if(order == null)
+        {
+            throw new Exception($"Order with id {id} not found!");
+        }
+
+        return await this.speedyService.PrintLabelsAsync(size, order.ParcelIds);
+    }
+
+    public async Task<string> PrintAllLabelsAsync(PaperSize size)
+    {
+        var orders = _db.Orders.Where(x => x.Status == OrderStatus.Processing);
+        if(orders == null || orders.Count() < 1)
+        {
+            throw new Exception("There are no Orders for proccessing");
+        }
+
+        return await this.speedyService.PrintLabelsAsync(size, orders.SelectMany(x => x.ParcelIds).ToArray());
     }
 }
 

@@ -1,14 +1,14 @@
 ﻿using AutoMapper;
 using Hangfire;
 using Knigarela.Api.Dtos.Cart;
-using Knigarela.Api.Dtos.Clients;
 using Knigarela.Api.Dtos.Orders;
 using Knigarela.Api.HangFire.Jobs.Shipment;
-using Knigarela.Core.Entities;
+using Knigarela.Core.Enums;
 using Knigarela.Core.Pagination;
 using Knigarela.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Speedy.Models;
 using System.Text.Json;
 
 namespace Knigarela.Api.Controllers.Admin;
@@ -119,6 +119,27 @@ public class OrderController : ControllerBase
 
         return Ok(new { jobId });
     }
+
+    [HttpPost("admin/print-labels/{id:guid}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> PrintLabels(Guid id, PaperSize size)
+    {
+        var file = await this._orderService.PrintLabelsAsync(id, size);
+
+        return Ok(new { file });
+    }
+
+    [HttpPost("admin/print-all-labels")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> PrintAllLabels(PaperSize size)
+    {
+        var base64 = await _orderService.PrintAllLabelsAsync(size);
+
+        var fileBytes = Convert.FromBase64String(base64);
+
+        return File(fileBytes, "application/pdf", $"labels.pdf");
+    }
+
 
     [HttpGet("job-status/{id}")]
     public IActionResult JobStatus(string id)

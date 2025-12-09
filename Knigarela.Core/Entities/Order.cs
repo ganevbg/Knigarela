@@ -25,4 +25,6 @@ public class Order : BaseEntity
     public OrderStatus Status { get; set; }
 
     public long OrderNumber { get; set; }
+
+    public string[]? ParcelIds { get; set; }
 }
