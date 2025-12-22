@@ -3,6 +3,9 @@
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+
 export default function LoginPage() {
     const router = useRouter();
     const { login, isAuthed } = useAuth();
@@ -10,6 +13,7 @@ export default function LoginPage() {
     const [password, setPassword] = useState("");
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
+    const [rememberMe, setRememberMe] = useState(false);
 
     // Handle submit
     async function handleSubmit(e: React.FormEvent) {
@@ -18,7 +22,7 @@ export default function LoginPage() {
         setLoading(true);
 
         try {
-            await login(email, password);
+            await login(email, password, rememberMe);
             router.push("/"); // redirect after login
         } catch (err: any) {
             setError(err?.message || "Невалиден имейл или парола");
@@ -48,23 +52,39 @@ export default function LoginPage() {
                     </h1>
 
                     <div className="space-y-4">
-                        <input
-                            type="email"
-                            placeholder="Имейл"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            required
-                            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D176A3]"
-                        />
+                        <div className="flex items-center gap-2">
+                            <input
+                                type="email"
+                                placeholder="Имейл"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                required
+                                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D176A3]"
+                            />
+                        </div>
 
-                        <input
-                            type="password"
-                            placeholder="Парола"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
-                            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D176A3]"
-                        />
+                        <div className="flex items-center gap-2">
+                            <input
+                                type="password"
+                                placeholder="Парола"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                required
+                                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D176A3]"
+                            />
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                            <Checkbox
+                                id="rememberMe"
+                                checked={rememberMe}
+                                onCheckedChange={(checked) => setRememberMe(checked as boolean)}
+                                className="border-[var(--knigarela-pink)] data-[state=checked]:bg-[var(--knigarela-pink)] data-[state=checked]:text-white"
+                            />
+                            <Label htmlFor="rememberMe" className="cursor-pointer text-[var(--knigarela-text)]">
+                                Запомни ме
+                            </Label>
+                        </div>
 
                         {error && <p className="text-sm text-red-600">{error}</p>}
 

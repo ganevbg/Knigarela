@@ -17,7 +17,7 @@ type AuthCtx = {
     accessToken: string | null;
     user: UserInfo | null;
     hydrated: boolean;
-    login: (email: string, password: string) => Promise<void>;
+    login: (email: string, password: string, remember: boolean) => Promise<void>;
     logout: () => Promise<void>;
 };
 
@@ -61,8 +61,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setHydrated(true); // ✅ prevents redirect flicker
     }, []);
 
-    async function login(email: string, password: string) {
-        await apiLogin(email, password);
+    async function login(email: string, password: string, remember: boolean) {
+        const tokens = await apiLogin(email, password);
+
+        tokenStore.set(tokens, remember);
+
         const token = tokenStore.access;
         setAccessToken(token);
         setUser(token ? decodeToken(token) : null);

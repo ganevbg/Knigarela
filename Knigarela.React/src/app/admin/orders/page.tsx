@@ -130,13 +130,13 @@ export default function AdminOrdersPage() {
                 label: "Направи товарителници"
             },
             {
-                label: "Печатай A4",
+                label: "A4",
                 icon: Printer,
                 onClick: async () => await printAllLabels("A4"),
                 className: "bg-[var(--knigarela-pink)] text-white hover:bg-[var(--knigarela-pink)]/90"
             },
             {
-                label: "Печатай A6",
+                label: "A6",
                 icon: Printer,
                 onClick: async () => await printAllLabels("A6"),
                 className: "bg-[var(--knigarela-pink)] text-white hover:bg-[var(--knigarela-pink)]/90"
