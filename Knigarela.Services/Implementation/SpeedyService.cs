@@ -352,8 +352,7 @@ public class SpeedyService : ISpeedyService
             AddressLocation = new AddressLocation
             {
                 CountryId = _settings.CountryId, // BG
-                SiteId = address.SiteId,
-                SiteName = address.SiteName
+                SiteId = address.SiteId
             }
         };
     }

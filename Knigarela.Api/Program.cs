@@ -173,8 +173,10 @@ builder.Services.AddCors(options =>
     });
 });
 
+builder.Services.AddHealthChecks();
 var app = builder.Build();
 
+app.MapHealthChecks("/health");
 app.UseHangfireDashboard("/hangfire");
 app.UseSwagger();
 app.UseSwaggerUI(c =>
