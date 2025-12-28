@@ -138,7 +138,7 @@ namespace Knigarela.Api.Mapping
             CreateMap<OrderAddress, ShipmentAddress>()
                 .ForMember(d => d.SiteId, opt => opt.MapFrom(src => src.SiteId))
                 .ForMember(d => d.SiteName, opt => opt.Ignore())
-                .ForMember(d => d.AddressLine1, opt => opt.MapFrom(src => src.AddressText));
+                .ForMember(d => d.AddressNote, opt => opt.MapFrom(src => src.AddressText));
 
             CreateMap<Order, ShipmentContent>()
                 .ForMember(d => d.ParcelsCount, opt => opt.MapFrom(src => src.Items!.Sum(i => i.Quantity)))
