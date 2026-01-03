@@ -161,6 +161,7 @@ public class SpeedyService : ISpeedyService
             ServiceId = _settings.ServiceId,
             PickupDate = DateTime.Now,
             AutoAdjustPickupDate = true,
+            SaturdayDelivery = true,
             AdditionalServices = new ShipmentAdditionalServices
             {
                 Cod = new ShipmentCODAdditionalService
@@ -226,6 +227,9 @@ public class SpeedyService : ISpeedyService
             Password = _settings.Password,
             Service = new CalculationService
             {
+                PickupDate = DateTime.Now,
+                AutoAdjustPickupDate = true,
+                SaturdayDelivery = true,
                 ServiceIds = new List<int> { _settings.ServiceId },
                 AdditionalServices = new ShipmentAdditionalServices
                 {
@@ -270,9 +274,27 @@ public class SpeedyService : ISpeedyService
             PropertyNameCaseInsensitive = true,
             Converters = { new SpeedyDateTimeConverter(), new JsonStringEnumConverter(JsonNamingPolicy.CamelCase, allowIntegerValues: true) }
         })!;
-        if (resp.IsSuccessStatusCode && result.Error == null)
+
+
+        if (resp.IsSuccessStatusCode && result.Error == null && result.Calculations != null && result.Calculations.All(x => x.Error == null))
         {
             return result;
+        }
+
+        if (result.Error == null)
+        {
+            var allErrors = result.Calculations?.Select(x => x.Error);
+            if (allErrors != null && allErrors.Any())
+            {
+                var sb = new StringBuilder();
+
+                foreach (var error in allErrors)
+                {
+                    sb.Append($"Speedy API Error: {error.Message}. Code={error.Code}, Id={error.Id}, Context={error.Context}, Component={error.Component}\n");
+                }
+
+                throw new Exception(sb.ToString());
+            }
         }
 
         throw new Exception($"Speedy API Error: {result.Error.Message}. Code={result.Error.Code}, Id={result.Error.Id}, Context={result.Error.Context}, Component={result.Error.Component}");
@@ -312,7 +334,7 @@ public class SpeedyService : ISpeedyService
             DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
             PropertyNameCaseInsensitive = true
         })!;
-        
+
         if (resp.IsSuccessStatusCode && result.Error == null)
         {
             return result.Data;

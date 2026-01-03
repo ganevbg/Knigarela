@@ -80,6 +80,15 @@ export function Footer() {
                             </li>
                             <li>
                                 <Link
+                                    href="/cookies"
+                                    className="text-sm font-light transition-colors hover:text-[var(--knigarela-pink)]"
+                                    style={{ color: "#6b6b6b" }}
+                                >
+                                    Политика за бисквитките
+                                </Link>
+                            </li>
+                            <li>
+                                <Link
                                     href="/contacts"
                                     className="text-sm font-light transition-colors hover:text-[var(--knigarela-pink)]"
                                     style={{ color: "#6b6b6b" }}

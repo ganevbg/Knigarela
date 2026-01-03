@@ -86,7 +86,6 @@ export default function AdminOrderFormPage() {
     useEffect(() => {
         if (isEdit) {
             const loadOrder = async () => {
-                debugger;
                 setLoading(true)
                 const data = await getAdminOrder(orderId)
                 setFormData({ ...data })

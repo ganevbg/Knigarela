@@ -2,6 +2,8 @@ import type React from "react"
 import type { Metadata } from "next"
 import { Poppins } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
+import CookieConsentProvider from "@/components/CookieConsentProvider";
+
 import "./globals.css"
 import { AuthProvider } from "@/context/AuthContext";
 import { CartProvider } from "@/context/CartContext";
@@ -34,7 +36,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                         <Footer />
                     </CartProvider>
                 </AuthProvider>
-                <Analytics />
+                <CookieConsentProvider />
+               {/* <Analytics />*/}
                 <ToastContainer
                     className="!mt-[70px] sm:!mt-[80px]"
                     position="top-right"

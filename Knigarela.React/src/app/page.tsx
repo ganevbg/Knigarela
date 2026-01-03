@@ -1,6 +1,6 @@
 ﻿"use client";
 import { ActiveBox } from "@/components/active-box";
-import { HeroVideo } from "@/components/hero-video";
+//import { HeroVideo } from "@/components/hero-video";
 import { PreviousBoxesCarousel } from "@/components/previous-boxes-carousel";
 
 export default function Home() {
@@ -8,7 +8,7 @@ export default function Home() {
         <>
             <section className="w-full">
                 <div className="mx-auto max-w-full">
-                    <HeroVideo />
+                    {/*<HeroVideo />*/}
                 </div>
             </section>
 

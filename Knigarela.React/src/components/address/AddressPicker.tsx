@@ -191,7 +191,7 @@ export default function AddressPicker({ value, onChange }: AddressPickerProps) {
                             onFocus={() => officeQuery.length >= 3 && setShowOfficeResults(true)}
                             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2"
                             style={{ "--tw-ring-color": "#D176A3" } as React.CSSProperties}
-                            placeholder="Започнете да пишете име на офис..."
+                            placeholder="Започнете да пишете име или номер на офис..."
                             autoComplete="off"
                             required={isCourier}
                         />

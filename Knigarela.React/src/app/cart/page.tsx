@@ -62,7 +62,7 @@ export default function CartPage() {
                                             className="w-full rounded-full py-3 font-medium text-white transition-all duration-300 hover:shadow-lg"
                                             style={{ backgroundColor: "#D176A3" }}
                                         >
-                                            Към плащане
+                                            Завършване на поръчката
                                         </Button>
                                     </a>
 

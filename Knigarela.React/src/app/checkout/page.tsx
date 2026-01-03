@@ -70,7 +70,6 @@ export default function CheckoutPage() {
     };
 
     useEffect(() => {
-        debugger;
         // ако адресът не е попълнен достатъчно → skip
         if (!formData.address.deliveryType) return;
 
@@ -79,14 +78,13 @@ export default function CheckoutPage() {
 
         // Example: за адресна — siteId + addressText
         if (formData.address.deliveryType === "personal") {
-            if (!formData.address.siteId || !formData.address.addressText) return;
+            if (!formData.address.siteId) return;
         }
 
         CheckDeliveryFee();
     }, [
         formData.address.siteId,
         formData.address.officeId,
-        formData.address.addressText,
         formData.address.deliveryType
     ]);
 
@@ -118,7 +116,6 @@ export default function CheckoutPage() {
                                                 onChange={handleChange}
                                                 className="w-full rounded-lg border border-gray-300 px-4 py-3 transition-all focus:ring-2 focus:outline-none"
                                                 style={{ "--tw-ring-color": "#D176A3" } as React.CSSProperties}
-                                                placeholder="Вашето пълно име"
                                             />
                                         </div>
                                         <div className="grid gap-4 md:grid-cols-2">

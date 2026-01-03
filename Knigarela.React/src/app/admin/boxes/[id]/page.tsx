@@ -304,7 +304,7 @@ export default function AdminBoxFormPage() {
                             {/* Single Price */}
                             <div className="space-y-2">
                                 <Label htmlFor="singlePrice" className="text-[var(--knigarela-text)]">
-                                    Единична Цена (лв.) <span className="text-red-500">*</span>
+                                    Единична Цена <span className="text-red-500">*</span>
                                 </Label>
                                 <Input
                                     id="singlePrice"
@@ -313,7 +313,6 @@ export default function AdminBoxFormPage() {
                                     min="0"
                                     value={formData.singlePrice}
                                     onChange={(e) => handleInputChange("singlePrice", e.target.value)}
-                                    placeholder="49.99"
                                     required
                                     className="border-gray-300"
                                 />
@@ -322,7 +321,7 @@ export default function AdminBoxFormPage() {
                             {/* Subscription Price */}
                             <div className="space-y-2">
                                 <Label htmlFor="subscriptionPrice" className="text-[var(--knigarela-text)]">
-                                    Абонаментна Цена (лв.) <span className="text-red-500">*</span>
+                                    Абонаментна Цена <span className="text-red-500">*</span>
                                 </Label>
                                 <Input
                                     id="subscriptionPrice"
@@ -331,7 +330,6 @@ export default function AdminBoxFormPage() {
                                     min="0"
                                     value={formData.subscriptionPrice}
                                     onChange={(e) => handleInputChange("subscriptionPrice", e.target.value)}
-                                    placeholder="44.99"
                                     required
                                     className="border-gray-300"
                                 />

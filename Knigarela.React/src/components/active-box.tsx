@@ -53,6 +53,7 @@ export function ActiveBox() {
         animation: "fadeIn 0.8s ease-out 0.4s forwards",
       }}
     >
+            <Link href={`/box/${box.slug}`}>
       <div className="flex flex-col md:flex-row">
         {/* Image Section */}
         <div className="relative md:w-1/2">
@@ -76,7 +77,6 @@ export function ActiveBox() {
             {box.description}
           </p>
           <div className="flex flex-col gap-4 sm:flex-row">
-            <Link href={`/box/${box.slug}`}>
               <Button
                 size="lg"
                 className="w-full rounded-full px-8 py-6 text-base font-medium text-white shadow-md transition-all duration-300 hover:shadow-lg sm:w-auto"
@@ -84,10 +84,10 @@ export function ActiveBox() {
               >
                 Виж повече
               </Button>
-            </Link>
           </div>
         </div>
       </div>
+            </Link>
     </div>
   );
 }

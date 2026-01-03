@@ -34,8 +34,8 @@ export function formatPrice(
     });
 
     if (showBothCurrencies) {
-        return `${formatterBGN.format(value)} (${formatterEUR.format(value / 1.95583)})`;
+        return `${formatterEUR.format(value)} (${formatterBGN.format(value / 0.51)})`;
     }
 
-    return formatterEUR.format(value / 1.95583);
+    return formatterEUR.format(value);
 }
