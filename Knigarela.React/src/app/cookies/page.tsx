@@ -9,10 +9,9 @@ export default function CookiesPage() {
     }
 
     return (
-        <div className="min-h-screen" style={{ backgroundColor: "var(--knigarela-bg)" }}>
             <div className="mx-auto max-w-4xl px-4 py-12 md:py-16">
                 {/* Header */}
-                <div className="mb-8 text-center">
+                <div className="mb-8">
                     <h1 className="mb-4 text-4xl font-bold text-balance" style={{ color: "var(--knigarela-pink)" }}>
                         🍪 Политика за бисквитки
                     </h1>
@@ -20,7 +19,7 @@ export default function CookiesPage() {
                 </div>
 
                 {/* Content */}
-                <div className="rounded-lg border bg-white p-6 shadow-sm md:p-8">
+                <div className="rounded-lg bg-white">
                     <div className="prose prose-sm max-w-none">
                         <p className="leading-relaxed text-gray-700">
                             Настоящата Политика за бисквитки описва как „Книгарела" използва бисквитки и подобни технологии на
@@ -135,6 +134,5 @@ export default function CookiesPage() {
                     </div>
                 </div>
             </div>
-        </div>
     )
 }

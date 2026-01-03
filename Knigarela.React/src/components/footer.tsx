@@ -51,6 +51,15 @@ export function Footer() {
                                     Често задавани въпроси
                                 </Link>
                             </li>
+                            <li>
+                                <Link
+                                    href="/contacts"
+                                    className="text-sm font-light transition-colors hover:text-[var(--knigarela-pink)]"
+                                    style={{ color: "#6b6b6b" }}
+                                >
+                                    Контакти
+                                </Link>
+                            </li>
                         </ul>
                     </div>
 
@@ -87,15 +96,7 @@ export function Footer() {
                                     Политика за бисквитките
                                 </Link>
                             </li>
-                            <li>
-                                <Link
-                                    href="/contacts"
-                                    className="text-sm font-light transition-colors hover:text-[var(--knigarela-pink)]"
-                                    style={{ color: "#6b6b6b" }}
-                                >
-                                    Контакти
-                                </Link>
-                            </li>
+                           
                         </ul>
                     </div>
 

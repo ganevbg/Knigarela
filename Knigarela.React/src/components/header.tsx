@@ -1,7 +1,9 @@
 ﻿"use client"
+import Link from "next/link"
 
 export function Header() {
     return (
+        <Link href="/" className="flex-shrink-0">
         <header className="w-full px-4 py-2" style={{ backgroundColor: "var(--knigarela-bg)" }}>
             <div className="mx-auto max-w-7xl text-center">
                 <div className="mb-2 flex justify-center">
@@ -9,6 +11,7 @@ export function Header() {
                 </div>
                 <p className="mt-2 text-xl font-light text-[#525252] md:text-2xl">Твоето приказно време започва тук.</p>
             </div>
-        </header>
+            </header>
+        </Link>
     )
 }

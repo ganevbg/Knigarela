@@ -1,7 +1,4 @@
 ﻿"use client"
-
-import { Button } from "@/components/ui/button"
-
 export default function PrivacyPage() {
     return (
         <div className="min-h-screen bg-background">

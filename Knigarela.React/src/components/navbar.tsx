@@ -28,7 +28,7 @@ export function Navbar() {
                         <Link href="/all-boxes" className="font-medium text-gray-700 transition-colors duration-200 hover:text-[#D176A3]">
                             Всички кутии
                         </Link>
-                        <Link href="#about" className="font-medium text-gray-700 transition-colors duration-200 hover:text-[#D176A3]">
+                        <Link href="/about" className="font-medium text-gray-700 transition-colors duration-200 hover:text-[#D176A3]">
                             За нас
                         </Link>
 
@@ -129,7 +129,7 @@ export function Navbar() {
                             Всички кутии
                         </Link>
                         <Link
-                            href="#about"
+                            href="/about"
                             className="block px-3 py-2 text-gray-700 transition-colors duration-200 hover:bg-gray-50 hover:text-[#D176A3]"
                             onClick={() => setMobileMenuOpen(false)}
                         >
