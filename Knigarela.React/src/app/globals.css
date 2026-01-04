@@ -157,3 +157,47 @@
 .carousel-container::-webkit-scrollbar {
   display: none;
 }
+
+/* Cookie Consent styling with Knigarela brand colors */
+/* Cookie Consent styling with Knigarela brand colors */
+:root {
+    /* Cookie Consent Light Theme */
+    --cc-bg: var(--knigarela-white);
+    --cc-primary-color: var(--knigarela-text);
+    --cc-secondary-color: var(--knigarela-text-light);
+    --cc-btn-primary-bg: var(--knigarela-pink);
+    --cc-btn-primary-color: var(--knigarela-white);
+    --cc-btn-primary-border-color: var(--cc-btn-primary-bg);
+    --cc-btn-primary-hover-bg: #b85d8a;
+    --cc-btn-primary-hover-color: var(--knigarela-white);
+    --cc-btn-primary-hover-border-color: var(--cc-btn-primary-hover-bg);
+    --cc-btn-secondary-bg: var(--knigarela-pink-light);
+    --cc-btn-secondary-color: var(--knigarela-text);
+    --cc-btn-secondary-border-color: var(--cc-btn-secondary-bg);
+    --cc-btn-secondary-hover-bg: #ffa8d8;
+    --cc-btn-secondary-hover-color: var(--knigarela-text);
+    --cc-btn-secondary-hover-border-color: #ffa8d8;
+    --cc-separator-border-color: var(--knigarela-pink-light);
+    --cc-toggle-on-bg: var(--knigarela-pink);
+    --cc-toggle-off-bg: #e8a2c4;
+    --cc-toggle-on-knob-bg: var(--knigarela-white);
+    --cc-toggle-off-knob-bg: var(--cc-toggle-on-knob-bg);
+    --cc-toggle-enabled-icon-color: var(--cc-bg);
+    --cc-toggle-disabled-icon-color: var(--cc-bg);
+    --cc-toggle-readonly-bg: #ffd4e7;
+    --cc-toggle-readonly-knob-bg: var(--knigarela-white);
+    --cc-toggle-readonly-knob-icon-color: var(--cc-toggle-readonly-bg);
+    --cc-section-category-border: var(--cc-cookie-category-block-bg);
+    --cc-cookie-category-block-bg: var(--knigarela-bg);
+    --cc-cookie-category-block-border: var(--knigarela-bg);
+    --cc-cookie-category-block-hover-bg: var(--knigarela-pink-light);
+    --cc-cookie-category-block-hover-border: var(--knigarela-pink-light);
+    --cc-cookie-category-expanded-block-bg: transparent;
+    --cc-cookie-category-expanded-block-hover-bg: var(--knigarela-bg);
+    /*--cc-overlay-bg: rgba(255, 207, 231, 0.65);*/
+    --cc-webkit-scrollbar-bg: var(--cc-section-category-border);
+    --cc-webkit-scrollbar-hover-bg: var(--knigarela-pink);
+    --cc-footer-bg: var(--knigarela-bg);
+    --cc-footer-color: var(--cc-secondary-color);
+    --cc-footer-border-color: var(--knigarela-pink-light);
+}
