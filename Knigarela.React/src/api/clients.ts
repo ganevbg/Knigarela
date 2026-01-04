@@ -39,6 +39,11 @@ export async function deleteClientById(id: string) {
      await api.delete(`/api/clients/${id}`);
 }
 
+export async function unSubscribeClient(id: string) {
+    await api.put(`/api/clients/unsubscribe/${id}`);
+}
+
+
 export async function getClientAddressesById(id: string, params: any) {
     const { data } = await api.post(`/api/admin/clients/${id}/addresses/query`, params);
     return data;

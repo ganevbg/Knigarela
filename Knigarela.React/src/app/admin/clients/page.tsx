@@ -2,14 +2,17 @@
 
 import { DataTable } from "@/components/admin/data-table"
 import { DataTableConfig } from "@/components/admin/data-table"
-import { getAllClients, deleteClientById, markNewAsOld } from "@/api/clients"
-import { MapPin, Merge } from 'lucide-react'
+import { getAllClients, deleteClientById, markNewAsOld, unSubscribeClient } from "@/api/clients"
+import { MapPin, Merge, Undo } from 'lucide-react'
 import { ClientAllDto } from "@/types/api"
 import { PaginationParams } from "@/types/common/PaginationParams"
 import { toast } from "react-toastify";
 import { useState } from "react"
+import { useRouter } from "next/navigation";
 
 export default function AdminClientsPage() {
+    const router = useRouter();
+
     const [reloadKey, setReloadKey] = useState(0);
 
     const fetchClients = async (params: PaginationParams<keyof ClientAllDto>) => {
@@ -23,6 +26,15 @@ export default function AdminClientsPage() {
 
     async function deleteClient(id: string) {
         await deleteClientById(id);
+    }
+
+    async function unSubscribe(id: string) {
+        await unSubscribeClient(id);
+
+        toast.success("Успешно прекратяване на абонамент!")
+        router.push(`clients`);
+
+        setReloadKey(v => v + 1);
     }
 
     async function markNewOnesAsOld() {
@@ -125,6 +137,10 @@ export default function AdminClientsPage() {
                 icon: MapPin,
                 href: (client) => `/admin/clients/${client?.id}/addresses`,
             },
+            {
+                icon: Undo,
+                onClick: (client) => unSubscribe(client?.id as string),
+            }
         ],
         massCustomActions: [
             {

@@ -120,6 +120,8 @@ public class ClientService : IClientService
         existing.Email = updated.Email;
         existing.Phone = updated.Phone;
         existing.SubscriptionDate = updated.SubscriptionDate.HasValue ? updated.SubscriptionDate.Value : existing.SubscriptionDate;
+        existing.IsNewSubscriber = updated.SubscriptionDate.HasValue;
+        existing.IsSubscribed = updated.SubscriptionDate.HasValue;
         existing.UpdatedAt = DateTime.UtcNow;
 
         await _db.SaveChangesAsync();
@@ -197,5 +199,20 @@ public class ClientService : IClientService
         }
 
         return await _db.SaveChangesAsync().ContinueWith(t => t.Result > 0);
+    }
+
+    public async Task<bool> UnsubscribeAsync(Guid id)
+    {
+        var existing = await _db.Clients
+            .FirstOrDefaultAsync(c => c.Id == id);
+
+        if (existing == null) return false;
+
+        existing.SubscriptionDate = null;
+        existing.IsSubscribed = false;
+        existing.IsNewSubscriber = false;
+        existing.SubscriptionCancellationCount++;
+
+       return await _db.SaveChangesAsync().ContinueWith(t => t.Result > 0);
     }
 }

@@ -18,5 +18,7 @@ namespace Knigarela.Services.Interfaces
         Task<bool> DeleteAsync(Guid id);
 
         Task<bool> MarkNewAsOldAsync();
+
+        Task<bool> UnsubscribeAsync(Guid id);
     }
 }

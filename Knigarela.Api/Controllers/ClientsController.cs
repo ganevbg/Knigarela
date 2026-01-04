@@ -90,6 +90,7 @@ public class ClientsController : ControllerBase
     }
 
     [HttpPost("subscribe")]
+    [AllowAnonymous]
     public async Task<IActionResult> Subscribe([FromBody] CreateOrderFromCartRequest req)
     {
         var client = this.mapper.Map<Client>(req);
@@ -99,5 +100,14 @@ public class ClientsController : ControllerBase
         var result = await _clientService.FindOrCreateClientAsync(client);
 
         return Ok(result);
+    }
+
+    [HttpPut("unsubscribe/{id}")]
+    public async Task<IActionResult> Unsubscribe(Guid id)
+    {
+        var ok = await _clientService.UnsubscribeAsync(id);
+        if (!ok)
+            return NotFound();
+        return NoContent();
     }
 }
