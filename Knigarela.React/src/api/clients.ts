@@ -1,4 +1,5 @@
 import { api } from "@/lib/api";
+import { Checkout } from "@/types/api"
 
 export async function getAllClients(params:any) {
     const { data } = await api.post("/api/clients/admin/query", params);
@@ -85,4 +86,26 @@ export async function deleteClientAddressById(clientId: string, id: string) {
 
 export async function markNewAsOld() {
     await api.post(`/api/clients/markNewAsOld`);
+}
+
+export async function subscribe(formData: Checkout) {
+
+    var req = {
+        FullName: formData.name,
+        Email: formData.email,
+        Phone: formData.phone,
+        Address:
+        {
+            deliveryType: formData.address.deliveryType,
+            siteId: formData.address.siteId || null,
+            siteName: formData.address.siteName,
+            addressText: formData.address.addressText,
+            officeId: formData.address.officeId || null,
+            officeName: formData.address.officeName,
+            isDefault: formData.address.isDefault || true,
+        }
+    };
+
+    const { data } = await api.post(`/api/clients/subscribe`, req);
+    return data;
 }

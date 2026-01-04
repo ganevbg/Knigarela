@@ -5,12 +5,15 @@ using Knigarela.Infrastructure.Data;
 using Knigarela.Services;
 using Knigarela.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using System.Net;
 using System.Text.RegularExpressions;
 
 public class ClientService : IClientService
 {
     private readonly KnigarelaDbContext _db;
     private readonly ISpeedyService _speedy;
+    private readonly IClientAddressService clientAddressService;
+
     private static readonly Regex PhoneRegex =
         new(@"^(0\d{9}|\+359\d{9}|00359\d{9})$", RegexOptions.Compiled);
 
@@ -26,27 +29,28 @@ public class ClientService : IClientService
         ["phone"] = (q, v) =>
             string.IsNullOrWhiteSpace(v) ? q :
             q.Where(c => c.Phone!.Contains(v)),
-        ["isSubscriber"] = (q, v) =>
+        ["isSubscribed"] = (q, v) =>
             v == "all" ? q :
-            v == "true" ? q.Where(c => c.SubscriptionDate != null) :
-            q.Where(c => c.SubscriptionDate == null),
+            v == "true" ? q.Where(c => c.IsSubscribed) :
+            q.Where(c => !c.IsSubscribed),
         ["isNewSubscriber"] = (q, v) =>
             v == "all" ? q :
             v == "true" ? q.Where(c => c.IsNewSubscriber) :
             q.Where(c => !c.IsNewSubscriber),
     };
 
-    public ClientService(KnigarelaDbContext db, ISpeedyService speedy)
+    public ClientService(KnigarelaDbContext db, ISpeedyService speedy, IClientAddressService clientAddressService)
     {
         _db = db;
         _speedy = speedy;
+        this.clientAddressService = clientAddressService;
     }
 
     public async Task<Client> FindOrCreateClientAsync(Client model)
     {
-        var normName = model.FullName.Trim().ToLowerInvariant();
-        var normEmail = model.Email?.Trim().ToLowerInvariant();
-        var normPhone = NormalizePhone(model.Phone);
+        var normName = model?.FullName?.Trim().ToLowerInvariant();
+        var normEmail = model?.Email?.Trim().ToLowerInvariant();
+        var normPhone = NormalizePhone(model?.Phone);
         var normPhoneDigits = Regex.Replace(normPhone, @"\D", "");
 
         var existing = await _db.Clients
@@ -54,12 +58,31 @@ public class ClientService : IClientService
                 EF.Property<string>(c, "email_normalized") == normEmail ||
                 EF.Property<string>(c, "phone_normalized") == normPhoneDigits)
             .Where(c => EF.Property<string>(c, "fullname_normalized") == normName)
+            .Include(x => x.Addresses)
             .FirstOrDefaultAsync();
 
         if (existing != null)
+        {
+            var tmpAddress = model?.Addresses?.FirstOrDefault();
+            if (existing.Addresses != null && tmpAddress != null && !existing.Addresses.Contains(tmpAddress, new ClientAddressComparer()))
+            {
+                await clientAddressService.AddAsync(existing.Id, tmpAddress);
+            }
+
+            if (existing.SubscriptionDate == null)
+            {
+                existing.SubscriptionDate = model?.SubscriptionDate;
+                existing.IsNewSubscriber = model?.SubscriptionDate.HasValue == true;
+                existing.IsSubscribed = model?.SubscriptionDate.HasValue == true;
+            }
+
+            await _db.SaveChangesAsync();
+
             return existing;
+        }
 
         model.Phone = normPhone;
+
         return await CreateClientAsync(model);
     }
 
@@ -81,6 +104,7 @@ public class ClientService : IClientService
     public async Task<Client> CreateAsync(Client client)
     {
         client.IsNewSubscriber = client.SubscriptionDate.HasValue;
+        client.IsSubscribed = client.SubscriptionDate.HasValue;
         return await CreateClientAsync(client);
     }
 

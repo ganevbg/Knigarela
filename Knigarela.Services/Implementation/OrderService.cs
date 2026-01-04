@@ -161,7 +161,7 @@ public class OrderService : IOrderService
             if (issues.Count > 0)
                 return new CreateOrderResult(null, issues);
 
-            // Build client + order
+            DateOnly? subDate = items.Any(x => x.type == PurchaseType.Subscription) ? DateOnly.FromDateTime(DateTime.UtcNow) : null;
             var client = await _clientService.FindOrCreateClientAsync(
                 new Client
                 {
@@ -172,8 +172,9 @@ public class OrderService : IOrderService
                     {
                         _mapper.Map<ClientAddress>(address)
                     },
-                    SubscriptionDate = items.Any(x => x.type == PurchaseType.Subscription) ? DateOnly.FromDateTime(DateTime.UtcNow) : null,
-                    IsNewSubscriber = items.Any(x => x.type == PurchaseType.Subscription)
+                    SubscriptionDate = subDate,
+                    IsNewSubscriber = subDate.HasValue,
+                    IsSubscribed = subDate.HasValue,
                 });
             var order = new Order
             {
@@ -280,6 +281,8 @@ public class OrderService : IOrderService
             foreach (var (boxId, quantity, _) in items)
                 boxes[boxId].Count -= quantity;
 
+            DateOnly? subDate = items.Any(x => x.type == PurchaseType.Subscription) ? DateOnly.FromDateTime(DateTime.UtcNow) : null;
+
             var client = await _clientService.FindOrCreateClientAsync(
                 new Client
                 {
@@ -290,7 +293,9 @@ public class OrderService : IOrderService
                     {
                         _mapper.Map<ClientAddress>(address)
                     },
-                    IsNewSubscriber = items.Any(x => x.type == PurchaseType.Subscription)
+                    IsNewSubscriber = subDate.HasValue,
+                    IsSubscribed = subDate.HasValue,
+                    SubscriptionDate = subDate
                 });
 
             var order = new Order

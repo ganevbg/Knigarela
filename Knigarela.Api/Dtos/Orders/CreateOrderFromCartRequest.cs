@@ -11,7 +11,6 @@
         public string? Phone { get; set; }
 
         public OrderAddress? Address { get; set; }
-
-        public string? Notes { get; set; }
+        ////public string? Notes { get; set; }
     }
 }

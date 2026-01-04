@@ -53,6 +53,18 @@ public class ClientAddressService : IClientAddressService
         if (!hasDefault)
             address.IsDefault = true;
 
+        if (address.IsDefault)
+        {
+            var otherAddresses = await _db.ClientAddresses
+                .Where(a => a.ClientId == address.ClientId && a.Id != address.Id)
+                .ToListAsync();
+
+            foreach (var item in otherAddresses)
+            {
+                item.IsDefault = false;
+            }
+        }
+
         _db.ClientAddresses.Add(address);
         await _db.SaveChangesAsync();
         return address;

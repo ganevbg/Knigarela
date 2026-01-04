@@ -3,7 +3,6 @@ using Hangfire;
 using Knigarela.Api.Dtos.Cart;
 using Knigarela.Api.Dtos.Orders;
 using Knigarela.Api.HangFire.Jobs.Shipment;
-using Knigarela.Core.Enums;
 using Knigarela.Core.Pagination;
 using Knigarela.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -39,7 +38,7 @@ public class OrderController : ControllerBase
              req.Phone,
              req.Address,
              req.Items.Select(i => (i.BoxId, i.Quantity, i.PurchaseType)).ToList(),
-             req.Notes,
+             null,
              useLock: true
          );
 
@@ -103,7 +102,7 @@ public class OrderController : ControllerBase
             req.Phone,
             req.Address,
             items.Select(i => (i.BoxId, i.Quantity, i.PurchaseType)).ToList(),
-            req.Notes
+            null
         );
 
         if (!result.Success)

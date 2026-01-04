@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Knigarela.Api.Dtos.Clients;
+using Knigarela.Api.Dtos.Orders;
 using Knigarela.Core.Entities;
 using Knigarela.Core.Pagination;
 using Knigarela.Services.Interfaces;
@@ -86,5 +87,17 @@ public class ClientsController : ControllerBase
             return NotFound();
 
         return NoContent();
+    }
+
+    [HttpPost("subscribe")]
+    public async Task<IActionResult> Subscribe([FromBody] CreateOrderFromCartRequest req)
+    {
+        var client = this.mapper.Map<Client>(req);
+        client.IsNewSubscriber = true;
+        client.IsSubscribed = true;
+
+        var result = await _clientService.FindOrCreateClientAsync(client);
+
+        return Ok(result);
     }
 }

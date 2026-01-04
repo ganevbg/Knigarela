@@ -93,7 +93,7 @@ export default function AdminClientsPage() {
                 placeholder: "Търсене по телефон...",
             },
             {
-                key: "isSubscriber",
+                key: "isSubscribed",
                 label: "Абонат",
                 type: "select",
                 defaultValue: "all",
