@@ -66,6 +66,8 @@ public class BoxService : IBoxService
         while (await _db.Boxes.AnyAsync(x => x.Slug == box.Slug))
             box.Slug = $"{originalSlug}-{counter++}";
 
+        await RemoveActiveBoxFlagAsync(box);
+
         _db.Boxes.Add(box);
         await _db.SaveChangesAsync();
         return box;
@@ -75,6 +77,8 @@ public class BoxService : IBoxService
     {
         var existing = await _db.Boxes.FindAsync(id);
         if (existing == null) return null;
+
+        await RemoveActiveBoxFlagAsync(box);
 
         existing.Title = box.Title;
         existing.Description = box.Description;
@@ -128,5 +132,15 @@ public class BoxService : IBoxService
     public async Task<PagedResult<Box>> QueryAsync(DataQuery<string> query)
     {
         return await DynamicQuery.ApplyAsync(_db.Boxes.AsQueryable(), query, b => b, _filterMap);
+    }
+
+    private async Task RemoveActiveBoxFlagAsync(Box box)
+    {
+        if (box.IsActive)
+        {
+            await _db.Boxes
+            .Where(x => x.IsActive)
+            .ExecuteUpdateAsync(s => s.SetProperty(b => b.IsActive, false));
+        }
     }
 }
