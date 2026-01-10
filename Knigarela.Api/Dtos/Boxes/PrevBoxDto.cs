@@ -1,4 +1,6 @@
-﻿namespace Knigarela.Api.Dtos.Boxes;
+﻿using Knigarela.Core.Entities;
+
+namespace Knigarela.Api.Dtos.Boxes;
 
 public class PrevBoxDto
 {
@@ -6,5 +8,5 @@ public class PrevBoxDto
 
     public string? Slug { get; set; }
 
-    public string? MainImageUrl { get; set; }
+    public BoxImageDto? MainImage { get; set; }
 }

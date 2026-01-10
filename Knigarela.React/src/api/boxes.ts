@@ -24,7 +24,7 @@ export async function getBoxBySlug(slug: string) : Promise<Box> {
         count: data.count,
         isActive: data.isActive,
         slug: data.slug,
-        mainImageUrl: data.mainImageUrl,
+        mainImage: data.mainImage,
         available: data.available,
         images: images
     };

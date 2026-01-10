@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { useEffect, useState } from "react";
 import { getAllBoxes } from "@/api/boxes";
-import { resolveImageUrl } from "@/lib/utils";
+import { ResponsiveImg } from "@/components/responsiveImg";
 import { Box } from "@/types/api";
 export default function AllBoxesPage() {
 
@@ -51,11 +51,7 @@ export default function AllBoxesPage() {
                             <Link key={box.slug} href={`/box/${box.slug}`} className="group">
                                 <div className="overflow-hidden rounded-lg bg-white shadow-md transition-all duration-300 group-hover:scale-105 group-hover:shadow-xl">
                                     <div className="relative aspect-[3/4] overflow-hidden">
-                                        <img
-                                            src={resolveImageUrl(box.mainImageUrl) || "/placeholder.svg"}
-                                            alt={box.title}
-                                            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
-                                        />
+                                        <ResponsiveImg image={box.mainImage} alt={box.title} sizes={"max-width: 768px) 90vw, (max-width: 1024px) 45vw, 30vw"} className={"h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"} />
                                     </div>
                                     <div className="p-6">
                                         <h3 className="mb-2 text-xl font-semibold" style={{ color: "#2d2d2d" }}>

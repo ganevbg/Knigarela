@@ -4,7 +4,7 @@ export interface Box {
     id: string;
     title: string;
     slug: string;
-    mainImageUrl: string;
+    mainImage: BoxImage;
     available: boolean;
     description: string;
     singlePrice: number;

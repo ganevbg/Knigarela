@@ -2,7 +2,7 @@
 import { CheckCircle2, Package, Mail, MapPin } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { getOrder } from "@/api/orders"
-import { resolveImageUrl } from "@/lib/utils";
+import { ResponsiveImg } from "@/components/responsiveImg";
 import { formatPrice } from "@/lib/utils"
 
 export default async function OrderSuccessPage({ params }: { params: { id: string } }) {
@@ -123,11 +123,7 @@ export default async function OrderSuccessPage({ params }: { params: { id: strin
                             <div className="space-y-4">
                                 {order.items.map((item: any) => (
                                     <div key={item.boxId} className="flex gap-4 border-b pb-4 last:border-b-0">
-                                        <img
-                                            src={resolveImageUrl(item.imageUrl) || "/placeholder.svg"}
-                                            alt={item.title}
-                                            className="h-20 w-20 rounded-lg object-cover"
-                                        />
+                                        <ResponsiveImg image={item.image} alt={`Product ${item.title}`} sizes={"80px"} className={"h-20 w-20 rounded-lg object-cover"} />
                                         <div className="flex-1">
                                             <h3 className="font-semibold text-[var(--knigarela-text)]">{item.title}</h3>
                                             <p className="text-sm text-[var(--knigarela-text-light)]">{`${item.purchaseTypeText} - ${item.quantity} бр.`}</p>

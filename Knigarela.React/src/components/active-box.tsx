@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { getActiveBox } from "@/api/boxes";
-import { resolveImageUrl } from "@/lib/utils";
+import { ResponsiveImg } from "@/components/responsiveImg";
 import { Box } from "@/types/api";
 export function ActiveBox() {
   const [box, setBox] = useState<Box | null>(null);
@@ -43,7 +43,6 @@ export function ActiveBox() {
   // pick main or first image
   // optional: extract month/year if you store CreatedAt
   const label ="Текуща кутия";
-    const imgUrl = resolveImageUrl(box.mainImageUrl);
   return (
     <div
       className="animate-fade-in overflow-hidden bg-white shadow-lg"
@@ -58,7 +57,7 @@ export function ActiveBox() {
         {/* Image Section */}
         <div className="relative md:w-1/2">
           <div className="relative aspect-square md:aspect-auto md:h-full">
-                      <img src={imgUrl} alt={box.title} className="h-full w-full object-cover" />
+                          <ResponsiveImg image={box.mainImage} alt={`Product ${box.title}`} sizes={"(max-width: 768px) 100vw, 50vw"} className={"h-full w-full object-cover"} />
             <div
               className="absolute top-4 right-4 rounded-full px-4 py-2 text-sm font-medium text-white shadow-md"
               style={{ backgroundColor: "#D176A3" }}

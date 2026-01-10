@@ -14,7 +14,6 @@ export function resolveImageUrl(url: string) {
     return url;
 }
 
-
 export function formatPrice(
     value: number,
     showBothCurrencies: boolean = false

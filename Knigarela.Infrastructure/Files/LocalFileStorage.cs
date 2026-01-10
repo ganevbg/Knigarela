@@ -1,5 +1,6 @@
 ﻿using Knigarela.Core.Interfaces;
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats.Webp;
 using SixLabors.ImageSharp.Processing;
 
 namespace Knigarela.Infrastructure.Files;
@@ -74,5 +75,62 @@ public class LocalFileStorage : IFileStorage
 
         var relative = $"/uploads/{folder.Replace("\\", "/")}/thumbs/{thumbName}";
         return relative;
+    }
+
+    public async Task<(string thumbUrl, string mediumUrl, string largeUrl)> SaveImageVariantsAsync(
+    Stream fileStream,
+    string folder,
+    string baseNameNoExt,
+    int thumbW = 480,
+    int mediumW = 1024,
+    int largeW = 1920)
+    {
+        folder = folder.TrimStart('/', '\\');
+        var dir = Path.Combine(_settings.RootPath, folder);
+        Directory.CreateDirectory(dir);
+
+        if (fileStream.CanSeek) fileStream.Position = 0;
+        using var image = await Image.LoadAsync(fileStream);
+
+        // важни: ориентация + махане на метаданни (по-малък файл)
+        image.Mutate(x => x.AutoOrient());
+        image.Metadata.ExifProfile = null;
+
+        var thumbUrl = await SaveVariantAsync(image, $"{baseNameNoExt}_thumb", thumbW, quality: 78, folder, dir);
+        var mediumUrl = await SaveVariantAsync(image, $"{baseNameNoExt}_medium", mediumW, quality: 82, folder, dir);
+        var largeUrl = await SaveVariantAsync(image, $"{baseNameNoExt}_large", largeW, quality: 85, folder, dir);
+
+        return (thumbUrl, mediumUrl, largeUrl);
+    }
+
+    private async Task<string> SaveVariantAsync(Image src, string name, int maxW, int quality, string folder, string dir)
+    {
+        using var clone = src.Clone(ctx =>
+        {
+            // не upscale-вай малки изображения
+            if (src.Width > maxW)
+            {
+                ctx.Resize(new ResizeOptions
+                {
+                    Mode = ResizeMode.Max,
+                    Size = new Size(maxW, 0),
+                    Sampler = KnownResamplers.Lanczos3,
+                    Compand = true
+                })
+                .GaussianSharpen(0.2f);
+            }
+        });
+
+        var fileName = $"{name}.webp";
+        var path = Path.Combine(dir, fileName);
+
+        var encoder = new WebpEncoder
+        {
+            Quality = quality,
+            FileFormat = WebpFileFormatType.Lossy
+        };
+
+        await clone.SaveAsync(path, encoder);
+        return $"/uploads/{folder.Replace("\\", "/")}/{fileName}";
     }
 }

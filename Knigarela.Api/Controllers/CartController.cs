@@ -1,4 +1,6 @@
-﻿using Knigarela.Api.Dtos.Cart;
+﻿using AutoMapper;
+using Knigarela.Api.Dtos.Boxes;
+using Knigarela.Api.Dtos.Cart;
 using Knigarela.Core.Entities;
 using Knigarela.Infrastructure.Data;
 using Knigarela.Services.Interfaces;
@@ -14,11 +16,12 @@ public class CartController : ControllerBase
     private readonly IBoxService boxService;
     private readonly ISpeedyService speedyService;
     private const string SessionKey = "CartItems";
-
-    public CartController(KnigarelaDbContext db, IBoxService boxService, ISpeedyService speedyService)
+    private readonly IMapper mapper;
+    public CartController(KnigarelaDbContext db, IBoxService boxService, ISpeedyService speedyService, IMapper mapper)
     {
         this.boxService = boxService;
         this.speedyService = speedyService;
+        this.mapper = mapper;
     }
 
     [HttpGet]
@@ -64,7 +67,7 @@ public class CartController : ControllerBase
                 Title = box.Title,
                 Quantity = cartItem.Quantity,
                 UnitPrice = box.GetPrice(cartItem.PurchaseType),
-                ImageUrl = box.Images.FirstOrDefault(x => x.IsMain)?.Url ?? "",
+                Image = mapper.Map<BoxImageDto>(box.Images?.FirstOrDefault(x => x.IsMain)),
                 PurchaseType = cartItem.PurchaseType,
             });
         }

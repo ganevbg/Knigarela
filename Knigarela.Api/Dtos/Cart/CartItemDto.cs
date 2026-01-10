@@ -1,4 +1,5 @@
-﻿using Knigarela.Core.Enums;
+﻿using Knigarela.Api.Dtos.Boxes;
+using Knigarela.Core.Enums;
 
 namespace Knigarela.Api.Dtos.Cart
 {
@@ -12,7 +13,7 @@ namespace Knigarela.Api.Dtos.Cart
         
         public int Quantity { get; set; }
 
-        public string? ImageUrl { get; set; }
+        public BoxImageDto? Image { get; set; }
 
         public PurchaseType PurchaseType { get; set; }
 

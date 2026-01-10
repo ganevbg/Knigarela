@@ -13,4 +13,6 @@ public class BoxImage : BaseEntity
     public int SortOrder { get; set; }
 
     public Box? Box { get; set; }
+
+    public string? LargeUrl { get; set; }
 }

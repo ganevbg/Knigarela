@@ -6,13 +6,8 @@ import { Button } from "@/components/ui/button"
 import { getNotActiveBoxes } from "@/api/boxes";
 import { useEffect, useState } from "react";
 import Link from "next/link"
-import { resolveImageUrl } from "@/lib/utils";
-
-type Box = {
-    title: string;
-    slug: string;
-    mainImageUrl: string;
-};
+import { ResponsiveImg } from "@/components/responsiveImg";
+import { Box } from "@/types"
 
 export function PreviousBoxesCarousel() {
     const carouselRef = useRef<HTMLDivElement>(null)
@@ -106,11 +101,7 @@ export function PreviousBoxesCarousel() {
                         >
                             <div className="overflow-hidden bg-white shadow-md transition-all duration-300 group-hover:scale-105 group-hover:shadow-xl">
                                 <div className="relative aspect-[3/4] overflow-hidden">
-                                    <img
-                                        src={resolveImageUrl(box.mainImageUrl) || "/placeholder.svg"}
-                                        alt={box.title}
-                                        className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
-                                    />
+                                    <ResponsiveImg image={box.mainImage} alt={`Product ${box.title}`} sizes={"256px"} className={"h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"} />
                                 </div>
                                 <div className="p-4">
                                     <h3 className="text-lg font-semibold" style={{ color: "#2d2d2d" }}>

@@ -28,12 +28,13 @@ public class BoxImageService : IBoxImageService
 
         var folderName = Path.Combine("boxes", box.Id.ToString());
 
-        var relUrl = await _storage.SaveFileAsync(content, fileName, folderName);
+        // вместо да пазиш 7.jpg -> правиш 3 webp variants
+        var baseName = Path.GetFileNameWithoutExtension(fileName);
+        var safeBase = $"{baseName}_{Guid.NewGuid():N}";
 
-        // reset stream and create thumbnail
-        if (content.CanSeek)
-            content.Position = 0;
-        var thumbUrl = await _storage.SaveThumbnailAsync(content, fileName, folderName);
+        if (content.CanSeek) content.Position = 0;
+        var (thumbUrl, mediumUrl, largeUrl) =
+            await _storage.SaveImageVariantsAsync(content, folderName, safeBase);
 
         if (isMain)
         {
@@ -49,10 +50,11 @@ public class BoxImageService : IBoxImageService
         var img = new BoxImage
         {
             BoxId = boxId,
-            Url = relUrl,
-            ThumbnailUrl = thumbUrl,
+            Url = mediumUrl,            // <= вече е оптимизирана “нормална” снимка
+            ThumbnailUrl = thumbUrl,    // <= оптимизиран thumb
             IsMain = isMain,
-            SortOrder = sortOrder ?? (maxOrder + 1)
+            SortOrder = sortOrder ?? (maxOrder + 1),
+            LargeUrl = largeUrl
         };
 
         _db.Add(img);

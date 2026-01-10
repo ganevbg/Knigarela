@@ -4,7 +4,6 @@ import type React from "react";
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,10 +19,10 @@ import {
     setMainImage,
 } from "@/api/boxImages";
 
-import { resolveImageUrl } from "@/lib/utils";
 import { BoxFormData } from "@/types/forms/BoxFormData";
 import { BoxImage } from "@/types/api/BoxImage";
 import { Box } from "@/types/api/Box";
+import { ResponsiveImg } from "@/components/responsiveImg";
 
 export default function AdminBoxFormPage() {
     const router = useRouter();
@@ -86,7 +85,7 @@ export default function AdminBoxFormPage() {
         setFormData((prev) => ({ ...prev, [field]: value }));
     };
 
-  
+
     // Ensure box exists before uploading
     const ensureBoxExists = async (): Promise<string> => {
         if (formData.id) return formData.id;
@@ -404,12 +403,7 @@ export default function AdminBoxFormPage() {
                                             }`}
                                     >
                                         <div className="relative aspect-square bg-gray-100">
-                                            <Image
-                                                src={resolveImageUrl(image.url) || "/placeholder.svg"}
-                                                alt={`Product ${index + 1}`}
-                                                fill
-                                                className="object-cover"
-                                            />
+                                            <ResponsiveImg image={image} alt={`Product ${index + 1}`} sizes={"(max-width: 640px) 45vw, (max-width: 1024px) 22vw, 160px"} className={"absolute inset-0 w-full h-full object-cover"} />
                                         </div>
 
                                         {/* Order Badge */}

@@ -29,11 +29,10 @@ namespace Knigarela.Api.Mapping
                                 .OrderBy(x => x.SortOrder)
                                 .Select(i => i.Url)
                             : []))
-                .ForMember(dest => dest.MainImageUrl,
+                .ForMember(dest => dest.MainImage,
                     opt => opt.MapFrom((src, dest) =>
                         src.Images?
-                           .FirstOrDefault(i => i.IsMain)?
-                           .Url));
+                           .FirstOrDefault(i => i.IsMain)));
 
             CreateMap<Box, ActiveBoxDto>()
                 .ForMember(dest => dest.Description,
@@ -41,26 +40,23 @@ namespace Knigarela.Api.Mapping
                         !string.IsNullOrEmpty(src.Description) && src.Description.Length > 200
                             ? $"{src.Description[..200]}..."
                             : src.Description))
-                .ForMember(dest => dest.MainImageUrl,
+                .ForMember(dest => dest.MainImage,
                     opt => opt.MapFrom((src, dest) =>
                         src.Images?
-                           .FirstOrDefault(i => i.IsMain)?
-                           .Url));
+                           .FirstOrDefault(i => i.IsMain)));
 
             CreateMap<Box, PrevBoxDto>()
-                .ForMember(dest => dest.MainImageUrl,
+                .ForMember(dest => dest.MainImage,
                     opt => opt.MapFrom((src, dest) =>
                         src.Images?
-                           .FirstOrDefault(i => i.IsMain)?
-                           .Url));
+                           .FirstOrDefault(i => i.IsMain)));
 
             CreateMap<Box, AllBoxDto>()
                .ForMember(dest => dest.Available, opt => opt.MapFrom(src => src.Count > 0))
-               .ForMember(dest => dest.MainImageUrl,
+               .ForMember(dest => dest.MainImage,
                    opt => opt.MapFrom((src, dest) =>
                        src.Images?
-                          .FirstOrDefault(i => i.IsMain)?
-                          .Url));
+                          .FirstOrDefault(i => i.IsMain)));
 
             CreateMap<Order, OrderByIdDto>()
                .ForMember(dest => dest.Email,
@@ -97,12 +93,11 @@ namespace Knigarela.Api.Mapping
                    opt => opt.MapFrom(src => src.BoxId))
                .ForMember(dest => dest.Title,
                    opt => opt.MapFrom((src, dest) => src.Box?.Title))
-               .ForMember(dest => dest.ImageUrl,
+               .ForMember(dest => dest.Image,
                    opt => opt.MapFrom((src, dest) =>
                        src.Box?
                           .Images?
-                          .FirstOrDefault(x => x.IsMain)?
-                          .ThumbnailUrl));
+                          .FirstOrDefault(x => x.IsMain)));
 
             CreateMap<Client, ClientAllDto>()
                .ForMember(dest => dest.DefaultAddress,
@@ -155,6 +150,9 @@ namespace Knigarela.Api.Mapping
               .ForMember(d => d.Phone, opt => opt.MapFrom(src => src.Phone))
               .ForMember(d => d.SubscriptionDate, opt => opt.MapFrom(src => DateOnly.FromDateTime(DateTime.UtcNow)))
               .ForMember(d => d.Addresses, opt => opt.MapFrom(src => new List<BaseAddress> { src.Address }));
+
+            CreateMap<BoxImage, BoxImageDto>();
+
         }
     }
 }

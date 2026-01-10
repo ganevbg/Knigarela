@@ -1,4 +1,6 @@
-﻿namespace Knigarela.Api.Dtos.Boxes;
+﻿using Knigarela.Core.Entities;
+
+namespace Knigarela.Api.Dtos.Boxes;
 
 public class BoxDto
 {
@@ -18,7 +20,7 @@ public class BoxDto
 
     public bool IsActive { get; set; }
 
-    public string? MainImageUrl { get; set; }
+    public BoxImage? MainImage { get; set; }
 
     public string[]? ImageUrls { get; set; }
 
