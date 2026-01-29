@@ -2,6 +2,7 @@
 using Hangfire.PostgreSql;
 using Knigarela.Api.Configuration;
 using Knigarela.Api.HangFire;
+using Knigarela.Api.HangFire.Jobs.Order;
 using Knigarela.Api.HangFire.Jobs.Shipment;
 using Knigarela.Api.Mapping;
 using Knigarela.Api.Midleware;
@@ -156,6 +157,7 @@ builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IClientAddressService, ClientAddressService>();
 
 builder.Services.AddScoped<IShipmentJob, ShipmentJob>();
+builder.Services.AddScoped<IOrderJob, OrderJob>();
 builder.Services.AddHttpClient<ISpeedyService, SpeedyService>();
 
 var allowedOrigins = builder.Configuration

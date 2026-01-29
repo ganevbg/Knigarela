@@ -122,7 +122,7 @@ public class ClientService : IClientService
         existing.SubscriptionDate = updated.SubscriptionDate.HasValue ? updated.SubscriptionDate.Value : existing.SubscriptionDate;
         existing.IsNewSubscriber = updated.SubscriptionDate.HasValue;
         existing.IsSubscribed = updated.SubscriptionDate.HasValue;
-        existing.UpdatedAt = DateTime.UtcNow;
+        existing.UpdatedAt = DateTime.Now;
 
         await _db.SaveChangesAsync();
         return existing;
@@ -145,7 +145,7 @@ public class ClientService : IClientService
     private async Task<Client> CreateClientAsync(Client client)
     {
         await ValidateCourierAddressesAsync(client);
-        client.CreatedAt = DateTime.UtcNow;
+        client.CreatedAt = DateTime.Now;
 
         _db.Clients.Add(client);
         await _db.SaveChangesAsync();

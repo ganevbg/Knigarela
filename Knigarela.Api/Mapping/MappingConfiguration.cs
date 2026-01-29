@@ -19,7 +19,7 @@ namespace Knigarela.Api.Mapping
             CreateMap<UpsertClientDto, Client>().ReverseMap();
             CreateMap<UpsertClientAddressDto, ClientAddress>().ReverseMap();
             CreateMap<Box, AdminBoxDto>();
-            CreateMap<OrderAddress, ClientAddress>();
+            CreateMap<OrderAddress, ClientAddress>().ReverseMap();
 
             CreateMap<Box, BoxDto>()
                 .ForMember(dest => dest.ImageUrls,
@@ -148,7 +148,7 @@ namespace Knigarela.Api.Mapping
               .ForMember(d => d.FullName, opt => opt.MapFrom(src => src.FullName))
               .ForMember(d => d.Email, opt => opt.MapFrom(src => src.Email))
               .ForMember(d => d.Phone, opt => opt.MapFrom(src => src.Phone))
-              .ForMember(d => d.SubscriptionDate, opt => opt.MapFrom(src => DateOnly.FromDateTime(DateTime.UtcNow)))
+              .ForMember(d => d.SubscriptionDate, opt => opt.MapFrom(src => DateOnly.FromDateTime(DateTime.Now)))
               .ForMember(d => d.Addresses, opt => opt.MapFrom(src => new List<BaseAddress> { src.Address }));
 
             CreateMap<BoxImage, BoxImageDto>();

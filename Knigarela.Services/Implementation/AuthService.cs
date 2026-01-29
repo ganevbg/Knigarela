@@ -85,7 +85,7 @@ public class AuthService : IAuthService
         claims.AddRange(roles.Select(r => new Claim(ClaimTypes.Role, r)));
 
         var token = new JwtSecurityToken(
-            expires: DateTime.UtcNow.AddMinutes(int.Parse(_config["Jwt:ExpiresInMinutes"] ?? "30")),
+            expires: DateTime.Now.AddMinutes(int.Parse(_config["Jwt:ExpiresInMinutes"] ?? "30")),
             claims: claims,
             signingCredentials: creds);
 
@@ -99,8 +99,8 @@ public class AuthService : IAuthService
             Id = Guid.NewGuid(),
             Token = Guid.NewGuid().ToString("N"),
             UserId = user.Id,
-            CreatedAt = DateTime.UtcNow,
-            ExpiresAt = DateTime.UtcNow.AddDays(7),
+            CreatedAt = DateTime.Now,
+            ExpiresAt = DateTime.Now.AddDays(7),
             IsRevoked = false
         };
 

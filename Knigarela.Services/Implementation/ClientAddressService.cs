@@ -75,7 +75,7 @@ public class ClientAddressService : IClientAddressService
         var existing = await _db.ClientAddresses.FindAsync(id);
         if (existing == null) return null;
 
-        existing.UpdatedAt = DateTime.UtcNow;
+        existing.UpdatedAt = DateTime.Now;
         existing.SiteName = updated.SiteName;
         existing.SiteId = updated.SiteId;
         existing.OfficeName = updated.OfficeName;

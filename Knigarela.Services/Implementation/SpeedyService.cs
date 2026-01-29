@@ -159,7 +159,7 @@ public class SpeedyService : ISpeedyService
         request.Service = new ShipmentService
         {
             ServiceId = _settings.ServiceId,
-            PickupDate = DateTime.UtcNow,
+            PickupDate = DateTime.Now,
             AutoAdjustPickupDate = true,
             SaturdayDelivery = true,
             AdditionalServices = new ShipmentAdditionalServices
@@ -227,7 +227,7 @@ public class SpeedyService : ISpeedyService
             Password = _settings.Password,
             Service = new CalculationService
             {
-                PickupDate = DateTime.UtcNow,
+                PickupDate = DateTime.Now,
                 AutoAdjustPickupDate = true,
                 SaturdayDelivery = true,
                 ServiceIds = new List<int> { _settings.ServiceId },

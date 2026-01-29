@@ -1,8 +1,11 @@
 ﻿
+using Hangfire;
 using Knigarela.Services.Interfaces;
 
 namespace Knigarela.Api.HangFire.Jobs.Order
 {
+    [AutomaticRetry()]
+
     public class OrderJob : IOrderJob
     {
         private readonly IOrderService _orderService;

@@ -57,7 +57,7 @@ public class BoxService : IBoxService
     public async Task<Box> CreateAsync(Box box)
     {
         box.Id = Guid.NewGuid();
-        box.CreatedAt = DateTime.UtcNow;
+        box.CreatedAt = DateTime.Now;
         box.Slug = SlugHelper.GenerateSlug(box.Title);
 
         // гарантираме уникалност
@@ -86,7 +86,7 @@ public class BoxService : IBoxService
         existing.SubscriptionPrice = box.SubscriptionPrice;
         existing.Count = box.Count;
         existing.IsActive = box.IsActive;
-        existing.UpdatedAt = DateTime.UtcNow;
+        existing.UpdatedAt = DateTime.Now;
         existing.Slug = SlugHelper.GenerateSlug(box.Title);
 
         // проверка за уникалност при промяна
@@ -96,6 +96,8 @@ public class BoxService : IBoxService
             existing.Slug = $"{slugBase}-{i++}";
 
         await _db.SaveChangesAsync();
+
+
         return existing;
     }
 
@@ -142,5 +144,7 @@ public class BoxService : IBoxService
             .Where(x => x.IsActive)
             .ExecuteUpdateAsync(s => s.SetProperty(b => b.IsActive, false));
         }
+
+        await _db.SaveChangesAsync();
     }
 }

@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Knigarela.Api.HangFire.Jobs.Shipment
 {
-    [AutomaticRetry(Attempts = 0)]
+    [AutomaticRetry()]
     public class ShipmentJob : IShipmentJob
     {
         private readonly KnigarelaDbContext _db;

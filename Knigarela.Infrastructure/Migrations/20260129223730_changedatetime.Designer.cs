@@ -3,6 +3,7 @@ using System;
 using Knigarela.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Knigarela.Infrastructure.Migrations
 {
     [DbContext(typeof(KnigarelaDbContext))]
-    partial class KnigarelaDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260129223730_changedatetime")]
+    partial class changedatetime
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -35,7 +38,7 @@ namespace Knigarela.Infrastructure.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Description")
                         .HasColumnType("text");
@@ -56,7 +59,7 @@ namespace Knigarela.Infrastructure.Migrations
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<uint>("xmin")
                         .IsConcurrencyToken()
@@ -83,7 +86,7 @@ namespace Knigarela.Infrastructure.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsMain")
                         .HasColumnType("boolean");
@@ -98,7 +101,7 @@ namespace Knigarela.Infrastructure.Migrations
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Url")
                         .HasColumnType("text");
@@ -118,7 +121,7 @@ namespace Knigarela.Infrastructure.Migrations
                         .HasDefaultValueSql("gen_random_uuid()");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Email")
                         .HasColumnType("text");
@@ -145,7 +148,7 @@ namespace Knigarela.Infrastructure.Migrations
                         .HasColumnType("date");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("email_normalized")
                         .ValueGeneratedOnAddOrUpdate()
@@ -184,7 +187,7 @@ namespace Knigarela.Infrastructure.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("DeliveryType")
                         .HasColumnType("integer");
@@ -205,7 +208,7 @@ namespace Knigarela.Infrastructure.Migrations
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
@@ -225,7 +228,7 @@ namespace Knigarela.Infrastructure.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<decimal?>("DeliveryAmount")
                         .HasColumnType("numeric");
@@ -248,7 +251,7 @@ namespace Knigarela.Infrastructure.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
@@ -268,7 +271,7 @@ namespace Knigarela.Infrastructure.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid>("OrderId")
                         .HasColumnType("uuid");
@@ -283,7 +286,7 @@ namespace Knigarela.Infrastructure.Migrations
                         .HasColumnType("numeric");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
@@ -301,10 +304,10 @@ namespace Knigarela.Infrastructure.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime>("ExpiresAt")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsRevoked")
                         .HasColumnType("boolean");
@@ -558,7 +561,7 @@ namespace Knigarela.Infrastructure.Migrations
                                 .HasColumnType("text");
 
                             b1.Property<DateTime>("CreatedAt")
-                                .HasColumnType("timestamp without time zone");
+                                .HasColumnType("timestamp with time zone");
 
                             b1.Property<int>("DeliveryType")
                                 .HasColumnType("integer");
@@ -582,7 +585,7 @@ namespace Knigarela.Infrastructure.Migrations
                                 .HasColumnType("text");
 
                             b1.Property<DateTime?>("UpdatedAt")
-                                .HasColumnType("timestamp without time zone");
+                                .HasColumnType("timestamp with time zone");
 
                             b1.HasKey("OrderId");
 

@@ -150,7 +150,7 @@ public class OrderService : IOrderService
         if (issues.Count > 0)
             return (null, issues);
 
-        DateOnly? subDate = items.Any(x => x.type == PurchaseType.Subscription) ? DateOnly.FromDateTime(DateTime.UtcNow) : null;
+        DateOnly? subDate = items.Any(x => x.type == PurchaseType.Subscription) ? DateOnly.FromDateTime(DateTime.Now) : null;
 
         var client = await _clientService.FindOrCreateClientAsync(
             new Client
@@ -172,7 +172,7 @@ public class OrderService : IOrderService
             ClientId = client.Id,
             Client = client,
             Address = address,
-            CreatedAt = DateTime.UtcNow,
+            CreatedAt = DateTime.Now,
             Note = notes,
             Items = new List<OrderItem>(),
             Status = OrderStatus.New,
@@ -341,7 +341,7 @@ public class OrderService : IOrderService
                     ClientId = client.Id,
                     Client = client,
                     Address = _mapper.Map<OrderAddress>(addressEntity),
-                    CreatedAt = DateTime.UtcNow,
+                    CreatedAt = DateTime.Now,
                     Note = null,
                     Items = new List<OrderItem>
                     {
