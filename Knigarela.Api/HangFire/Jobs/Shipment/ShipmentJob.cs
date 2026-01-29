@@ -26,7 +26,7 @@ namespace Knigarela.Api.HangFire.Jobs.Shipment
                 .Include(o => o.Client)
                 .Include(o => o.Address)
                 .Include(o => o.Items)
-                .Where(o => o.Status == Core.Enums.OrderStatus.New)
+                .Where(o => o.Status == OrderStatus.New)
                 .ToListAsync();
 
             foreach (var order in orders)

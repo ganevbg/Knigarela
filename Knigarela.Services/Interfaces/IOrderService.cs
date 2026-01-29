@@ -25,4 +25,6 @@ public interface IOrderService
     Task<string> PrintLabelsAsync(Guid id, Speedy.Models.PaperSize size);
 
     Task<string> PrintAllLabelsAsync(PaperSize size);
+
+    Task<List<CreateOrderResult>> CreateOrdersForSubscribersAsync(int quantityPerSubscriber = 1);
 }

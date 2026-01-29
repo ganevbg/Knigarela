@@ -283,6 +283,92 @@ public class OrderService : IOrderService
         });
     }
 
+    // Create subscription orders for all subscribed clients using the currently active box.
+    // Returns a list of results, one per subscriber. If an order couldn't be created for a
+    // subscriber a CreateOrderResult with Issues will be returned for that client.
+    public async Task<List<CreateOrderResult>> CreateOrdersForSubscribersAsync(int quantityPerSubscriber = 1)
+    {
+        if (quantityPerSubscriber <= 0) throw new ArgumentException("quantityPerSubscriber must be > 0", nameof(quantityPerSubscriber));
+
+        var strategy = _db.Database.CreateExecutionStrategy();
+
+        return await strategy.ExecuteAsync(async () =>
+        {
+            await using var tx = await _db.Database.BeginTransactionAsync(IsolationLevel.Serializable);
+
+            // Lock the active box row to prevent concurrent modifications
+            var activeBox = await _db.Boxes
+                .FromSqlRaw(@"SELECT *, xmin FROM ""Boxes"" WHERE ""IsActive"" = TRUE FOR UPDATE")
+                .FirstOrDefaultAsync();
+
+            if (activeBox == null)
+            {
+                await tx.RollbackAsync();
+                throw new InvalidOperationException("No active box found to create subscription orders.");
+            }
+
+            var subscribers = await _db.Clients
+                .Include(c => c.Addresses)
+                .Where(c => c.IsSubscribed)
+                .ToListAsync();
+
+            var results = new List<CreateOrderResult>();
+
+            foreach (var client in subscribers)
+            {
+                var issues = new List<StockIssue>();
+
+                var addressEntity = client.Addresses?.FirstOrDefault(x => x.IsDefault);
+                if (addressEntity == null)
+                {
+                    issues.Add(new StockIssue(activeBox.Id, activeBox.Count, quantityPerSubscriber, $"NoDefaultAddress for client:{client.FullName}"));
+                    results.Add(new CreateOrderResult(null, issues));
+                    continue;
+                }
+
+                if (activeBox.Count < quantityPerSubscriber)
+                {
+                    issues.Add(new StockIssue(activeBox.Id, activeBox.Count, quantityPerSubscriber, "NotEnoughStock"));
+                    results.Add(new CreateOrderResult(null, issues));
+                    continue;
+                }
+
+                // Reserve
+                activeBox.Count -= quantityPerSubscriber;
+
+                var order = new Order
+                {
+                    ClientId = client.Id,
+                    Client = client,
+                    Address = _mapper.Map<OrderAddress>(addressEntity),
+                    CreatedAt = DateTime.UtcNow,
+                    Note = null,
+                    Items = new List<OrderItem>
+                    {
+                        new OrderItem
+                        {
+                            BoxId = activeBox.Id,
+                            Quantity = quantityPerSubscriber,
+                            PurchaseType = PurchaseType.Subscription,
+                            UnitPrice = activeBox.SubscriptionPrice
+                        }
+                    },
+                    Status = OrderStatus.New
+                };
+
+                await CalculateOrderDeliveryAmount(order);
+
+                _db.Orders.Add(order);
+                results.Add(new CreateOrderResult(order, issues));
+            }
+
+            await _db.SaveChangesAsync();
+            await tx.CommitAsync();
+
+            return results;
+        });
+    }
+
     private async Task CalculateOrderDeliveryAmount(Order order)
     {
         if (order == null || order.Items == null || order.Items.Count < 1)

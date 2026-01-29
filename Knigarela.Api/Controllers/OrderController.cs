@@ -2,6 +2,7 @@
 using Hangfire;
 using Knigarela.Api.Dtos.Cart;
 using Knigarela.Api.Dtos.Orders;
+using Knigarela.Api.HangFire.Jobs.Order;
 using Knigarela.Api.HangFire.Jobs.Shipment;
 using Knigarela.Core.Pagination;
 using Knigarela.Services.Interfaces;
@@ -115,6 +116,15 @@ public class OrderController : ControllerBase
     public IActionResult GenerateRequests()
     {
         var jobId = _jobs.Enqueue<IShipmentJob>(x => x.GenerateAsync());
+
+        return Ok(new { jobId });
+    }
+
+    [HttpPost("generate-subscription-orders")]
+    [Authorize(Roles = "Admin")]
+    public IActionResult GenerateSubscriptionOrders()
+    {
+        var jobId = _jobs.Enqueue<IOrderJob>(x => x.GenerateAsync());
 
         return Ok(new { jobId });
     }
