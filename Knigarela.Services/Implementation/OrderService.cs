@@ -17,10 +17,8 @@ public class OrderService : IOrderService
     private readonly IClientService _clientService;
     private readonly IMapper _mapper;
     private readonly ISpeedyService speedyService;
-
     private readonly int MaxConcurrencyRetries;
     private readonly int RetryDelayMs;
-
     private readonly Dictionary<string, Func<IQueryable<Order>, string, IQueryable<Order>>> _filterMap =
     new()
     {
@@ -76,10 +74,7 @@ public class OrderService : IOrderService
         if (items == null || items.Count == 0)
             throw new ArgumentException("Cannot create order without items.");
 
-        if (useLock)
-            return await CreateOrderPessimisticAsync(fullName, email, phone, address, items, notes);
-        else
-            return await CreateOrderOptimisticAsync(fullName, email, phone, address, items, notes);
+        return useLock ? await CreateOrderPessimisticAsync(fullName, email, phone, address, items, notes) : await CreateOrderOptimisticAsync(fullName, email, phone, address, items, notes);
     }
 
 
@@ -119,6 +114,90 @@ public class OrderService : IOrderService
         return true;
     }
 
+    // Shared preparation logic: validate, decrement counts, create client and build order (does not save).
+    private async Task<(Order? Order, List<StockIssue> Issues)> PrepareOrderAsync(
+        Dictionary<Guid, Box> boxes,
+        string fullName,
+        string email,
+        string phone,
+        OrderAddress address,
+        List<(Guid BoxId, int Quantity, PurchaseType type)> items,
+        string? notes)
+    {
+        var issues = new List<StockIssue>();
+
+        // Validate stock and quantities
+        foreach (var (boxId, quantity, _) in items)
+        {
+            if (!boxes.TryGetValue(boxId, out var box))
+            {
+                issues.Add(new StockIssue(boxId, 0, quantity, "NotFound"));
+                continue;
+            }
+
+            if (quantity <= 0)
+            {
+                issues.Add(new StockIssue(boxId, box.Count, quantity, "InvalidQuantity"));
+                continue;
+            }
+
+            if (box.Count < quantity)
+            {
+                issues.Add(new StockIssue(boxId, box.Count, quantity, "NotEnoughStock"));
+            }
+        }
+
+        if (issues.Count > 0)
+            return (null, issues);
+
+        DateOnly? subDate = items.Any(x => x.type == PurchaseType.Subscription) ? DateOnly.FromDateTime(DateTime.UtcNow) : null;
+
+        var client = await _clientService.FindOrCreateClientAsync(
+            new Client
+            {
+                FullName = fullName,
+                Email = email,
+                Phone = phone,
+                Addresses = new List<ClientAddress>
+                {
+                    _mapper.Map<ClientAddress>(address)
+                },
+                IsNewSubscriber = subDate.HasValue,
+                IsSubscribed = subDate.HasValue,
+                SubscriptionDate = subDate
+            });
+
+        var order = new Order
+        {
+            ClientId = client.Id,
+            Client = client,
+            Address = address,
+            CreatedAt = DateTime.UtcNow,
+            Note = notes,
+            Items = new List<OrderItem>(),
+            Status = OrderStatus.New,
+        };
+
+        // Reserve stock (modify tracked entities)
+        foreach (var (boxId, quantity, type) in items)
+        {
+            var box = boxes[boxId];
+            box.Count -= quantity;
+
+            order.Items.Add(new OrderItem
+            {
+                BoxId = box.Id,
+                Quantity = quantity,
+                PurchaseType = type,
+                UnitPrice = type == PurchaseType.Single ? box.SinglePrice : box.SubscriptionPrice
+            });
+        }
+
+        await CalculateOrderDeliveryAmount(order);
+
+        return (order, issues);
+    }
+
     private async Task<CreateOrderResult> CreateOrderOptimisticAsync(
         string fullName,
         string email,
@@ -135,75 +214,12 @@ public class OrderService : IOrderService
                 .Where(b => boxIds.Contains(b.Id))
                 .ToDictionaryAsync(b => b.Id, b => b);
 
-            var issues = new List<StockIssue>();
-
-            // Validate stock
-            foreach (var (boxId, quantity, _) in items)
-            {
-                if (!boxes.TryGetValue(boxId, out var box))
-                {
-                    issues.Add(new StockIssue(boxId, 0, quantity, "NotFound"));
-                    continue;
-                }
-
-                if (quantity <= 0)
-                {
-                    issues.Add(new StockIssue(boxId, box.Count, quantity, "InvalidQuantity"));
-                    continue;
-                }
-
-                if (box.Count < quantity)
-                {
-                    issues.Add(new StockIssue(boxId, box.Count, quantity, "NotEnoughStock"));
-                }
-            }
+            var (order, issues) = await PrepareOrderAsync(boxes, fullName, email, phone, address, items, notes);
 
             if (issues.Count > 0)
                 return new CreateOrderResult(null, issues);
 
-            DateOnly? subDate = items.Any(x => x.type == PurchaseType.Subscription) ? DateOnly.FromDateTime(DateTime.UtcNow) : null;
-            var client = await _clientService.FindOrCreateClientAsync(
-                new Client
-                {
-                    FullName = fullName,
-                    Email = email,
-                    Phone = phone,
-                    Addresses = new List<ClientAddress>
-                    {
-                        _mapper.Map<ClientAddress>(address)
-                    },
-                    SubscriptionDate = subDate,
-                    IsNewSubscriber = subDate.HasValue,
-                    IsSubscribed = subDate.HasValue,
-                });
-            var order = new Order
-            {
-                ClientId = client.Id,
-                Client = client,
-                Address = address,
-                CreatedAt = DateTime.UtcNow,
-                Note = notes,
-                Items = new List<OrderItem>(),
-                Status = OrderStatus.New,
-            };
-
-            foreach (var (boxId, quantity, type) in items)
-            {
-                var box = boxes[boxId];
-                box.Count -= quantity;
-
-                order.Items.Add(new OrderItem
-                {
-                    BoxId = box.Id,
-                    Quantity = quantity,
-                    PurchaseType = type,
-                    UnitPrice = type == PurchaseType.Single ? box.SinglePrice : box.SubscriptionPrice
-                });
-            }
-
-            await CalculateOrderDeliveryAmount(order);
-
-            _db.Orders.Add(order);
+            _db.Orders.Add(order!);
 
             try
             {
@@ -212,6 +228,7 @@ public class OrderService : IOrderService
             }
             catch (DbUpdateConcurrencyException)
             {
+                // clear tracked state so next attempt reads fresh data
                 _db.ChangeTracker.Clear();
                 if (attempt < MaxConcurrencyRetries)
                 {
@@ -219,10 +236,10 @@ public class OrderService : IOrderService
                     continue;
                 }
 
-                issues.AddRange(items.Select(i =>
-                    new StockIssue(i.BoxId, 0, i.Quantity, "ConcurrentUpdate")));
+                var concurrentIssues = items.Select(i =>
+                    new StockIssue(i.BoxId, 0, i.Quantity, "ConcurrentUpdate")).ToList();
 
-                return new CreateOrderResult(null, issues);
+                return new CreateOrderResult(null, concurrentIssues);
             }
         }
 
@@ -250,27 +267,7 @@ public class OrderService : IOrderService
                 .FromSqlRaw(@"SELECT *, xmin FROM ""Boxes"" WHERE ""Id"" = ANY ({0}) FOR UPDATE", boxIds)
                 .ToDictionaryAsync(b => b.Id);
 
-            var issues = new List<StockIssue>();
-
-            foreach (var (boxId, quantity, _) in items)
-            {
-                if (!boxes.TryGetValue(boxId, out var box))
-                {
-                    issues.Add(new StockIssue(boxId, 0, quantity, "NotFound"));
-                    continue;
-                }
-
-                if (quantity <= 0)
-                {
-                    issues.Add(new StockIssue(boxId, box.Count, quantity, "InvalidQuantity"));
-                    continue;
-                }
-
-                if (box.Count < quantity)
-                {
-                    issues.Add(new StockIssue(boxId, box.Count, quantity, "NotEnoughStock"));
-                }
-            }
+            var (order, issues) = await PrepareOrderAsync(boxes, fullName, email, phone, address, items, notes);
 
             if (issues.Count > 0)
             {
@@ -278,61 +275,17 @@ public class OrderService : IOrderService
                 return new CreateOrderResult(null, issues);
             }
 
-            foreach (var (boxId, quantity, _) in items)
-                boxes[boxId].Count -= quantity;
-
-            DateOnly? subDate = items.Any(x => x.type == PurchaseType.Subscription) ? DateOnly.FromDateTime(DateTime.UtcNow) : null;
-
-            var client = await _clientService.FindOrCreateClientAsync(
-                new Client
-                {
-                    FullName = fullName,
-                    Email = email,
-                    Phone = phone,
-                    Addresses = new List<ClientAddress>
-                    {
-                        _mapper.Map<ClientAddress>(address)
-                    },
-                    IsNewSubscriber = subDate.HasValue,
-                    IsSubscribed = subDate.HasValue,
-                    SubscriptionDate = subDate
-                });
-
-            var order = new Order
-            {
-                ClientId = client.Id,
-                Client = client,
-                Address = address,
-                CreatedAt = DateTime.UtcNow,
-                Note = notes,
-                Items = new List<OrderItem>(),
-                Status = OrderStatus.New,
-            };
-
-            foreach (var (boxId, quantity, type) in items)
-            {
-                var box = boxes[boxId];
-                order.Items.Add(new OrderItem
-                {
-                    BoxId = box.Id,
-                    Quantity = quantity,
-                    PurchaseType = type,
-                    UnitPrice = type == PurchaseType.Single ? box.SinglePrice : box.SubscriptionPrice
-                });
-            }
-
-            await CalculateOrderDeliveryAmount(order);
-
-            _db.Orders.Add(order);
+            _db.Orders.Add(order!);
             await _db.SaveChangesAsync();
             await tx.CommitAsync();
 
             return new CreateOrderResult(order, issues);
         });
     }
+
     private async Task CalculateOrderDeliveryAmount(Order order)
     {
-        if(order == null || order.Items == null || order.Items.Count < 1)
+        if (order == null || order.Items == null || order.Items.Count < 1)
         {
             return;
         }
@@ -342,10 +295,10 @@ public class OrderService : IOrderService
         order.DeliveryAmount = deliveryFee?.Calculations?.FirstOrDefault()?.Price?.Total;
     }
 
-    public async Task<string> PrintLabelsAsync(Guid id, Speedy.Models.PaperSize size)
+    public async Task<string> PrintLabelsAsync(Guid id, PaperSize size)
     {
         var order = await _db.Orders.FindAsync(id);
-        if(order == null)
+        if (order == null)
         {
             throw new Exception($"Order with id {id} not found!");
         }
@@ -356,7 +309,7 @@ public class OrderService : IOrderService
     public async Task<string> PrintAllLabelsAsync(PaperSize size)
     {
         var orders = _db.Orders.Where(x => x.Status == OrderStatus.Processing);
-        if(orders == null || orders.Count() < 1)
+        if (orders == null || orders.Count() < 1)
         {
             throw new Exception("There are no Orders for proccessing");
         }
