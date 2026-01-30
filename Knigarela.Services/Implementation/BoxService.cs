@@ -5,6 +5,7 @@ using Knigarela.Infrastructure.Data;
 using Knigarela.Infrastructure.Files;
 using Knigarela.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using System.Text;
 
 namespace Knigarela.Services.Implementations;
 
@@ -46,6 +47,25 @@ public class BoxService : IBoxService
         _storage = storage;
     }
 
+    public sealed class BoxMainComparer : IEqualityComparer<Box>
+    {
+        public bool Equals(Box? x, Box? y)
+        {
+            if (ReferenceEquals(x, y)) return true;
+            if (x is null || y is null) return false;
+
+            return x.Title == y.Title
+                && x.Description == y.Description
+                && x.SinglePrice == y.SinglePrice
+                && x.SubscriptionPrice == y.SubscriptionPrice
+                && x.Count == y.Count
+                && x.IsActive == y.IsActive;
+        }
+
+        public int GetHashCode(Box obj) =>
+            HashCode.Combine(obj.Title, obj.Description, obj.SinglePrice, obj.SubscriptionPrice, obj.Count, obj.IsActive);
+    }
+
     public async Task<IEnumerable<Box>> GetAllAsync() =>
         await _db.Boxes.Include(b => b.Images)
                        .OrderBy(b => b.CreatedAt)
@@ -66,10 +86,10 @@ public class BoxService : IBoxService
         while (await _db.Boxes.AnyAsync(x => x.Slug == box.Slug))
             box.Slug = $"{originalSlug}-{counter++}";
 
-        await RemoveActiveBoxFlagAsync(box);
 
         _db.Boxes.Add(box);
         await _db.SaveChangesAsync();
+        await RemoveOtherActiveBoxFlagsAsync(box);
         return box;
     }
 
@@ -78,7 +98,9 @@ public class BoxService : IBoxService
         var existing = await _db.Boxes.FindAsync(id);
         if (existing == null) return null;
 
-        await RemoveActiveBoxFlagAsync(box);
+        if (new BoxMainComparer().Equals(existing, box))
+            return existing;
+
 
         existing.Title = box.Title;
         existing.Description = box.Description;
@@ -89,7 +111,6 @@ public class BoxService : IBoxService
         existing.UpdatedAt = DateTime.Now;
         existing.Slug = SlugHelper.GenerateSlug(box.Title);
 
-        // проверка за уникалност при промяна
         var slugBase = existing.Slug;
         int i = 2;
         while (await _db.Boxes.AnyAsync(x => x.Slug == existing.Slug && x.Id != existing.Id))
@@ -97,6 +118,7 @@ public class BoxService : IBoxService
 
         await _db.SaveChangesAsync();
 
+        await RemoveOtherActiveBoxFlagsAsync(existing);
 
         return existing;
     }
@@ -136,12 +158,12 @@ public class BoxService : IBoxService
         return await DynamicQuery.ApplyAsync(_db.Boxes.AsQueryable(), query, b => b, _filterMap);
     }
 
-    private async Task RemoveActiveBoxFlagAsync(Box box)
+    private async Task RemoveOtherActiveBoxFlagsAsync(Box box)
     {
         if (box.IsActive)
         {
             await _db.Boxes
-            .Where(x => x.IsActive)
+            .Where(x => x.IsActive && !x.Id.Equals(box.Id))
             .ExecuteUpdateAsync(s => s.SetProperty(b => b.IsActive, false));
         }
 

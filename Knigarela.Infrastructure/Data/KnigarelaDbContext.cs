@@ -102,10 +102,6 @@ public class KnigarelaDbContext : IdentityDbContext<ApplicationUser>
             .Property(x => x.Id)
             .HasDefaultValueSql("gen_random_uuid()");
 
-        builder.Entity<Box>()
-            .Property<uint>("xmin")
-            .IsRowVersion();
-
         builder.HasSequence<long>("order_number_seq")
        .StartsAt(1)
        .IncrementsBy(1);
