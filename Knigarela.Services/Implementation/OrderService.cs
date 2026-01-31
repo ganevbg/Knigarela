@@ -11,15 +11,6 @@ using System.Data;
 
 namespace Knigarela.Services;
 
-/// <summary>
-/// Refactor notes:
-/// - No xmin / optimistic concurrency required for stock safety.
-/// - Stock reservation uses atomic SQL updates:
-///     UPDATE "Boxes" SET "Count" = "Count" - qty
-///     WHERE "Id" = id AND "Count" >= qty
-///   Affected rows == 1 => success, 0 => out of stock.
-/// - Multiple boxes are reserved within a single DB transaction.
-/// </summary>
 public class OrderService : IOrderService
 {
     private readonly KnigarelaDbContext _db;
@@ -123,17 +114,21 @@ public class OrderService : IOrderService
 
         await using var tx = await _db.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted);
 
-        // Return stock (atomic increment) for each item
-        if (order.Items != null && order.Items.Count > 0)
+        // Return stock (atomic increment) for each box (aggregated)
+        if (order.Items is { Count: > 0 })
         {
-            foreach (var item in order.Items)
+            var increments = order.Items
+                .GroupBy(i => i.BoxId)
+                .Select(g => new { BoxId = g.Key, Quantity = g.Sum(x => x.Quantity) })
+                .ToList();
+
+            foreach (var inc in increments)
             {
-                await _db.Database.ExecuteSqlInterpolatedAsync($@"
-                    UPDATE ""Boxes""
-                    SET ""Count"" = ""Count"" + {item.Quantity},
-                        ""UpdatedAt"" = NOW()
-                    WHERE ""Id"" = {item.BoxId};
-                ");
+                await _db.Boxes
+                    .Where(b => b.Id == inc.BoxId)
+                    .ExecuteUpdateAsync(s => s
+                        .SetProperty(b => b.Count, b => b.Count + inc.Quantity)
+                        .SetProperty(b => b.UpdatedAt, _ => DateTime.Now));
             }
         }
 
@@ -206,13 +201,11 @@ public class OrderService : IOrderService
             // Reserve stock for each box atomically. If anything fails -> rollback.
             foreach (var x in aggregated)
             {
-                var affected = await _db.Database.ExecuteSqlInterpolatedAsync($@"
-                    UPDATE ""Boxes""
-                    SET ""Count"" = ""Count"" - {x.Quantity},
-                        ""UpdatedAt"" = NOW()
-                    WHERE ""Id"" = {x.BoxId}
-                      AND ""Count"" >= {x.Quantity};
-                ");
+                var affected = await _db.Boxes
+                    .Where(b => b.Id == x.BoxId && b.Count >= x.Quantity)
+                    .ExecuteUpdateAsync(s => s
+                        .SetProperty(b => b.Count, b => b.Count - x.Quantity)
+                        .SetProperty(b => b.UpdatedAt, _ => DateTime.Now));
 
                 if (affected != 1)
                 {
@@ -372,13 +365,11 @@ public class OrderService : IOrderService
             // Reserve total stock once for eligible subscribers we can serve
             var totalQty = toCreate * quantityPerSubscriber;
 
-            var affected = await _db.Database.ExecuteSqlInterpolatedAsync($@"
-                UPDATE ""Boxes""
-                SET ""Count"" = ""Count"" - {totalQty},
-                    ""UpdatedAt"" = NOW()
-                WHERE ""Id"" = {activeBox.Id}
-                  AND ""Count"" >= {totalQty};
-            ");
+            var affected = await _db.Boxes
+                .Where(b => b.Id == activeBox.Id && b.Count >= totalQty)
+                .ExecuteUpdateAsync(s => s
+                    .SetProperty(b => b.Count, b => b.Count - totalQty)
+                    .SetProperty(b => b.UpdatedAt, _ => DateTime.Now));
 
             if (affected != 1)
             {
