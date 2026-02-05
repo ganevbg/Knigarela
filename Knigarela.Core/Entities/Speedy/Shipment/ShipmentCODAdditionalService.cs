@@ -28,9 +28,8 @@
     public class ShipmentCODFiscalReceiptItem
     {
         public string? Description { get; set; }
-        public double? PriceWithoutVAT { get; set; }
-        public double? VATPercent { get; set; }
-        public double? PriceWithVAT { get; set; }
-        public int? Quantity { get; set; }
+        public string? VatGroup { get; set; }
+        public double? Amount { get; set; }
+        public double? AmountWithVat { get; set; }
     }
 }

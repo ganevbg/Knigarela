@@ -170,8 +170,16 @@ public class SpeedyService : ISpeedyService
                     CurrencyCode = _settings.Currency,
                     ProcessingType = CODProcessingType.CASH,
                     IncludeShippingPrice = false,
-                    CardPaymentForbidden = false
-                }
+                    CardPaymentForbidden = false,
+                    FiscalReceiptItems = order.Items?.Select(item => new ShipmentCODFiscalReceiptItem
+                    {
+                        Description = "Книга",
+                        VatGroup = "Б",
+                        Amount = Convert.ToDouble(item.UnitPrice / 1.2m),
+                        AmountWithVat = Convert.ToDouble(item.UnitPrice),
+                    }).ToArray()
+                },
+                
             }
         };
 
