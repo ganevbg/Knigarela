@@ -187,9 +187,6 @@ public class OrderService : IOrderService
                     issues.Add(new StockIssue(x.BoxId, 0, x.Quantity, "NotFound"));
                     continue;
                 }
-
-                // Optional: if only active boxes are orderable, enforce it here
-                // if (!snap.IsActive) issues.Add(new StockIssue(x.BoxId, snap.Count, x.Quantity, "NotActive"));
             }
 
             if (issues.Count > 0)
@@ -225,7 +222,6 @@ public class OrderService : IOrderService
                 return new CreateOrderResult(null, issues);
             }
 
-            // Create or get client (kept as-is)
             DateOnly? subDate = items.Any(x => x.type == PurchaseType.Subscription)
                 ? DateOnly.FromDateTime(DateTime.Now)
                 : null;

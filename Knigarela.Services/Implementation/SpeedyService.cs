@@ -191,7 +191,6 @@ public class SpeedyService : ISpeedyService
         // Validate — НЕ пращай address + pickupOfficeId
         ValidateRecipient(request.Recipient);
 
-
         var jsonOptions = new JsonSerializerOptions
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,

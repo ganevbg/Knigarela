@@ -55,9 +55,9 @@ public class ClientService : IClientService
 
         var existing = await _db.Clients
             .Where(c =>
-                EF.Property<string>(c, "email_normalized") == normEmail ||
-                EF.Property<string>(c, "phone_normalized") == normPhoneDigits)
-            .Where(c => EF.Property<string>(c, "fullname_normalized") == normName)
+                EF.Property<string>(c, "email_normalized") == normEmail &&
+                EF.Property<string>(c, "phone_normalized") == normPhoneDigits &&
+                EF.Property<string>(c, "fullname_normalized") == normName)
             .Include(x => x.Addresses)
             .FirstOrDefaultAsync();
 
@@ -146,6 +146,7 @@ public class ClientService : IClientService
     {
         await ValidateCourierAddressesAsync(client);
         client.CreatedAt = DateTime.Now;
+        client.Phone = NormalizePhone(client.Phone);
 
         _db.Clients.Add(client);
         await _db.SaveChangesAsync();
