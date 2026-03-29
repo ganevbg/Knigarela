@@ -1,5 +1,6 @@
 ﻿using Knigarela.Core.Entities;
 using Knigarela.Core.Entities.Speedy;
+using Knigarela.Core.Entities.Speedy.Track;
 using Speedy.Models;
 
 namespace Knigarela.Services.Interfaces;
@@ -19,4 +20,6 @@ public interface ISpeedyService
     Task<ShipmentCalculationResponse> CalculateAsync(int parcelsCount, double totalWeightKg, decimal totalAmout, OrderAddress address);
 
     Task<string> PrintLabelsAsync(PaperSize size, string[] parcelIds);
+
+    Task<TrackResponse> TrackShipment(string parceId);
 }

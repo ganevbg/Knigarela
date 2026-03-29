@@ -58,6 +58,42 @@ namespace Knigarela.Api.HangFire.Jobs.Shipment
                 }
             }
         }
+
+        public async Task UpdateShipmentStatuses()
+        {
+            var orders = await _db.Orders
+                .Where(o => o.Status == OrderStatus.Shipped)
+                .ToListAsync();
+
+            foreach (var order in orders)
+            {
+                var trackInfo = await this._speedy.TrackShipment(order.ParcelIds.FirstOrDefault());
+                var status = this.MapStatusFromSpeedyOperationCode(trackInfo.Parcels.SingleOrDefault().Operations.SingleOrDefault().OperationCode);
+
+                order.Status = status;
+            }
+
+            await _db.SaveChangesAsync();
+
+        }
+
+        private OrderStatus MapStatusFromSpeedyOperationCode(long operationCode)
+        {
+            return operationCode switch
+            {
+                -14 => OrderStatus.Delivered,
+                44 => OrderStatus.Cancelled,
+                111 => OrderStatus.Cancelled,
+                123 => OrderStatus.Cancelled,
+                121 => OrderStatus.Cancelled,
+                128 => OrderStatus.Cancelled,
+                125 => OrderStatus.Cancelled,
+                14 => OrderStatus.Cancelled,
+                15 => OrderStatus.Cancelled,
+                49 => OrderStatus.Cancelled,
+                _ => OrderStatus.Shipped,
+            };
+        }
     }
 
 }

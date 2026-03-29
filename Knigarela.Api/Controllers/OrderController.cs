@@ -120,6 +120,14 @@ public class OrderController : ControllerBase
         return Ok(new { jobId });
     }
 
+    [HttpPost("update-statuses")]
+    public IActionResult UpdateShipmentStatuses()
+    {
+        var jobId = _jobs.Enqueue<IShipmentJob>(x => x.UpdateShipmentStatuses());
+
+        return Ok(new { jobId });
+    }
+
     [HttpPost("generate-subscription-orders")]
     [Authorize(Roles = "Admin")]
     public IActionResult GenerateSubscriptionOrders()

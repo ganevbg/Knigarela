@@ -2,6 +2,7 @@
 using Knigarela.Core.Entities;
 using Knigarela.Core.Entities.Speedy;
 using Knigarela.Core.Entities.Speedy.Shipment;
+using Knigarela.Core.Entities.Speedy.Track;
 using Knigarela.Core.Enums;
 using Knigarela.Core.Helpers;
 using Knigarela.Infrastructure.Settings;
@@ -345,6 +346,45 @@ public class SpeedyService : ISpeedyService
         if (resp.IsSuccessStatusCode && result.Error == null)
         {
             return result.Data;
+        }
+
+        throw new Exception($"Speedy API Error: {result.Error.Message}. Code={result.Error.Code}, Id={result.Error.Id}, Context={result.Error.Context}, Component={result.Error.Component}");
+    }
+    
+    public async Task<TrackResponse> TrackShipment(string parceId)
+    {
+        var request = new TrackRequest
+        {
+            UserName = _settings.Username,
+            Password = _settings.Password,
+            LastOperationOnly = true,
+            Parcels = new CreatedShipmentParcel[] { new CreatedShipmentParcel { Id = parceId } }
+        };
+
+        var json = JsonSerializer.Serialize(request, new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+            PropertyNameCaseInsensitive = true,
+            Converters = { new SpeedyDateTimeConverter(), new JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseUpper, allowIntegerValues: true) }
+        });
+
+        var resp = await _http.PostAsync("track", new StringContent(json, Encoding.UTF8, "application/json"));
+        var body = await resp.Content.ReadAsStringAsync();
+
+        var result = JsonSerializer.Deserialize<TrackResponse>(body, new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+            PropertyNameCaseInsensitive = true,
+            Converters = { new SpeedyDateTimeConverter(), new JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseUpper, allowIntegerValues: true) }
+        })!;
+
+        if (resp.IsSuccessStatusCode && result.Error == null)
+        {
+            return result;
         }
 
         throw new Exception($"Speedy API Error: {result.Error.Message}. Code={result.Error.Code}, Id={result.Error.Id}, Context={result.Error.Context}, Component={result.Error.Component}");

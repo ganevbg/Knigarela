@@ -25,6 +25,10 @@ public class OrderService : IOrderService
                 string.IsNullOrWhiteSpace(v)
                     ? q
                     : q.Where(o => o.OrderNumber.ToString().ToLower().Contains(v.ToLower())),
+            ["speedyId"] = (q, v) =>
+               string.IsNullOrWhiteSpace(v)
+                   ? q
+                   : q.Where(o => o.SpeedyId.ToLower().Contains(v.ToLower())),
             ["clientName"] = (q, v) =>
                 string.IsNullOrWhiteSpace(v)
                     ? q

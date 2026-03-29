@@ -3,5 +3,7 @@
     public interface IShipmentJob
     {
         Task GenerateAsync(DateOnly? pickUpDate);
+
+        Task UpdateShipmentStatuses();
     }
 }
