@@ -1,4 +1,5 @@
 ﻿using Knigarela.Core.Enums;
+using Speedy.Models;
 
 namespace Knigarela.Core.Entities;
 

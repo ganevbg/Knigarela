@@ -113,9 +113,9 @@ public class OrderController : ControllerBase
     }
 
     [HttpPost("generate-requests")]
-    public IActionResult GenerateRequests()
+    public IActionResult GenerateRequests([FromBody] RequestsDto model)
     {
-        var jobId = _jobs.Enqueue<IShipmentJob>(x => x.GenerateAsync());
+        var jobId = _jobs.Enqueue<IShipmentJob>(x => x.GenerateAsync(model.PickupDate));
 
         return Ok(new { jobId });
     }

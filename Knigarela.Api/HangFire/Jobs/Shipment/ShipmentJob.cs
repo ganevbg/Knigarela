@@ -20,7 +20,7 @@ namespace Knigarela.Api.HangFire.Jobs.Shipment
             this.logger = logger;
         }
 
-        public async Task GenerateAsync()
+        public async Task GenerateAsync(DateOnly? pickUpDate)
         {
             var orders = await _db.Orders
                 .Include(o => o.Client)
@@ -36,7 +36,7 @@ namespace Knigarela.Api.HangFire.Jobs.Shipment
 
                 try
                 {
-                    var shipment = await _speedy.CreateShipmentAsync(order);
+                    var shipment = await _speedy.CreateShipmentAsync(order, pickUpDate);
 
                     order.SpeedyId = shipment.Id;
                     order.ParcelIds = shipment.Parcels?.Select(x => x.Id).ToArray();

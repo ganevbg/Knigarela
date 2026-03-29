@@ -4,7 +4,7 @@ namespace Speedy.Models
 {
     public class ShipmentService
     {
-        public DateTime? PickupDate { get; set; }
+        public DateOnly? PickupDate { get; set; }
         public int? ServiceId { get; set; }
         public ShipmentAdditionalServices? AdditionalServices { get; set; }
         public int? DeferredDays { get; set; }

@@ -14,7 +14,7 @@ public interface ISpeedyService
 
     Task<List<SpeedySite>> SearchSiteAsync(string name);
 
-    Task<CreateShipmentResponse> CreateShipmentAsync(Order order);
+    Task<CreateShipmentResponse> CreateShipmentAsync(Order order, DateOnly? pickupDate = null);
 
     Task<ShipmentCalculationResponse> CalculateAsync(int parcelsCount, double totalWeightKg, decimal totalAmout, OrderAddress address);
 

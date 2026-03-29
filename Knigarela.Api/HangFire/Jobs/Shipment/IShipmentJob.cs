@@ -2,6 +2,6 @@
 {
     public interface IShipmentJob
     {
-        Task GenerateAsync();
+        Task GenerateAsync(DateOnly? pickUpDate);
     }
 }

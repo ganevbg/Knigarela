@@ -149,7 +149,7 @@ public class SpeedyService : ISpeedyService
         }
     }
 
-    public async Task<CreateShipmentResponse> CreateShipmentAsync(Order order)
+    public async Task<CreateShipmentResponse> CreateShipmentAsync(Order order, DateOnly? pickupDate = null)
     {
         var request = mapper.Map<CreateShipmentRequest>(order);
 
@@ -159,7 +159,7 @@ public class SpeedyService : ISpeedyService
         request.Service = new ShipmentService
         {
             ServiceId = _settings.ServiceId,
-            PickupDate = DateTime.Now,
+            PickupDate = pickupDate ?? DateOnly.FromDateTime(DateTime.Now),
             AutoAdjustPickupDate = true,
             SaturdayDelivery = true,
             AdditionalServices = new ShipmentAdditionalServices
