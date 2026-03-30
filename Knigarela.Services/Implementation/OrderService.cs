@@ -264,6 +264,7 @@ public class OrderService : IOrderService
                 order.Items!.Add(new OrderItem
                 {
                     BoxId = boxId,
+                    Box = await _db.Boxes.FindAsync(boxId),
                     Quantity = quantity,
                     PurchaseType = type,
                     UnitPrice = type == PurchaseType.Single ? snap.SinglePrice : snap.SubscriptionPrice

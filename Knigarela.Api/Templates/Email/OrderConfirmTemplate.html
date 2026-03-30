@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+    <meta charset="UTF-8">
+    <title>Потвърждение на поръчка - Книгарела</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #fdfafb; color: #444444;">
+    <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #fdfafb; padding: 40px 10px;">
+        <tr>
+            <td align="center">
+                <table width="600" border="0" cellspacing="0" cellpadding="0" style="background-color: #ffffff; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 25px rgba(209, 118, 163, 0.1); border: 1px solid #f1e6eb;">
+
+                    <tr>
+                        <td align="center" style="padding: 50px 40px 30px 40px;">
+                            <div style="background-color: #f9eef3; width: 70px; height: 70px; border-radius: 50%; line-height: 70px; margin-bottom: 20px;">
+                                <span style="font-size: 35px; color: #D176A3;">✓</span>
+                            </div>
+                            <h1 style="margin: 0; font-size: 26px; color: #333333; letter-spacing: -0.5px;">Благодарим за вашата поръчка!</h1>
+                            <p style="font-size: 16px; color: #777777; margin-top: 12px; max-width: 400px; line-height: 1.5;">
+                                Вашата поръчка е приета и скоро ще започнем да я подготвяме с много грижа.
+                            </p>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td style="padding: 0 40px;">
+                            <table width="100%" style="background-color: #ffffff; border: 1px solid #f1e6eb; border-radius: 12px; padding: 20px;">
+                                <tr>
+                                    <td>
+                                        <p style="margin: 0; font-size: 11px; text-transform: uppercase; color: #999999; font-weight: bold; letter-spacing: 1px;">Номер на поръчка</p>
+                                        <p style="margin: 4px 0 0 0; font-size: 18px; font-weight: bold; color: #D176A3;">{{номер_поръчка}}</p>
+                                    </td>
+                                    <td align="right">
+                                        <p style="margin: 0; font-size: 11px; text-transform: uppercase; color: #999999; font-weight: bold; letter-spacing: 1px;">Дата</p>
+                                        <p style="margin: 4px 0 0 0; font-size: 16px; font-weight: 600; color: #333333;">{{дата}}</p>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td style="padding: 40px;">
+                            <h2 style="font-size: 18px; margin: 0 0 15px 0; color: #333333;">Детайли за доставка</h2>
+                            <div style="font-size: 14px; color: #555555; line-height: 1.8; margin-bottom: 35px;">
+                                <strong>Име:</strong> {{име_на_клиент}}<br>
+                                <strong>Адрес:</strong> {{адрес_на_поръчката}}
+                            </div>
+
+                            <h2 style="font-size: 18px; margin: 0 0 15px 0; color: #333333; border-top: 1px solid #f9f0f4; padding-top: 25px;">Поръчани артикули</h2>
+                            <table width="100%" cellspacing="0" cellpadding="0">
+                                {{списък_с_продукти}}
+                            </table>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td style="padding: 0 40px 40px 40px;">
+                            <table width="100%">
+                                <tr>
+                                    <td style="font-size: 15px; padding-bottom: 10px; opacity: 0.9;">Междинна сума:</td>
+                                    <td align="right" style="font-size: 15px; padding-bottom: 10px;">{{междинна_сума}}</td>
+                                </tr>
+                                <tr>
+                                    <td style="font-size: 15px; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 10px; opacity: 0.9;">Доставка:</td>
+                                    <td align="right" style="font-size: 15px; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 10px;">{{цена_доставка}}</td>
+                                </tr>
+                                <tr>
+                                    <td style="font-size: 22px; font-weight: bold; padding-top: 15px;">Обща сума:</td>
+                                    <td align="right" style="font-size: 22px; font-weight: bold; padding-top: 15px;">{{обща_сума}}</td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td align="center" style="padding: 25px; background-color: #fdfafb; font-size: 13px; color: #999999; border-top: 1px solid #f1e6eb;">
+                            Имате въпроси? <a href="mailto:knigarela@gmail.com" style="color: #D176A3; text-decoration: none; font-weight: bold;">Свържете се с Книгарела</a>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

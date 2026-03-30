@@ -4,11 +4,14 @@ using Knigarela.Api.Dtos.Cart;
 using Knigarela.Api.Dtos.Orders;
 using Knigarela.Api.HangFire.Jobs.Order;
 using Knigarela.Api.HangFire.Jobs.Shipment;
+using Knigarela.Core.Entities;
 using Knigarela.Core.Pagination;
 using Knigarela.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Speedy.Models;
+using System.Globalization;
+using System.Text;
 using System.Text.Json;
 
 namespace Knigarela.Api.Controllers.Admin;
@@ -21,12 +24,13 @@ public class OrderController : ControllerBase
     private readonly IMapper mapper;
     private const string SessionKey = "CartItems";
     private readonly IBackgroundJobClient _jobs;
-
-    public OrderController(IOrderService orderService, IMapper mapper, IBackgroundJobClient jobs)
+    private readonly IEmailService emailService;
+    public OrderController(IOrderService orderService, IMapper mapper, IBackgroundJobClient jobs, IEmailService emailService)
     {
         _orderService = orderService;
         this.mapper = mapper;
         _jobs = jobs;
+        this.emailService = emailService;
     }
 
     [HttpPost]
@@ -109,6 +113,8 @@ public class OrderController : ControllerBase
         if (!result.Success)
             return Conflict(new { error = "InsufficientStock", items = result.Issues });
 
+        await this.SendConfirmationMail(result.Order);
+
         return Ok(new { orderId = result.Order!.Id });
     }
 
@@ -175,4 +181,62 @@ public class OrderController : ControllerBase
             ? JsonSerializer.Deserialize<List<CartItemDto>>(json) ?? new List<CartItemDto>()
             : new List<CartItemDto>();
     }
+
+    private async Task SendConfirmationMail(Order order)
+    {
+        // 1. Пътят до файла (увери се, че папката съществува в проекта ти)
+        var filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Templates", "Email", "OrderConfirmTemplate.html");
+
+        // 2. Прочитане на целия текст от шаблона
+        var body = await System.IO.File.ReadAllTextAsync(filePath, Encoding.UTF8);
+
+        StringBuilder productsHtml = new StringBuilder();
+        foreach (var item in order.Items)
+        {
+            productsHtml.Append($@"
+        <tr>
+            <td style='padding: 10px 0; border-bottom: 1px solid #f1f1f1;'>
+                <p style='margin: 0; font-weight: bold; color: #2d2d2d;'>{item.Box.Title}</p>
+                <p style='margin: 0; font-size: 12px; color: #6c757d;'>{item.Quantity} бр. x {this.FormatPrice(item.UnitPrice, true)}</p>
+            </td>
+            <td align='right' style='padding: 10px 0; border-bottom: 1px solid #f1f1f1; font-weight: bold;'>
+                {this.FormatPrice(item.Quantity * item.UnitPrice, true)}.
+            </td>
+        </tr>");
+        }
+
+        // Заместваш в body:
+        body = body.Replace("{{списък_с_продукти}}", productsHtml.ToString())
+                   .Replace("{{номер_поръчка}}", order.OrderNumber.ToString())
+                   .Replace("{{дата}}", DateTime.Now.ToString(new CultureInfo("bg-BG")))
+                   .Replace("{{име_на_клиент}}", order.Client.FullName)
+                   .Replace("{{адрес_на_поръчката}}", order.Address.AddressDetailText)
+                   .Replace("{{междинна_сума}}", this.FormatPrice(order.TotalAmount, true))
+                   .Replace("{{цена_доставка}}", this.FormatPrice(order.DeliveryAmount!.Value, true))
+                   .Replace("{{обща_сума}}", this.FormatPrice(order.DeliveryAmount!.Value + order.TotalAmount, true));
+
+        await this.emailService.SendEmail(order.Client.Email, "Потъвърждане на поръчка", body);
+    }
+
+    private string FormatPrice(decimal value, bool showBothCurrencies = false)
+    {
+        // Създаваме култура за България, за да получим правилното изписване
+        var culture = new CultureInfo("bg-BG");
+
+        // Форматиране за Евро
+        // "C2" автоматично слага символа на валутата и 2 знака след запетаята
+        string formattedEur = value.ToString("C2", new CultureInfo("de-DE"));
+        // Използваме de-DE или ръчно "€", защото bg-BG понякога пише "евро" вместо "€"
+
+        if (showBothCurrencies)
+        {
+            decimal valueInBgn = value * 1.95583m;
+            string formattedBgn = valueInBgn.ToString("C2", culture);
+
+            return $"{formattedEur} ({formattedBgn})";
+        }
+
+        return formattedEur;
+    }
 }
+

@@ -91,8 +91,8 @@ builder.Services.AddSession(options =>
 builder.Services.AddAuthorization();
 
 // Bind the config section
-builder.Services.Configure<SpeedySettings>(
-    builder.Configuration.GetSection("Speedy"));
+builder.Services.Configure<SpeedySettings>(builder.Configuration.GetSection("Speedy"));
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("Email"));
 
 // Register the HTTP client with typed config
 builder.Services.AddHttpClient<ISpeedyService, SpeedyService>();
@@ -155,6 +155,7 @@ builder.Services.AddScoped<IBoxImageService, BoxImageService>();
 builder.Services.AddScoped<IClientService, ClientService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IClientAddressService, ClientAddressService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 builder.Services.AddScoped<IShipmentJob, ShipmentJob>();
 builder.Services.AddScoped<IOrderJob, OrderJob>();
