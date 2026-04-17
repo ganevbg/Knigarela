@@ -4,10 +4,8 @@ using Knigarela.Api.Dtos.Cart;
 using Knigarela.Api.Dtos.Clients;
 using Knigarela.Api.Dtos.Orders;
 using Knigarela.Core.Entities;
-using Knigarela.Core.Entities.Speedy.Shipment;
 using Knigarela.Core.Enums;
 using Speedy.Models;
-using static Dapper.SqlMapper;
 
 namespace Knigarela.Api.Mapping
 {
